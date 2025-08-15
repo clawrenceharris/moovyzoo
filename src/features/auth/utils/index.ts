@@ -1,9 +1,6 @@
 // Supabase utilities
-export * from "./supabase";
-export * from "./env";
-
-// Firebase utilities (deprecated - will be removed)
-export * from "./firebase";
+export * from "./supabase-auth";
+export * from "../../../utils/env";
 
 // Validation utilities
 export * from "./validation";
