@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
   // If no user, redirect to /login with `next` param so we can redirect back
   if (!user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = "/auth/login";
     url.searchParams.set("next", request.nextUrl.pathname);
     return NextResponse.redirect(url);
   }

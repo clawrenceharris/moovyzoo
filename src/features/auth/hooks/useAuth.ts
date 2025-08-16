@@ -97,7 +97,7 @@ export function useAuth() {
 
     try {
       await authServices.logout();
-      router.replace("/login");
+      router.replace("/auth/login");
     } catch (error) {
       setAuthState((prev) => ({
         ...prev,

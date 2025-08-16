@@ -7,6 +7,7 @@ import { fieldValidators } from "../utils";
 import { Label } from "@/components/ui/label";
 import { Button, Input } from "@/components/ui";
 import { FormField, FormItem, FormLabel } from "@/components/ui/form";
+import Link from "next/link";
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -30,7 +31,7 @@ export function LoginForm({
     onForgotPassword?.(getValues("email"));
   };
   return (
-    <div>
+    <>
       {/* Email */}
       <FormField
         control={control}
@@ -54,7 +55,7 @@ export function LoginForm({
 
       {/* Password */}
       <div>
-        <div className="flex items-center justify-between">
+        <div className="flex my-4 items-center justify-between">
           <Label htmlFor="login-password">Password</Label>
           {onForgotPassword && (
             <Button
@@ -108,17 +109,16 @@ export function LoginForm({
         <div className="text-center mt-4">
           <p className="text-sm text-gray-600">
             Don&apos;t have an account?{" "}
-            <Button
+            <button
+              className="text-primary-500"
               type="button"
               onClick={onSwitchToSignup}
-              className="font-medium text-primary hover:text-red-700"
-              disabled={disabled}
             >
-              Create account
-            </Button>
+              Sign up
+            </button>
           </p>
         </div>
       )}
-    </div>
+    </>
   );
 }

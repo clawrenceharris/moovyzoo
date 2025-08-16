@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { SignupData } from "../domain/auth.types";
 import { fieldValidators } from "../utils";
-import { cn } from "@/utils/cn";
 import { FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui";
 
@@ -27,7 +26,7 @@ export function SignUpForm({
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className={cn("w-full max-w-md", className)}>
+    <div>
       {/* Display Name */}
 
       <FormField

@@ -120,10 +120,9 @@ dist
 # TernJS port file
 .tern-port
 
-#VSCode and Kiro
+#VSCode
 .vscode-test
 **/.vscode/
-**/.kiro/
 
 # yarn v3
 .pnp.*

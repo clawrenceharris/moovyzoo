@@ -42,8 +42,8 @@ export default function SignUpPage({ nextPath = "/" }: { nextPath?: string }) {
           authError={error}
           onSwitchToLogin={() => {
             const url = nextPath
-              ? `/login?next=${encodeURIComponent(nextPath)}`
-              : "/login";
+              ? `/auth/login?next=${encodeURIComponent(nextPath)}`
+              : "/auth/login";
             router.push(url);
           }}
         />
