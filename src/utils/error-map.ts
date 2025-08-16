@@ -1,11 +1,6 @@
-import { AppErrorCode } from "../../../utils/error-codes";
+import { AppError, AppErrorCode } from "@/types/error";
 
-export interface ErrorMessage {
-  title: string;
-  message: string;
-}
-
-export const errorMap: Record<AppErrorCode, ErrorMessage> = {
+export const errorMap: Record<AppErrorCode, AppError> = {
   // Authentication errors
   [AppErrorCode.AUTH_EMAIL_ALREADY_EXISTS]: {
     title: "Email Already Registered",
@@ -18,8 +13,7 @@ export const errorMap: Record<AppErrorCode, ErrorMessage> = {
   },
   [AppErrorCode.AUTH_WEAK_PASSWORD]: {
     title: "Weak Password",
-    message:
-      "Password should be at least 8 characters with mixed case and numbers.",
+    message: "Password should be at least 8 characters.",
   },
   [AppErrorCode.AUTH_USER_NOT_FOUND]: {
     title: "Account Not Found",
@@ -106,8 +100,7 @@ export const errorMap: Record<AppErrorCode, ErrorMessage> = {
   },
   [AppErrorCode.VALIDATION_INVALID_PASSWORD]: {
     title: "Invalid Password",
-    message:
-      "Password must be at least 8 characters with mixed case and numbers.",
+    message: "Password must be at least 8 characters.",
   },
   [AppErrorCode.VALIDATION_INVALID_DISPLAY_NAME]: {
     title: "Invalid Display Name",
@@ -157,5 +150,17 @@ export const errorMap: Record<AppErrorCode, ErrorMessage> = {
   [AppErrorCode.RATE_LIMIT_EXCEEDED]: {
     title: "Too Many Requests",
     message: "You are making requests too quickly. Please slow down.",
+  },
+  [AppErrorCode.PROFILE_DELETE_FAILED]: {
+    title: "Too Many Requests",
+    message: "You are making requests too quickly. Please slow down.",
+  },
+  [AppErrorCode.PROFILE_INVALID_DISPLAY_NAME]: {
+    title: "Too Many Requests",
+    message: "You are making requests too quickly. Please slow down.",
+  },
+  [AppErrorCode.AUTH_EMAIL_NOT_VERIFIED]: {
+    title: "Unverified Email",
+    message: "You have to verify your email",
   },
 };

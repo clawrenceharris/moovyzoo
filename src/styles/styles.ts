@@ -1,60 +1,62 @@
 import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return clsx(inputs);
+  return twMerge(clsx(inputs));
 }
 
 // Design System Style Patterns
 export const styles = {
-  // Button variants
   button: {
     base: "btn",
-    primary: "btn btn-primary",
-    secondary: "btn btn-secondary",
-    outline: "btn btn-outline",
-    ghost: "btn btn-ghost",
-    accent: "btn btn-accent",
-    sm: "btn btn-sm",
-    lg: "btn btn-lg",
+    variants: {
+      primary: "btn-primary",
+      secondary: "btn-secondary",
+      outline:
+        "btn border-2 border-primary text-primary hover:bg-primary hover:text-white",
+      ghost: "btn text-primary hover:bg-primary/10",
+    },
+    sizes: {
+      sm: "px-3 py-1.5 text-xs",
+      md: "px-4 py-2 text-sm", // default
+      lg: "px-6 py-3 text-base",
+    },
+  },
+  card: {
+    base: "card",
+    interactive: "card-interactive",
+    header: "card-header",
   },
 
   // Form components
   form: {
     input: "form-input",
-    inputError: "form-input form-input-error",
+    inputError: "form-input-error",
     label: "form-label",
     error: "form-error",
     help: "form-help",
+    group: "form-group",
   },
 
-  // Card variants
-  card: {
-    base: "card",
-    interactive: "card card-interactive",
-    flat: "card card-flat",
-    elevated: "card card-elevated",
-    header: "border-b border-gray-200 pb-4 mb-6",
-    footer: "border-t border-gray-200 pt-4 mt-6",
-  },
-
-  // Typography
+  // Typography (using Tailwind's custom font sizes)
   text: {
-    displayLg: "text-display-lg text-text-primary",
-    displayMd: "text-display-md text-text-primary",
-    displaySm: "text-display-sm text-text-primary",
-    h1: "text-h1 text-text-primary",
-    h2: "text-h2 text-text-primary",
-    h3: "text-h3 text-text-primary",
-    h4: "text-h4 text-text-primary",
-    bodyLg: "text-body-lg text-text-primary",
-    bodyMd: "text-body-md text-text-primary",
-    bodySm: "text-body-sm text-text-primary",
-    labelLg: "text-label-lg text-text-primary",
-    labelMd: "text-label-md text-text-primary",
-    labelSm: "text-label-sm text-text-primary",
-    secondary: "text-text-secondary",
-    tertiary: "text-text-tertiary",
-    accent: "text-text-accent",
+    displayLg: "text-display-lg text-dark-text-primary",
+    displayMd: "text-display-md text-dark-text-primary",
+    displaySm: "text-display-sm text-dark-text-primary",
+    h1: "text-h1 text-dark-text-primary",
+    h2: "text-h2 text-dark-text-primary",
+    h3: "text-h3 text-dark-text-primary",
+    h4: "text-h4 text-dark-text-primary",
+    bodyLg: "text-body-lg text-dark-text-primary",
+    bodyMd: "text-body-md text-dark-text-primary",
+    bodySm: "text-body-sm text-dark-text-primary",
+    labelLg: "text-label-lg text-dark-text-primary",
+    labelMd: "text-label-md text-dark-text-primary",
+    labelSm: "text-label-sm text-dark-text-primary",
+    secondary: "text-dark-text-secondary",
+    tertiary: "text-dark-text-tertiary",
+    accent: "text-primary",
+    error: "text-red-400",
   },
 
   // Layout containers
@@ -71,23 +73,10 @@ export const styles = {
     flexCol: "flex flex-col space-y-4",
     flexCenter: "flex items-center justify-center",
   },
-
-  // Status and feedback
   status: {
-    success: "status-success",
-    warning: "status-warning",
-    error: "status-error",
-    info: "status-info",
+    error: "text-red-400",
+    success: "text-green-400",
   },
-
-  // Badges
-  badge: {
-    base: "badge",
-    primary: "badge badge-primary",
-    secondary: "badge badge-secondary",
-    accent: "badge badge-accent",
-  },
-
   // Loading states
   loading: {
     spinner: "spinner h-6 w-6",
@@ -138,25 +127,44 @@ export const styles = {
   },
 } as const;
 
-// Utility functions for common patterns
-export const getButtonClasses = (
-  variant: keyof typeof styles.button = "primary",
-  size?: "sm" | "lg"
+// Style builder functions for component variants
+export const button = (
+  variant: "primary" | "secondary" | "outline" | "ghost" | "accent" = "primary",
+  size: "sm" | "md" | "lg" = "md"
 ) => {
-  const baseClasses = styles.button[variant];
-  const sizeClasses = size ? styles.button[size] : "";
-  return cn(baseClasses, sizeClasses);
+  const baseClass = "btn";
+  const variantClass = `btn-${variant}`;
+  const sizeClass = size !== "md" ? `btn-${size}` : "";
+
+  return cn(baseClass, variantClass, sizeClass);
 };
 
-export const getCardClasses = (
-  variant: keyof typeof styles.card = "base",
-  interactive = false
+export const card = (
+  variant: "base" | "interactive" | "flat" | "elevated" = "base"
 ) => {
-  const baseClasses = styles.card[variant];
-  const interactiveClasses = interactive ? styles.card.interactive : "";
-  return cn(baseClasses, interactiveClasses);
+  if (variant === "base") return "card";
+  return `card-${variant}`;
 };
 
+export const badge = (
+  variant:
+    | "primary"
+    | "secondary"
+    | "accent"
+    | "success"
+    | "warning"
+    | "error" = "primary"
+) => {
+  return `badge-${variant}`;
+};
+
+export const status = (variant: "success" | "warning" | "error" | "info") => {
+  return `status-${variant}`;
+};
+
+// Utility functions for common patterns (backward compatibility)
+export const getButtonClasses = button;
+export const getCardClasses = card;
 export const getTextClasses = (
   variant: keyof typeof styles.text = "bodyMd"
 ) => {
