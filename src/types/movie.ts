@@ -7,3 +7,9 @@ export interface Genre {
   iconUrl?: string;
   isActive: boolean;
 }
+
+export interface Movie {
+  title: string;
+  description: string;
+  length: string;
+}

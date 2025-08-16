@@ -4,10 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { cn } from "@/styles/styles";
 import FormLayout from "@/components/FormLayout";
 import { SignupData } from "@/features/auth/domain/auth.types";
-import { SignupForm } from "@/features/auth/components/auth";
+import { SignupForm } from "@/features/auth/components";
 
 export default function SignUpPage({ nextPath = "/" }: { nextPath?: string }) {
   const router = useRouter();
@@ -15,7 +14,7 @@ export default function SignUpPage({ nextPath = "/" }: { nextPath?: string }) {
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className={cn("mx-auto flex w-full max-w-xl flex-col gap-6 p-6")}>
+    <div>
       <header className="text-center">
         <h1 className="text-2xl font-semibold">Sign in to MoovyZoo</h1>
         <p className="mt-1 text-sm text-gray-500">Welcome back, cinephile.</p>

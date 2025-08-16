@@ -1,0 +1,69 @@
+@layer base {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ffffff;
+    /* === Colors === */
+    --color-primary-50: #fef2f2;
+    --color-primary-100: #fee2e2;
+    --color-primary-400: #f87171;
+    --color-primary-500: #e50914;
+    --color-primary-600: #dc2626;
+    --color-primary-700: #b91c1c;
+    --color-primary-900: #7f1d1d;
+    --color-primary: #e50914;
+
+    --color-dark-bg-primary: #0a0a0a;
+    --color-dark-bg-secondary: #141414;
+    --color-dark-bg-tertiary: #1f1f1f;
+    --color-dark-bg-elevated: #2a2a2a;
+    --color-dark-bg-glass: rgba(20, 20, 20, 0.8);
+
+    --color-dark-surface-1: #161616;
+    --color-dark-surface-2: #1e1e1e;
+    --color-dark-surface-3: #262626;
+    --color-dark-surface-4: #2e2e2e;
+
+    --color-dark-text-error: #e50914;
+    --color-dark-text-primary: #ffffff;
+    --color-dark-text-secondary: #b3b3b3;
+    --color-dark-text-tertiary: #737373;
+    --color-dark-text-quaternary: #525252;
+
+    --color-dark-border-primary: rgba(255, 255, 255, 0.1);
+    --color-dark-border-secondary: rgba(255, 255, 255, 0.05);
+    --color-dark-border-accent: rgba(229, 9, 20, 0.2);
+
+    --color-accent-cyan: #00d4ff;
+    --color-accent-cyan-dark: #0ea5e9;
+    --color-accent-cyan-50: #f0f9ff;
+
+    --color-accent-purple: #8b5cf6;
+    --color-accent-purple-dark: #7c3aed;
+    --color-accent-purple-50: #faf5ff;
+
+    --color-accent-green: #10b981;
+    --color-accent-green-dark: #059669;
+    --color-accent-green-50: #ecfdf5;
+
+    --color-accent-yellow: #f59e0b;
+    --color-accent-yellow-dark: #d97706;
+    --color-accent-yellow-50: #fffbeb;
+
+    --color-accent-pink: #ec4899;
+    --color-accent-pink-dark: #db2777;
+    --color-accent-pink-50: #fdf2f8;
+
+    --color-light-bg-primary: #ffffff;
+    --color-light-bg-secondary: #f8f9fa;
+    --color-light-bg-tertiary: #f1f3f4;
+
+    --color-light-text-primary: #1a1a1a;
+    --color-light-text-secondary: #4a4a4a;
+    --color-light-text-tertiary: #6b7280;
+
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-error: #ef4444;
+    --color-info: #3b82f6;
+  }
+}
