@@ -1,14 +1,16 @@
+"use client";
+
 import { useState, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import { useAuth } from "./useAuth";
+import { profilesService } from "../../profile/domain/profiles.service";
 import {
-  OnboardingStep,
   OnboardingData,
   OnboardingState,
-  onboardingDataSchema,
-} from "../types/onboarding";
-import { useAuth } from "./useAuth";
-import { profilesService } from "../../profiles/domain/profiles.service";
-import { AppErrorCode } from "../../../utils/error-codes";
+  OnboardingStep,
+} from "../domain/auth.types";
+import { AppErrorCode } from "@/types/error";
 
 interface UseOnboardingOptions {
   onComplete?: (data: OnboardingData) => void;
@@ -41,41 +43,25 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
         throw new Error(AppErrorCode.AUTH_USER_NOT_FOUND);
       }
 
-      // Validate the onboarding data
-      const validatedData = onboardingDataSchema.parse(data);
-
-      // Create user profile with onboarding data
-      const profileData = {
-        uid: user.uid,
-        displayName: validatedData.displayName,
-        avatarUrl: validatedData.avatarUrl || undefined,
-        favoriteGenres: validatedData.favoriteGenres,
-        isPublic: true, // Default to public
-        badges: [],
+      const result = await profilesService.updateProfile(user.id, {
         onboardingCompleted: true,
-      };
-
-      const result = await profilesService.createProfile({
-        userId: user!.uid,
-        displayName: profileData.displayName,
-        avatarUrl: profileData.avatarUrl,
-        favoriteGenres: profileData.favoriteGenres,
+        favoriteGenres: data.favoriteGenres,
+        avatarUrl: data.avatarUrl,
+        displayName: data.displayName,
       });
 
-      if (!result.success) {
-        throw new Error(result.errorCode || "Profile creation failed");
-      }
-      return profileData;
+      return result;
     },
     onSuccess: (profileData) => {
       // Invalidate profile queries to refetch updated data
-      queryClient.invalidateQueries({ queryKey: ["profile", user?.uid] });
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
 
       // Mark onboarding as complete
-      setState((prev) => ({ ...prev, isComplete: true }));
+      setState((prev: OnboardingState) => ({ ...prev, isComplete: true }));
 
       // Call success callback
       options.onComplete?.(state.data as OnboardingData);
+      console.log("Successfully completed onboarding: " + profileData);
     },
     onError: (error) => {
       console.error("Error completing onboarding:", error);
@@ -85,7 +71,7 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
 
   // Update onboarding data
   const updateData = useCallback((updates: Partial<OnboardingData>) => {
-    setState((prev) => ({
+    setState((prev: OnboardingState) => ({
       ...prev,
       data: { ...prev.data, ...updates },
     }));
@@ -104,7 +90,7 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
     const nextIndex = currentIndex + 1;
 
     if (nextIndex < steps.length) {
-      setState((prev) => ({
+      setState((prev: OnboardingState) => ({
         ...prev,
         currentStep: steps[nextIndex],
         canSkip: steps[nextIndex] !== OnboardingStep.WELCOME,
@@ -125,7 +111,7 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
     const prevIndex = currentIndex - 1;
 
     if (prevIndex >= 0) {
-      setState((prev) => ({
+      setState((prev: OnboardingState) => ({
         ...prev,
         currentStep: steps[prevIndex],
         canSkip: steps[prevIndex] !== OnboardingStep.WELCOME,
@@ -135,7 +121,7 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
 
   // Go to specific step
   const goToStep = useCallback((step: OnboardingStep) => {
-    setState((prev) => ({
+    setState((prev: OnboardingState) => ({
       ...prev,
       currentStep: step,
       canSkip: step !== OnboardingStep.WELCOME,
@@ -171,7 +157,7 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
 
   // Skip onboarding
   const skipOnboarding = useCallback(() => {
-    setState((prev) => ({ ...prev, isComplete: true }));
+    setState((prev: OnboardingState) => ({ ...prev, isComplete: true }));
     options.onSkip?.();
   }, [options]);
 
@@ -292,52 +278,5 @@ export function useOnboardingStatus() {
   return {
     needsOnboarding,
     isNewUser: !!user && !user.emailVerified,
-  };
-}
-
-/**
- * Hook for resuming incomplete onboarding
- */
-export function useOnboardingResume() {
-  const [canResume, setCanResume] = useState(false);
-  const [savedData, setSavedData] = useState<Partial<OnboardingData> | null>(
-    null
-  );
-
-  // In a real implementation, this would check localStorage or user profile
-  // for incomplete onboarding data
-  const checkForIncompleteOnboarding = useCallback(() => {
-    try {
-      const saved = localStorage.getItem("onboarding-progress");
-      if (saved) {
-        const data = JSON.parse(saved) as Partial<OnboardingData>;
-        setSavedData(data);
-        setCanResume(true);
-      }
-    } catch (error) {
-      console.error("Error checking for incomplete onboarding:", error);
-    }
-  }, []);
-
-  const clearSavedProgress = useCallback(() => {
-    localStorage.removeItem("onboarding-progress");
-    setSavedData(null);
-    setCanResume(false);
-  }, []);
-
-  const saveProgress = useCallback((data: Partial<OnboardingData>) => {
-    try {
-      localStorage.setItem("onboarding-progress", JSON.stringify(data));
-    } catch (error) {
-      console.error("Error saving onboarding progress:", error);
-    }
-  }, []);
-
-  return {
-    canResume,
-    savedData,
-    checkForIncompleteOnboarding,
-    clearSavedProgress,
-    saveProgress,
   };
 }

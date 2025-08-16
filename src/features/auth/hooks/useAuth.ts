@@ -1,8 +1,10 @@
+"use client";
 import { useState, useEffect, useCallback } from "react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
-import { authServices, sessionUtils, profileUtils } from "../utils";
-import type { User, AuthState, SignupFormData, LoginFormData } from "../types";
-
+import type { AuthState, SignupData, LoginData } from "..//domain/auth.types";
+import { authServices, sessionUtils } from "../domain/auth.service";
+import { useRouter } from "next/navigation";
+import { getFriendlyErrorMessage } from "@/utils/normalize-error";
 // Custom hook for authentication state management
 export function useAuth() {
   const [authState, setAuthState] = useState<AuthState>({
@@ -10,6 +12,7 @@ export function useAuth() {
     loading: true,
     error: null,
   });
+  const router = useRouter();
 
   // Initialize auth state and listen for changes
   useEffect(() => {
@@ -19,14 +22,6 @@ export function useAuth() {
           if (supabaseUser) {
             // Convert Supabase user to app User interface
             const user = authServices.convertSupabaseUser(supabaseUser);
-
-            // Update last active timestamp if profile exists
-            const profileExists = await profileUtils.profileExists(
-              supabaseUser.id
-            );
-            if (profileExists) {
-              await profileUtils.updateLastActive(supabaseUser.id);
-            }
 
             setAuthState({
               user,
@@ -45,72 +40,56 @@ export function useAuth() {
           setAuthState({
             user: null,
             loading: false,
-            error:
-              error instanceof Error
-                ? error.message
-                : "Authentication error occurred",
+            error: getFriendlyErrorMessage(error),
           });
         }
       }
     );
 
     return unsubscribe;
-  }, []);
-
-  // Check for session timeout periodically
-  useEffect(() => {
-    if (!authState.user) return;
-
-    const checkSessionTimeout = async () => {
-      try {
-        const isExpired = await sessionUtils.isTokenExpired();
-        if (isExpired) {
-          await sessionUtils.handleSessionTimeout();
-        }
-      } catch (error) {
-        console.error("Session timeout check failed:", error);
-      }
-    };
-
-    // Check session every 5 minutes
-    const interval = setInterval(checkSessionTimeout, 5 * 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, [authState.user]);
+  }, [router]);
 
   // Sign up new user
-  const signup = useCallback(async (data: SignupFormData): Promise<void> => {
-    setAuthState((prev) => ({ ...prev, loading: true, error: null }));
+  const signup = useCallback(
+    async (data: SignupData): Promise<void> => {
+      setAuthState((prev) => ({ ...prev, loading: true, error: null }));
 
-    try {
-      await authServices.signup(data);
-      // Auth state will be updated by the onAuthStateChanged listener
-    } catch (error) {
-      setAuthState((prev) => ({
-        ...prev,
-        loading: false,
-        error: error instanceof Error ? error.message : "Signup failed",
-      }));
-      throw error;
-    }
-  }, []);
+      try {
+        await authServices.signup(data);
+        router.replace("/");
+      } catch (error) {
+        setAuthState((prev) => ({
+          ...prev,
+          loading: false,
+          error: getFriendlyErrorMessage(error),
+        }));
+        console.log("Sign up error: " + error);
+        throw error;
+      }
+    },
+    [router]
+  );
 
   // Sign in existing user
-  const login = useCallback(async (data: LoginFormData): Promise<void> => {
-    setAuthState((prev) => ({ ...prev, loading: true, error: null }));
+  const login = useCallback(
+    async (data: LoginData): Promise<void> => {
+      setAuthState((prev) => ({ ...prev, loading: true, error: null }));
 
-    try {
-      await authServices.login(data);
-      // Auth state will be updated by the onAuthStateChanged listener
-    } catch (error) {
-      setAuthState((prev) => ({
-        ...prev,
-        loading: false,
-        error: error instanceof Error ? error.message : "Login failed",
-      }));
-      throw error;
-    }
-  }, []);
+      try {
+        await authServices.login(data);
+        router.replace("/");
+      } catch (error) {
+        setAuthState((prev) => ({
+          ...prev,
+          loading: false,
+          error: error instanceof Error ? error.message : "Login failed",
+        }));
+        console.error(error);
+        throw error;
+      }
+    },
+    [router]
+  );
 
   // Sign out current user
   const logout = useCallback(async (): Promise<void> => {
@@ -118,16 +97,16 @@ export function useAuth() {
 
     try {
       await authServices.logout();
-      // Auth state will be updated by the onAuthStateChanged listener
+      router.replace("/login");
     } catch (error) {
       setAuthState((prev) => ({
         ...prev,
         loading: false,
-        error: error instanceof Error ? error.message : "Logout failed",
+        error: getFriendlyErrorMessage(error),
       }));
       throw error;
     }
-  }, []);
+  }, [router]);
 
   // Send password reset email
   const resetPassword = useCallback(async (email: string): Promise<void> => {

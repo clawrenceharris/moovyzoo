@@ -1,40 +1,41 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { cn } from '@/styles/styles'
-import { OnboardingStep, OnboardingData } from '../../types/onboarding'
-import GenreSelection from './GenreSelection'
+import { useState } from "react";
+import { cn } from "@/styles/styles";
+import { GenreSelection } from "./";
+import { OnboardingData, OnboardingStep } from "../../domain/auth.types";
+import Image from "next/image";
 
 interface OnboardingFlowProps {
-  onComplete: (data: OnboardingData) => void
-  onSkip: () => void
-  className?: string
+  onComplete: (data: OnboardingData) => void;
+  onSkip: () => void;
+  className?: string;
 }
 
 interface StepIndicatorProps {
-  currentStep: OnboardingStep
-  totalSteps: number
+  currentStep: OnboardingStep;
+  totalSteps: number;
 }
 
 interface NavigationProps {
-  currentStep: OnboardingStep
-  canProceed: boolean
-  canSkip: boolean
-  onNext: () => void
-  onPrevious: () => void
-  onSkip: () => void
-  isLoading?: boolean
+  currentStep: OnboardingStep;
+  canProceed: boolean;
+  canSkip: boolean;
+  onNext: () => void;
+  onPrevious: () => void;
+  onSkip: () => void;
+  isLoading?: boolean;
 }
 
-function StepIndicator({ currentStep, totalSteps }: StepIndicatorProps) {
+function StepIndicator({ currentStep }: StepIndicatorProps) {
   const steps = [
     OnboardingStep.WELCOME,
     OnboardingStep.DISPLAY_NAME,
     OnboardingStep.GENRE_SELECTION,
     OnboardingStep.AVATAR,
-  ]
+  ];
 
-  const currentIndex = steps.indexOf(currentStep)
+  const currentIndex = steps.indexOf(currentStep);
 
   return (
     <div className="mb-8 flex items-center justify-center space-x-2">
@@ -42,10 +43,10 @@ function StepIndicator({ currentStep, totalSteps }: StepIndicatorProps) {
         <div key={step} className="flex items-center">
           <div
             className={cn(
-              'flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium',
+              "flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium",
               index <= currentIndex
-                ? 'bg-primary text-white'
-                : 'bg-gray-200 text-gray-500'
+                ? "bg-primary text-white"
+                : "bg-gray-200 text-gray-500"
             )}
           >
             {index + 1}
@@ -53,15 +54,15 @@ function StepIndicator({ currentStep, totalSteps }: StepIndicatorProps) {
           {index < steps.length - 1 && (
             <div
               className={cn(
-                'mx-2 h-0.5 w-12',
-                index < currentIndex ? 'bg-primary' : 'bg-gray-200'
+                "mx-2 h-0.5 w-12",
+                index < currentIndex ? "bg-primary" : "bg-gray-200"
               )}
             />
           )}
         </div>
       ))}
     </div>
-  )
+  );
 }
 
 function Navigation({
@@ -73,8 +74,8 @@ function Navigation({
   onSkip,
   isLoading,
 }: NavigationProps) {
-  const isFirstStep = currentStep === OnboardingStep.WELCOME
-  const isLastStep = currentStep === OnboardingStep.AVATAR
+  const isFirstStep = currentStep === OnboardingStep.WELCOME;
+  const isLastStep = currentStep === OnboardingStep.AVATAR;
 
   return (
     <div className="flex items-center justify-between border-t border-gray-200 pt-6">
@@ -85,9 +86,9 @@ function Navigation({
             onClick={onPrevious}
             disabled={isLoading}
             className={cn(
-              'rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700',
-              'hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
-              'disabled:cursor-not-allowed disabled:opacity-50'
+              "rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700",
+              "hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+              "disabled:cursor-not-allowed disabled:opacity-50"
             )}
           >
             Previous
@@ -102,8 +103,8 @@ function Navigation({
             onClick={onSkip}
             disabled={isLoading}
             className={cn(
-              'px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700',
-              'disabled:cursor-not-allowed disabled:opacity-50'
+              "px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700",
+              "disabled:cursor-not-allowed disabled:opacity-50"
             )}
           >
             Skip for now
@@ -115,20 +116,20 @@ function Navigation({
           onClick={onNext}
           disabled={!canProceed || isLoading}
           className={cn(
-            'rounded-xl bg-primary px-6 py-2 text-sm font-medium text-white',
-            'hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
-            'disabled:cursor-not-allowed disabled:opacity-50',
-            'flex items-center space-x-2'
+            "rounded-xl bg-primary px-6 py-2 text-sm font-medium text-white",
+            "hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            "flex items-center space-x-2"
           )}
         >
           {isLoading && (
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
           )}
-          <span>{isLastStep ? 'Complete' : 'Next'}</span>
+          <span>{isLastStep ? "Complete" : "Next"}</span>
         </button>
       </div>
     </div>
-  )
+  );
 }
 
 function WelcomeStep() {
@@ -154,8 +155,8 @@ function WelcomeStep() {
           Welcome to MoovyZoo!
         </h2>
         <p className="mx-auto max-w-2xl text-lg text-gray-600">
-          Let's set up your profile so we can personalize your movie and TV show
-          experience. This will only take a few minutes.
+          Let&apos;s set up your profile so we can personalize your movie and TV
+          show experience. This will only take a few minutes.
         </p>
       </div>
 
@@ -219,7 +220,7 @@ function WelcomeStep() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function DisplayNameStep({
@@ -227,9 +228,9 @@ function DisplayNameStep({
   onChange,
   error,
 }: {
-  value: string
-  onChange: (value: string) => void
-  error?: string
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
 }) {
   return (
     <div className="mx-auto max-w-md py-12">
@@ -258,8 +259,8 @@ function DisplayNameStep({
             onChange={(e) => onChange(e.target.value)}
             placeholder="Enter your display name"
             className={cn(
-              'w-full rounded-xl border px-4 py-3 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary',
-              error ? 'border-red-500' : 'border-gray-300'
+              "w-full rounded-xl border px-4 py-3 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary",
+              error ? "border-red-500" : "border-gray-300"
             )}
           />
           {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
@@ -297,7 +298,7 @@ function DisplayNameStep({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function AvatarStep({
@@ -305,9 +306,9 @@ function AvatarStep({
   onChange,
   error,
 }: {
-  value: string
-  onChange: (value: string) => void
-  error?: string
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
 }) {
   return (
     <div className="mx-auto max-w-md py-12">
@@ -326,21 +327,21 @@ function AvatarStep({
         <div className="flex justify-center">
           <div className="relative">
             {value ? (
-              <img
+              <Image
                 src={value}
                 alt="Avatar preview"
                 className="h-24 w-24 rounded-full border-4 border-white object-cover shadow-lg"
                 onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.style.display = 'none'
-                  target.nextElementSibling?.classList.remove('hidden')
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "none";
+                  target.nextElementSibling?.classList.remove("hidden");
                 }}
               />
             ) : null}
             <div
               className={cn(
-                'flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-gray-200 shadow-lg',
-                value ? 'hidden' : ''
+                "flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-gray-200 shadow-lg",
+                value ? "hidden" : ""
               )}
             >
               <svg
@@ -372,8 +373,8 @@ function AvatarStep({
             onChange={(e) => onChange(e.target.value)}
             placeholder="https://example.com/your-avatar.jpg"
             className={cn(
-              'w-full rounded-xl border px-4 py-3 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary',
-              error ? 'border-red-500' : 'border-gray-300'
+              "w-full rounded-xl border px-4 py-3 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary",
+              error ? "border-red-500" : "border-gray-300"
             )}
           />
           {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
@@ -407,7 +408,7 @@ function AvatarStep({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function OnboardingFlow({
@@ -417,142 +418,143 @@ export default function OnboardingFlow({
 }: OnboardingFlowProps) {
   const [currentStep, setCurrentStep] = useState<OnboardingStep>(
     OnboardingStep.WELCOME
-  )
-  const [isLoading, setIsLoading] = useState(false)
+  );
+  const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<Partial<OnboardingData>>({
     favoriteGenres: [],
-    displayName: '',
-    avatarUrl: '',
-  })
-  const [errors, setErrors] = useState<Record<string, string>>({})
+    displayName: "",
+    avatarUrl: "",
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const steps = [
     OnboardingStep.WELCOME,
     OnboardingStep.DISPLAY_NAME,
     OnboardingStep.GENRE_SELECTION,
     OnboardingStep.AVATAR,
-  ]
+  ];
 
-  const currentStepIndex = steps.indexOf(currentStep)
-  const totalSteps = steps.length
+  const currentStepIndex = steps.indexOf(currentStep);
+  const totalSteps = steps.length;
 
   const validateCurrentStep = (): boolean => {
-    const newErrors: Record<string, string> = {}
+    const newErrors: Record<string, string> = {};
 
     switch (currentStep) {
       case OnboardingStep.DISPLAY_NAME:
         if (!data.displayName || data.displayName.trim().length < 2) {
-          newErrors.displayName = 'Display name must be at least 2 characters'
+          newErrors.displayName = "Display name must be at least 2 characters";
         } else if (data.displayName.length > 50) {
-          newErrors.displayName = 'Display name must be less than 50 characters'
+          newErrors.displayName =
+            "Display name must be less than 50 characters";
         } else if (!/^[a-zA-Z0-9\s_-]+$/.test(data.displayName)) {
           newErrors.displayName =
-            'Display name can only contain letters, numbers, spaces, hyphens, and underscores'
+            "Display name can only contain letters, numbers, spaces, hyphens, and underscores";
         }
-        break
+        break;
 
       case OnboardingStep.GENRE_SELECTION:
         if (!data.favoriteGenres || data.favoriteGenres.length === 0) {
-          newErrors.genres = 'Please select at least one favorite genre'
+          newErrors.genres = "Please select at least one favorite genre";
         } else if (data.favoriteGenres.length > 10) {
-          newErrors.genres = 'You can select up to 10 favorite genres'
+          newErrors.genres = "You can select up to 10 favorite genres";
         }
-        break
+        break;
 
       case OnboardingStep.AVATAR:
         if (data.avatarUrl && data.avatarUrl.trim()) {
           try {
-            new URL(data.avatarUrl)
+            new URL(data.avatarUrl);
           } catch {
-            newErrors.avatarUrl = 'Please enter a valid URL'
+            newErrors.avatarUrl = "Please enter a valid URL";
           }
         }
-        break
+        break;
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const canProceed = (): boolean => {
     switch (currentStep) {
       case OnboardingStep.WELCOME:
-        return true
+        return true;
       case OnboardingStep.DISPLAY_NAME:
-        return !!data.displayName && data.displayName.trim().length >= 2
+        return !!data.displayName && data.displayName.trim().length >= 2;
       case OnboardingStep.GENRE_SELECTION:
-        return !!data.favoriteGenres && data.favoriteGenres.length > 0
+        return !!data.favoriteGenres && data.favoriteGenres.length > 0;
       case OnboardingStep.AVATAR:
-        return true // Avatar is optional
+        return true; // Avatar is optional
       default:
-        return false
+        return false;
     }
-  }
+  };
 
   const canSkip = (): boolean => {
-    return currentStep !== OnboardingStep.WELCOME
-  }
+    return currentStep !== OnboardingStep.WELCOME;
+  };
 
   const handleNext = async () => {
     if (!validateCurrentStep()) {
-      return
+      return;
     }
 
     if (currentStep === OnboardingStep.AVATAR) {
       // Complete onboarding
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        await onComplete(data as OnboardingData)
+        await onComplete(data as OnboardingData);
       } catch (error) {
-        console.error('Error completing onboarding:', error)
+        console.error("Error completing onboarding:", error);
         // Handle error - could show a toast or error message
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     } else {
       // Move to next step
-      const nextIndex = currentStepIndex + 1
+      const nextIndex = currentStepIndex + 1;
       if (nextIndex < steps.length) {
-        setCurrentStep(steps[nextIndex])
+        setCurrentStep(steps[nextIndex]);
       }
     }
-  }
+  };
 
   const handlePrevious = () => {
-    const prevIndex = currentStepIndex - 1
+    const prevIndex = currentStepIndex - 1;
     if (prevIndex >= 0) {
-      setCurrentStep(steps[prevIndex])
-      setErrors({}) // Clear errors when going back
+      setCurrentStep(steps[prevIndex]);
+      setErrors({}); // Clear errors when going back
     }
-  }
+  };
 
   const handleSkip = () => {
-    onSkip()
-  }
+    onSkip();
+  };
 
   const updateData = (updates: Partial<OnboardingData>) => {
-    setData((prev) => ({ ...prev, ...updates }))
+    setData((prev) => ({ ...prev, ...updates }));
     // Clear related errors
-    const newErrors = { ...errors }
+    const newErrors = { ...errors };
     Object.keys(updates).forEach((key) => {
-      delete newErrors[key]
-    })
-    setErrors(newErrors)
-  }
+      delete newErrors[key];
+    });
+    setErrors(newErrors);
+  };
 
   const renderCurrentStep = () => {
     switch (currentStep) {
       case OnboardingStep.WELCOME:
-        return <WelcomeStep />
+        return <WelcomeStep />;
 
       case OnboardingStep.DISPLAY_NAME:
         return (
           <DisplayNameStep
-            value={data.displayName || ''}
+            value={data.displayName || ""}
             onChange={(value) => updateData({ displayName: value })}
             error={errors.displayName}
           />
-        )
+        );
 
       case OnboardingStep.GENRE_SELECTION:
         return (
@@ -569,24 +571,24 @@ export default function OnboardingFlow({
               </div>
             )}
           </div>
-        )
+        );
 
       case OnboardingStep.AVATAR:
         return (
           <AvatarStep
-            value={data.avatarUrl || ''}
+            value={data.avatarUrl || ""}
             onChange={(value) => updateData({ avatarUrl: value })}
             error={errors.avatarUrl}
           />
-        )
+        );
 
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
-    <div className={cn('mx-auto max-w-4xl px-4 py-8', className)}>
+    <div className={cn("mx-auto max-w-4xl px-4 py-8", className)}>
       <StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
 
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -603,5 +605,5 @@ export default function OnboardingFlow({
         />
       </div>
     </div>
-  )
+  );
 }

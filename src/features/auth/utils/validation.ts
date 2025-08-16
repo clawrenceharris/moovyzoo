@@ -2,13 +2,17 @@ import { z } from "zod";
 import {
   signupSchema,
   loginSchema,
-  profileUpdateSchema,
-  privacySettingsSchema,
   onboardingDataSchema,
   genreSelectionSchema,
   displayNameOnboardingSchema,
   avatarOnboardingSchema,
-} from "../types";
+} from "../domain/auth.zod";
+import { errorMap } from "@/utils/error-map";
+import {
+  privacySettingsSchema,
+  updateProfileSchema,
+} from "@/features/profile/domain/profiles.zod";
+import { AppErrorCode } from "@/types/error";
 
 // Validation result type
 export interface ValidationResult<T> {
@@ -61,7 +65,7 @@ export const validators = {
 
   // Profile validation
   validateProfileUpdate: (data: unknown) =>
-    validateData(profileUpdateSchema, data),
+    validateData(updateProfileSchema, data),
   validatePrivacySettings: (data: unknown) =>
     validateData(privacySettingsSchema, data),
 
@@ -99,43 +103,6 @@ export const validationUtils = {
     return z.string().url().safeParse(url).success;
   },
 
-  // Get password strength score (0-4)
-  getPasswordStrength: (password: string): number => {
-    let score = 0;
-
-    if (password.length >= 8) score++;
-    if (/[a-z]/.test(password)) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/\d/.test(password)) score++;
-    if (/[^a-zA-Z\d]/.test(password)) score++;
-
-    return Math.min(score, 4);
-  },
-
-  // Get password strength label
-  getPasswordStrengthLabel: (password: string): string => {
-    const strength = validationUtils.getPasswordStrength(password);
-
-    switch (strength) {
-      case 0:
-      case 1:
-        return "Weak";
-      case 2:
-        return "Fair";
-      case 3:
-        return "Good";
-      case 4:
-        return "Strong";
-      default:
-        return "Weak";
-    }
-  },
-
-  // Sanitize display name
-  sanitizeDisplayName: (displayName: string): string => {
-    return displayName.trim().replace(/\s+/g, " ");
-  },
-
   // Validate and sanitize avatar URL
   validateAvatarUrl: (
     url: string
@@ -157,24 +124,21 @@ export const validationUtils = {
 // Form field validation helpers
 export const fieldValidators = {
   // Real-time email validation
-  validateEmailField: (email: string): string | null => {
-    if (!email) return null;
+  validateEmailField: (email: string): string | boolean => {
+    if (!email) return false;
     if (!validationUtils.isValidEmail(email)) {
-      return "Please enter a valid email address";
+      return errorMap[AppErrorCode.VALIDATION_INVALID_EMAIL].message;
     }
-    return null;
+    return true;
   },
 
   // Real-time password validation
-  validatePasswordField: (password: string): string | null => {
-    if (!password) return null;
+  validatePasswordField: (password: string): string | boolean => {
+    if (!password) return false;
     if (password.length < 8) {
       return "Password must be at least 8 characters long";
     }
-    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-      return "Password must contain at least one uppercase letter, one lowercase letter, and one number";
-    }
-    return null;
+    return true;
   },
 
   // Real-time display name validation
