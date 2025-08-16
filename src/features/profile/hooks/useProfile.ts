@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { profilesService } from "../domain/profiles.service";
-import { errorMap } from "../../../utils/error-map";
 import type {
   UserProfile,
   CreateProfileData,
@@ -10,24 +9,14 @@ import type {
 /**
  * Hook for managing user profile data with TanStack Query
  */
-export function useProfile(userId?: string) {
+export function useProfile(userId: string) {
   const queryClient = useQueryClient();
 
   // Query for getting user profile
   const profileQuery = useQuery({
     queryKey: ["profile", userId],
     queryFn: async () => {
-      if (!userId) throw new Error("User ID is required");
-
-      const result = await profilesService.getProfile(userId);
-      if (!result.success) {
-        const errorMessage = result.errorCode
-          ? errorMap[result.errorCode as keyof typeof errorMap]
-          : errorMap.UNKNOWN_ERROR;
-        throw new Error(errorMessage.message);
-      }
-
-      return result.data!;
+      return await profilesService.getProfile(userId);
     },
     enabled: !!userId,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -43,14 +32,7 @@ export function useProfile(userId?: string) {
   // Mutation for creating profile
   const createProfileMutation = useMutation({
     mutationFn: async (data: CreateProfileData) => {
-      const result = await profilesService.createProfile(data);
-      if (!result.success) {
-        const errorMessage = result.errorCode
-          ? errorMap[result.errorCode as keyof typeof errorMap]
-          : errorMap.UNKNOWN_ERROR;
-        throw new Error(errorMessage.message);
-      }
-      return result.data!;
+      return await profilesService.createProfile(data);
     },
     onSuccess: (data) => {
       // Update cache with new profile
@@ -63,16 +45,7 @@ export function useProfile(userId?: string) {
   // Mutation for updating profile
   const updateProfileMutation = useMutation({
     mutationFn: async (data: UpdateProfileData) => {
-      if (!userId) throw new Error("User ID is required");
-
-      const result = await profilesService.updateProfile(userId, data);
-      if (!result.success) {
-        const errorMessage = result.errorCode
-          ? errorMap[result.errorCode as keyof typeof errorMap]
-          : errorMap.UNKNOWN_ERROR;
-        throw new Error(errorMessage.message);
-      }
-      return result.data!;
+      return await profilesService.updateProfile(userId, data);
     },
     onSuccess: (data) => {
       // Update cache with updated profile
@@ -85,15 +58,7 @@ export function useProfile(userId?: string) {
   // Mutation for deleting profile
   const deleteProfileMutation = useMutation({
     mutationFn: async () => {
-      if (!userId) throw new Error("User ID is required");
-
-      const result = await profilesService.deleteProfile(userId);
-      if (!result.success) {
-        const errorMessage = result.errorCode
-          ? errorMap[result.errorCode as keyof typeof errorMap]
-          : errorMap.UNKNOWN_ERROR;
-        throw new Error(errorMessage.message);
-      }
+      return await profilesService.deleteProfile(userId);
     },
     onSuccess: () => {
       // Remove from cache
@@ -128,8 +93,7 @@ export function useProfile(userId?: string) {
     if (!userId) return false;
 
     try {
-      const result = await profilesService.profileExists(userId);
-      return result.success ? result.data! : false;
+      return await profilesService.profileExists(userId);
     } catch {
       return false;
     }
