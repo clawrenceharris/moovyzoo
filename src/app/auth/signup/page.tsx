@@ -16,13 +16,13 @@ export default function SignUpPage({ nextPath = "/" }: { nextPath?: string }) {
   return (
     <div>
       <header className="text-center">
-        <h1 className="text-2xl font-semibold">Sign in to MoovyZoo</h1>
-        <p className="mt-1 text-sm text-gray-500">Welcome back, cinephile.</p>
+        <h1 className="text-2xl font-semibold">Sign in to Zoovie</h1>
+        <p>Sign up to join Bingers worldwide</p>
       </header>
 
       <FormLayout<SignupData>
         defaultValues={{ email: "", password: "" }}
-        submitText="Sign In"
+        submitText="Sign Up"
         isLoading={loading}
         error={error}
         onSubmit={async (data) => {

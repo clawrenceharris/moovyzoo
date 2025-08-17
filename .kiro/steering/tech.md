@@ -1,4 +1,4 @@
-# Tech Steering – MoovyZoo
+# Tech Steering – Zoovie
 
 ## Stack
 

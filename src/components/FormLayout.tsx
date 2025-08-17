@@ -8,6 +8,7 @@ import {
 } from "react-hook-form";
 import { Button } from "./ui";
 import { Form } from "./ui/form";
+import { cn } from "@/lib/utils";
 
 export interface FormLayoutProps<T extends FieldValues>
   extends UseFormProps<T> {
@@ -100,7 +101,6 @@ function FormLayout<T extends FieldValues>({
 
         {error && (
           <div className="flex-1">
-            <p className="font-medium">Error</p>
             <p className="mt-1">{error}</p>
           </div>
         )}
@@ -112,20 +112,25 @@ function FormLayout<T extends FieldValues>({
             type="button"
             onClick={onCancel}
             disabled={isLoading}
-            // className={cn(
-            //   "btn btn-secondary",
-            //   "focus:ring-2 focus:ring-[--color-dark-border-primary] focus:ring-offset-2",
-            //   "focus:ring-offset-[--color-dark-bg-secondary]",
-            //   "disabled:opacity-50 disabled:cursor-not-allowed",
-            //   "transition-all duration-200"
-            // )}
+            className={cn(
+              "btn btn-secondary",
+              "focus:ring-2 focus:ring-[--color-dark-border-primary] focus:ring-offset-2",
+              "focus:ring-offset-[--color-dark-bg-secondary]",
+              "disabled:opacity-50 disabled:cursor-not-allowed",
+              "transition-all duration-200"
+            )}
           >
             {cancelText}
           </Button>
         )}
 
         {showsSubmitButton && (
-          <Button type="submit" disabled={isLoading || disabled}>
+          <Button
+            variant={"primary"}
+            type="submit"
+            size={"lg"}
+            disabled={isLoading || disabled}
+          >
             <span className="flex items-center gap-2">
               {isLoading && (
                 <svg

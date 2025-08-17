@@ -1,4 +1,4 @@
--- Seed data for MoovyZoo profiles table
+-- Seed data for Zoovie profiles table
 -- This file contains sample data for testing the profiles functionality
 
 -- Note: In a real application, profiles are created through the signup process

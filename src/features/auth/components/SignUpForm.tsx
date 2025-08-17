@@ -3,7 +3,8 @@ import { useFormContext } from "react-hook-form";
 import { SignupData } from "../domain/auth.types";
 import { fieldValidators } from "../utils";
 import { FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { Input } from "@/components/ui";
+import { Button, Input } from "@/components/ui";
+import { Eye, EyeOff } from "lucide-react";
 
 interface SignupFormProps {
   onSuccess?: () => void;
@@ -34,7 +35,9 @@ export function SignUpForm({
         name="displayName"
         render={({ field }) => (
           <FormItem>
-            <FormLabel htmlFor="signup-displayName">Display Name</FormLabel>
+            <FormLabel className="sr-only" htmlFor="signup-displayName">
+              Display Name
+            </FormLabel>
             <Input
               id="signup-displayName"
               type="text"
@@ -56,7 +59,9 @@ export function SignUpForm({
         name="email"
         render={({ field }) => (
           <FormItem>
-            <FormLabel htmlFor="signup-email">Email Address</FormLabel>
+            <FormLabel className="sr-only" htmlFor="signup-email">
+              Email Address
+            </FormLabel>
             <Input
               id="signup-email"
               type="email"
@@ -78,7 +83,9 @@ export function SignUpForm({
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="signup-password">Password</FormLabel>
+              <FormLabel className="sr-only" htmlFor="signup-password">
+                Password
+              </FormLabel>
               <Input
                 id="signup-password"
                 type={showPassword ? "text" : "password"}
@@ -89,18 +96,17 @@ export function SignUpForm({
                     fieldValidators.validatePasswordField(password),
                 })}
               />
-              <button
+              <Button
                 type="button"
+                variant={"default"}
+                size={"icon"}
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 onClick={() => setShowPassword((s) => !s)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                className="absolute-center  flex  text-gray-400 hover:text-gray-600 left-[95%]"
                 disabled={field.disabled}
               >
-                <span className="sr-only">Toggle password visibility</span>
-                <svg className="h-5 w-5" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-              </button>
+                {showPassword ? <EyeOff /> : <Eye />}
+              </Button>
               {errors.password && <p>{errors.password.message}</p>}
             </FormItem>
           )}
@@ -113,10 +119,6 @@ export function SignUpForm({
           <p className="text-sm text-red-600">{authError}</p>
         </div>
       )}
-
-      <p className="text-xs text-gray-500 mt-2">
-        Press “Sign Up” to create your account.
-      </p>
 
       {/* Switch to login */}
       {onSwitchToLogin && (

@@ -55,24 +55,12 @@ export function LoginForm({
 
       {/* Password */}
       <div>
-        <div className="flex my-4 items-center justify-between">
-          <Label htmlFor="login-password">Password</Label>
-          {onForgotPassword && (
-            <Button
-              type="button"
-              onClick={handleForgotPassword}
-              disabled={disabled}
-            >
-              Forgot password?
-            </Button>
-          )}
-        </div>
         <FormField
           control={control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="signup-email">Email Address</FormLabel>
+              <FormLabel htmlFor="signup-email">Password</FormLabel>
 
               <div className="relative">
                 <Input
@@ -102,6 +90,18 @@ export function LoginForm({
             </FormItem>
           )}
         />
+        <div className="flex my-4 justify-end">
+          {onForgotPassword && (
+            <Button
+              variant={"secondary"}
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={disabled}
+            >
+              Forgot password?
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Switch to signup */}

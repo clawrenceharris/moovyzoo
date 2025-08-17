@@ -1,4 +1,4 @@
--- MoovyZoo Profiles Table Setup for Supabase Cloud
+-- Zoovie Profiles Table Setup for Supabase Cloud
 -- Copy and paste this entire script into your Supabase project's SQL Editor
 
 -- Create profiles table with proper schema

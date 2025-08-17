@@ -13,8 +13,8 @@ export default function AuthLayout({
   return (
     <html lang="en">
       <body>
-        <main className="mx-auto justify-center max-w-xl flex-col text-gray-900">
-          <h1 className="text-red-500 bold">MoovyZoo</h1>
+        <main className="mx-auto justify-center max-w-xl flex-col">
+          <h1 className="text-red-500 bold">Zoovie</h1>
           <p>Where movies goers can stay</p>
           {children}
         </main>

@@ -1,5 +1,5 @@
 -- Create profiles table with proper schema
--- This migration sets up the core profiles table for MoovyZoo auth system
+-- This migration sets up the core profiles table for Zoovie auth system
 
 -- Create profiles table
 create table if not exists public.profiles (

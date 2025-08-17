@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import Header from "@/components/Header";
 
 export const metadata = {
-  title: "MoovyZoo",
+  title: "Zoovie",
   description: "Watch, chat, and play with your movie crew",
 };
 
@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
           {/* Footer */}
           <footer className="border-t p-4 text-center text-sm text-gray-500">
-            © {new Date().getFullYear()} MoovyZoo
+            © {new Date().getFullYear()} Zoovie
           </footer>
         </div>
       </body>

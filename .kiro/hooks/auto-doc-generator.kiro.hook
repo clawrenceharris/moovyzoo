@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Auto Documentation Generator",
+  "description": "Automatically generates concise, high-quality documentation for TypeScript/React files including function signatures, parameters, return types, usage examples, and updates README.md with new exports or changes.",
+  "version": "1",
+  "when": {
+    "type": "userTriggered",
+    "patterns": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "*.ts",
+      "*.tsx"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Generate concise, high-quality documentation for the current file:\n1. Extract all function and class signatures.\n2. Document parameters and return types clearly and briefly.\n3. Provide **one focused usage example** per export (use existing code/tests as inspiration, not invented APIs).\n4. Update `README.md` with any new exports or changes in usage.\n5. Avoid over-commenting: do not restate code line by line, only explain what is not obvious.\n6. Highlight known pitfalls (from `.kiro/steering/tasks/failure-playbook.md`) if relevant.\n7. If docs already exist, update them incrementally instead of rewriting wholesale."
+  }
+}

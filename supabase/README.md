@@ -1,6 +1,6 @@
-# MoovyZoo Database Setup
+# Zoovie Database Setup
 
-This directory contains the Supabase database schema, migrations, and configuration for the MoovyZoo application.
+This directory contains the Supabase database schema, migrations, and configuration for the Zoovie application.
 
 ## Quick Start
 

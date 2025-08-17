@@ -1,4 +1,4 @@
--- Verification script for MoovyZoo database setup
+-- Verification script for Zoovie database setup
 -- Run this in your Supabase SQL Editor to verify the setup
 
 -- Check if profiles table exists

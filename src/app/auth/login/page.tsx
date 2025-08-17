@@ -13,8 +13,8 @@ export default function LoginPage({ nextPath = "/" }: { nextPath?: string }) {
   return (
     <div>
       <header>
-        <h1>Sign in to MoovyZoo</h1>
-        <p className="mt-1 text-sm text-gray-500">Welcome back, cinephile.</p>
+        <h1>Sign in to Zoovie</h1>
+        <p>Welcome back, cinephile.</p>
       </header>
 
       <FormLayout<LoginData>
@@ -28,8 +28,8 @@ export default function LoginPage({ nextPath = "/" }: { nextPath?: string }) {
           onForgotPassword={resetPassword}
           onSwitchToSignup={() => {
             const url = nextPath
-              ? `/signup?next=${encodeURIComponent(nextPath)}`
-              : "/signup";
+              ? `/auth/signup?next=${encodeURIComponent(nextPath)}`
+              : "/auth/signup";
             router.push(url);
           }}
         />

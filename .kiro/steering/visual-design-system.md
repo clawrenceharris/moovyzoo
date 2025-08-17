@@ -1,4 +1,4 @@
-# Visual Design System – MoovyZoo
+# Visual Design System – Zoovie
 
 _Modern, sleek design for young adults with the cinematic elegance of Netflix, the community-based immersivenes of Discord and the spontaneous fun of Snapchat_
 
