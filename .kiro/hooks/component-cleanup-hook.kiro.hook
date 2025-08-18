@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "Component Cleanup",
+  "description": "When a component file is deleted, automatically find and remove all import statements and usage instances of that component across the codebase",
+  "version": "1",
+  "when": {
+    "type": "fileDeleted",
+    "patterns": [
+      "src/components/**/*.tsx",
+      "src/features/**/components/**/*.tsx",
+      "src/app/**/*.tsx"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A component file has been deleted. Please:\n\n1. Analyze the deleted file to identify the component name(s) that were exported\n2. Search across the entire codebase for import statements that reference this component\n3. Remove or comment out those import statements\n4. Find all JSX usage instances of the deleted component(s) \n5. Remove or comment out those component usages\n6. Provide a summary of all changes made\n\nFocus on these file patterns for the search:\n- All TypeScript/React files in src/\n- Pay special attention to index.ts barrel exports\n- Check both default and named imports\n- Look for dynamic imports as well\n\nBe thorough but careful - only remove references to the specific deleted component(s)."
+  }
+}

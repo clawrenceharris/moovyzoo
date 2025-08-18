@@ -1,3 +1,7 @@
+---
+inclusion: fileMatch
+fileMatchPattern: "components/**/*.tsx"
+---
 # Component Library – Surfboard
 
 ## Component Architecture
