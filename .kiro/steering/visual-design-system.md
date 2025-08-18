@@ -31,8 +31,6 @@ _Modern, sleek design for young adults with the cinematic elegance of Netflix, t
 
 ```css
 --primary: #e50914; /* Cinematic red for CTAs and highlights */
---primary-dark: #b91c1c;
---primary-light: #f87171;
 ```
 
 ### Dark Theme Foundation
@@ -93,24 +91,23 @@ font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, san
 
 - Dark backgrounds with subtle shadows
 - Rounded corners (1rem default)
-- Glow or scale on hover for interactivity
+- Glow + scale on hover for interactivity
 
 ### Buttons
 
-- **Primary**: Cinematic red with gradient
+- **Primary**: Cinematic red
 - **Secondary**: Glassmorphism background for subtlety
 - **Accent**: Bright playful colors for social features
 
 ### Forms
 
 - Rounded, glass-style inputs
-- Clear focus states in primary red or accent cyan
+- Clear focus states in accent cyan
 
 ## Accessibility
 
 - High-contrast text for all primary interactions
 - Minimum WCAG AA compliance for color contrast
-- Respect system-level reduced motion settings
 
 ## Quality Checklist
 

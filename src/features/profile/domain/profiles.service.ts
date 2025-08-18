@@ -1,5 +1,5 @@
 import { profilesRepository } from "../data/profiles.repository";
-import { createProfileSchema, updateProfileSchema } from "./profiles.zod";
+import { createProfileSchema, updateProfileSchema } from "./profiles.schema";
 import type {
   UserProfile,
   CreateProfileData,

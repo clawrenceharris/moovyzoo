@@ -6,12 +6,12 @@ import {
   genreSelectionSchema,
   displayNameOnboardingSchema,
   avatarOnboardingSchema,
-} from "../domain/auth.zod";
+} from "../domain/auth.schema";
 import { errorMap } from "@/utils/error-map";
 import {
   privacySettingsSchema,
   updateProfileSchema,
-} from "@/features/profile/domain/profiles.zod";
+} from "@/features/profile/domain/profiles.schema";
 import { AppErrorCode } from "@/types/error";
 
 // Validation result type

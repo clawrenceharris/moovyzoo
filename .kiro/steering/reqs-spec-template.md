@@ -1,5 +1,7 @@
 ---
-inclusion: .kiro/specs/**/requirements.md
+inclusion: fileMatch
+
+fileMatchPattern: specs/**/requirements.md
 ---
 
 # Reuqirements Spec Template

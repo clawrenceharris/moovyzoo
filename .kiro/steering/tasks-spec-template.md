@@ -1,5 +1,7 @@
 ---
-inclusion: .kiro/specs/**/tasks.md
+inclusion: fileMatch
+
+fileMatchPattern: specs/**/tasks.md
 ---
 
 # Tasks Spec Template

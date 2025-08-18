@@ -1,4 +1,4 @@
-# Error Handling Standards – Surfboard
+# Error Handling Standards – Zoovie
 
 ## Goal
 
@@ -11,7 +11,7 @@ Centralize all error handling so Supabase, Zod, and custom app errors map to a c
   - Converted into a `{ title, message }` pair from the central `errorMap` in `error-map.ts`
   - Limited to ≤140 characters for the message
 - No raw Supabase/Zod error messages shown to the user
-- Tone: slightly funny/informal but still concise, action-oriented, and compassionate matching app's style. The app uses a cute monkey as its logo so error messages should sound like they are coming from the monkey.
+- Tone: witty but still concise, action-oriented, and compassionate, matching app's style.
 - Logging: capture raw error + normalized code; never log sensitive info
 - Envelope format for Functions/API: `{ ok:false, code, message }`
 

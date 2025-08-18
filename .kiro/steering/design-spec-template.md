@@ -1,5 +1,7 @@
 ---
-inclusion: .kiro/specs/**/design.md
+inclusion: fileMatch
+
+fileMatchPattern: specs/**/design.md
 ---
 
 # Design Spec Template
@@ -12,10 +14,10 @@ This file template outlines how to structure the design spec file.
 
 ## Architecture
 
-- High-level diagram or description
+- High-level description
 - Data flow
 - API contracts
-- Explain why this is a strong architecture decision, compare this choice over other possible options.
+- Explain rationale
 
 ## UI / UX
 

@@ -14,11 +14,7 @@ interface SignupFormProps {
   loading?: boolean;
 }
 
-export function SignUpForm({
-  onSwitchToLogin,
-  className,
-  authError,
-}: SignupFormProps) {
+export function SignUpForm({ onSwitchToLogin, authError }: SignupFormProps) {
   const {
     register,
     control,

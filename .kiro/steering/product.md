@@ -12,23 +12,18 @@ Zoovie is an AI-powered social platform (or 'Zoo') for movie and TV lovers, comb
 
 ## Core MVP Features
 
-### 1. Habitats
+### Habitats
 
 - Genre or fandom-themed spaces
 - Chat, polls, trivia, memes, and badges tied to participation.
 - AI-driven prompts to spark discussions.
 
-### 4. Binge Race
+### Binge Race
 
 - Race friends or other users to finish a series first.
 - Manual episode check-in for MVP (no streaming integration).
 - Live leaderboard with progress percentages.
 - Taunt/Cheer reactions to other racers.
-
-### 5. Friend Suggestions
-
-- AI friend suggestion list to match with users who have high compatibility.
-- Suggests movies both parties haven’t seen yet.
 
 ## AI Integration
 
@@ -42,7 +37,7 @@ Zoovie is an AI-powered social platform (or 'Zoo') for movie and TV lovers, comb
 
 ## Tech Stack (Hackathon MVP)
 
-- **Frontend:** Next.js (React), Tailwind CSS for rapid UI design.
+- **Frontend:** Next.js (React), Tailwind CSS + Shadcn for rapid UI design.
 - **Backend:** Supabase (Auth, Postgres, Storage, minimal Edge Functions).
 - **Hosting:** Vercel for frontend, Firebase backend services.
 - **AI:** OpenAI API for insights, text generation, and prompts.

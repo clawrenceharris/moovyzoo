@@ -31,7 +31,6 @@ export const authServices = {
     }
   },
 
-  // Sign in existing user with enhanced rate limiting
   async login(data: LoginData): Promise<SupabaseUser> {
     // Validate email format
     if (!validationUtils.isValidEmail(data.email)) {
@@ -181,7 +180,7 @@ export const authServices = {
 export const genreUtils = {
   // Get all active genres (using mock data until genres table is implemented)
   async getGenres(): Promise<Genre[]> {
-    // For now, return mock genres - this will be replaced with Supabase query later
+    // For now, return mock genres - this will be replaced with TMBD query later
     const mockGenres: Genre[] = [
       {
         id: "action",

@@ -1,3 +1,10 @@
+---
+inclusion: fileMatch
+
+fileMatch: src/components/**/*.tsx
+fileMatch: src/features/**/components/*.tsx
+---
+
 # UI Standards – Zoovie (Tailwind v4 + Shadcn UI First)
 
 > We now **prioritize Shadcn UI** for select components (tabs, dialogs, popovers, cards, input, etc). Tailwind v4 for styling engine (tokens in CSS via `@theme`) with a modular, reusable class strategy.
@@ -16,8 +23,6 @@
 - **Shadcn UI**: `@components/ui` for buttons, forms, inputs, labels and cards
 - **Tailwind CSS v4**: design tokens with `@theme` in `src/app/globals.css`
 - **PostCSS**: `@tailwindcss/postcss` in `postcss.config.mjs`
-- **Helpers**: `src/styles/styles.ts` (`cn()`, variant builders)
-- **Optional (advanced positioning)**: `@floating-ui/react` for custom anchored overlays when Headless UI’s built-ins aren’t enough
 
 ### Files
 
@@ -27,7 +32,7 @@
 
 ## Core Principles
 
-1. **Component-first composition** – Use component classes for styling. Use Shadcn styles as a starting point and build from there.
+1. **Component-first composition** – Use component classes for styling. Use Shadcn default or variant styles as a starting point, and build from there.
 2. **Tokenized styling** – Use `@theme` variables; no hardcoded hex/px in components.
 3. **Mobile-first, fast** – Minimal DOM, hydrate only where needed, avoid over-rendering.
 
@@ -65,7 +70,7 @@ export default config;
 
 ## Styling Rules (to avoid messy classnames)
 
-- **Component-First styling** (`btn`, `card`, `form-*`).
+- **Component-first styling** (`btn`, `card`, `form-*`).
 - **Utilities only** for layout & small tweaks (≤ 4–6 per element).
 - **Never inline raw hex/px**; use tokenized arbitrary values (e.g., `bg-[--color-surface]`).
 - **Colocate** tiny `.module.css` only for animation or rare complexity.
@@ -91,7 +96,7 @@ export default config;
 
 ## Authoring Rules for Kiro (Steering)
 
-- Prefer using **Shadcn UI** components for UI.
+- Prefer using **Shadcn UI** components for UI. If an installation is needed for a new component use `npx shadcn@latest add <component_name>`
 - Generate Tailwind v4 code that **imports only** `src/app/globals.css`.
 - Use **component classes** (`btn`, `card`, `form-input`, etc.) for variants.
 - Keep inline utilities minimal and **tokenized**
