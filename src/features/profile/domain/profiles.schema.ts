@@ -60,10 +60,4 @@ export const updateProfileSchema = z.object({
     .min(1, "Please select at least one favorite genre")
     .max(10, "You can select up to 10 favorite genres")
     .optional(),
-  privacySettings: privacySettingsSchema.partial().optional(),
 });
-
-// Type inference
-export type CreateProfileData = z.infer<typeof createProfileSchema>;
-export type UpdateProfileData = z.infer<typeof updateProfileSchema>;
-export type PrivacySettings = z.infer<typeof privacySettingsSchema>;

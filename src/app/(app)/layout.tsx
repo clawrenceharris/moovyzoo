@@ -1,27 +1,26 @@
-import "./globals.css";
-import type { ReactNode } from "react";
+import { ReactNode } from "react";
+import "../globals.css";
 import Header from "@/components/Header";
+import AuthedLayout from "@/features/auth/components/AuthedLayout";
+import { QueryProvider } from "./providers";
 
 export const metadata = {
   title: "Zoovie",
   description: "Watch, chat, and play with your movie crew",
 };
-
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className="bg-gray-50 text-gray-900">
         <div className="flex min-h-screen flex-col">
-          {/* Global Header could go here */}
           <Header />
 
           {/* Page Content */}
-          <main className="flex-1">{children}</main>
-
-          {/* Footer */}
-          <footer className="border-t p-4 text-center text-sm text-gray-500">
-            © {new Date().getFullYear()} Zoovie
-          </footer>
+          <main className="flex-1">
+            <QueryProvider>
+              <AuthedLayout>{children}</AuthedLayout>
+            </QueryProvider>
+          </main>
         </div>
       </body>
     </html>

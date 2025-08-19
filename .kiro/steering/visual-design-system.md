@@ -1,3 +1,12 @@
+---
+inclusion: fileMatch
+
+fileMatch: "src/components/**/*.tsx"
+fileMatch: "src/features/**/components/*.tsx"
+fileMatch: "*.css"
+
+---
+
 # Visual Design System – Zoovie
 
 _Modern, sleek design for young adults with the cinematic elegance of Netflix, the community-based immersivenes of Discord and the spontaneous fun of Snapchat_
@@ -45,8 +54,7 @@ _Modern, sleek design for young adults with the cinematic elegance of Netflix, t
 ### Accent Colors
 
 ```css
---accent-cyan: #00d4ff; /* Electric social highlight */
---accent-purple: #8b5cf6; /* AI feature color */
+--accent: #00d4ff; /* Electric social highlight */
 --accent-yellow: #facc15; /* Playful spotlight */
 --accent-pink: #ec4899; /* Social likes and reactions */
 ```

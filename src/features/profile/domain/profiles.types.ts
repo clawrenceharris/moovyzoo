@@ -1,5 +1,3 @@
-// Core profile types for the profiles domain
-
 // Badge interface
 export interface Badge {
   id: string;
@@ -18,6 +16,7 @@ export interface BadgeDocument {
   earned_at: string;
 }
 export interface UserProfileDocument {
+  username: string;
   id: string;
   display_name?: string;
   avatar_url?: string;
@@ -45,6 +44,8 @@ export interface UserProfile {
   id: string;
   userId: string;
   displayName?: string;
+  onboardingCompleted: boolean;
+  username: string;
   avatarUrl?: string;
   favoriteGenres: string[];
   privacySettings: PrivacySettings;
@@ -55,10 +56,13 @@ export interface UserProfile {
 
 export interface CreateProfileData {
   userId: string;
-  displayName: string;
+  displayName?: string;
+  quote?: string;
+  email: string;
+  username: string;
   avatarUrl?: string;
   favoriteGenres: string[];
-  privacySettings?: Partial<PrivacySettings>;
+  onboardingCompleted: boolean;
 }
 
 export interface UpdateProfileData {

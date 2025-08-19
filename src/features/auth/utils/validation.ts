@@ -2,7 +2,7 @@ import { z } from "zod";
 import {
   signupSchema,
   loginSchema,
-  onboardingDataSchema,
+  onboardingProfileDataSchema,
   genreSelectionSchema,
   displayNameOnboardingSchema,
   avatarOnboardingSchema,
@@ -71,7 +71,7 @@ export const validators = {
 
   // Onboarding validation
   validateOnboardingData: (data: unknown) =>
-    validateData(onboardingDataSchema, data),
+    validateData(onboardingProfileDataSchema, data),
   validateGenreSelection: (data: unknown) =>
     validateData(genreSelectionSchema, data),
   validateDisplayNameOnboarding: (data: unknown) =>

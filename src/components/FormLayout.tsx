@@ -7,8 +7,9 @@ import {
   type UseFormReturn,
 } from "react-hook-form";
 import { Button } from "./ui";
-import { Form } from "./ui/form";
-import { cn } from "@/lib/utils";
+import { Form, FormDescription, FormMessage } from "./ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import z from "zod";
 
 export interface FormLayoutProps<T extends FieldValues>
   extends UseFormProps<T> {
@@ -17,17 +18,18 @@ export interface FormLayoutProps<T extends FieldValues>
   showsCancelButton?: boolean;
   submitText?: string;
   cancelText?: string;
-  onSubmit?: (data: T) => void | Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onSubmit?: (data: T) => void | Promise<any>;
   onCancel?: () => void;
   isLoading?: boolean;
   error?: string | null;
   mode?: "onChange" | "onBlur" | "onSubmit" | "onTouched" | "all";
   isOpen?: boolean;
-  disabled?: boolean;
   description?: string;
   descriptionStyle?: React.CSSProperties;
   defaultValues?: DefaultValues<T>;
   enableBeforeUnloadProtection?: boolean;
+  formSchema: z.ZodType<T, T>;
 }
 
 function FormLayout<T extends FieldValues>({
@@ -42,16 +44,17 @@ function FormLayout<T extends FieldValues>({
   error,
   mode = "onSubmit",
   isOpen = true,
-  disabled = false,
   description,
   descriptionStyle,
   defaultValues,
   enableBeforeUnloadProtection = false,
+  formSchema,
   ...formProps
 }: FormLayoutProps<T>) {
   const form = useForm<T>({
     ...formProps,
     mode,
+    resolver: zodResolver(formSchema),
     defaultValues,
   });
 
@@ -85,80 +88,62 @@ function FormLayout<T extends FieldValues>({
   };
 
   return (
-    <Form
-      {...form}
-      handleSubmit={() => form.handleSubmit(handleSubmit)}
-      aria-describedby={description ? "form-description" : undefined}
-    >
-      {description && (
-        <p id="form-description" style={descriptionStyle}>
-          {description}
-        </p>
-      )}
-
-      <div className="space-y-4">
-        {typeof children === "function" ? children(form) : children}
-
-        {error && (
-          <div className="flex-1">
-            <p className="mt-1">{error}</p>
-          </div>
-        )}
-      </div>
-
-      <div>
-        {showsCancelButton && (
-          <Button
-            type="button"
-            onClick={onCancel}
-            disabled={isLoading}
-            className={cn(
-              "btn btn-secondary",
-              "focus:ring-2 focus:ring-[--color-dark-border-primary] focus:ring-offset-2",
-              "focus:ring-offset-[--color-dark-bg-secondary]",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
-              "transition-all duration-200"
-            )}
-          >
-            {cancelText}
-          </Button>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+        {description && (
+          <FormDescription id="form-description" style={descriptionStyle}>
+            {description}
+          </FormDescription>
         )}
 
-        {showsSubmitButton && (
-          <Button
-            variant={"primary"}
-            type="submit"
-            size={"lg"}
-            disabled={isLoading || disabled}
-          >
-            <span className="flex items-center gap-2">
-              {isLoading && (
-                <svg
-                  className="w-4 h-4 animate-spin"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-              )}
-              {isLoading ? "Loading..." : submitText}
-            </span>
-          </Button>
-        )}
-      </div>
+        <div className="space-y-6">
+          {typeof children === "function" ? children(form) : children}
+
+          {error && (
+            <div className="flex-1">
+              <FormMessage>{error}</FormMessage>
+            </div>
+          )}
+        </div>
+
+        <div>
+          {showsCancelButton && (
+            <Button type="button" onClick={onCancel} disabled={isLoading}>
+              {cancelText}
+            </Button>
+          )}
+
+          {showsSubmitButton && (
+            <Button type="submit" variant={"primary"} size={"lg"}>
+              <span className="flex items-center gap-2">
+                {isLoading && (
+                  <svg
+                    className="w-4 h-4 animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                )}
+                {isLoading ? "Loading..." : submitText}
+              </span>
+            </Button>
+          )}
+        </div>
+      </form>
     </Form>
   );
 }

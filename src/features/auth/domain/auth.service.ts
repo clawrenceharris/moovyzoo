@@ -1,4 +1,4 @@
-import type { User, SignupData, LoginData } from "../domain/auth.types";
+import type { SignupData, LoginData } from "../domain/auth.types";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { Genre } from "@/types/movie";
 import { validationUtils } from "../utils";
@@ -26,7 +26,6 @@ export const authServices = {
 
       return authData.user;
     } catch (error) {
-      console.log("Throwing error: " + normalizeError(error));
       throw normalizeError(error);
     }
   },
@@ -161,19 +160,6 @@ export const authServices = {
       subscription.unsubscribe();
     };
   },
-
-  // Convert Supabase user to app User interface
-  convertSupabaseUser(supabaseUser: SupabaseUser): User {
-    return {
-      id: supabaseUser.id,
-      email: supabaseUser.email!,
-      emailVerified: supabaseUser.email_confirmed_at !== null,
-      createdAt: new Date(supabaseUser.created_at),
-      lastLoginAt: supabaseUser.last_sign_in_at
-        ? new Date(supabaseUser.last_sign_in_at)
-        : new Date(supabaseUser.created_at),
-    };
-  },
 };
 
 // Database utilities for genres (using mock data for now)
@@ -247,70 +233,5 @@ export const genreUtils = {
   async getGenre(genreId: string): Promise<Genre | null> {
     const genres = await this.getGenres();
     return genres.find((genre) => genre.id === genreId) || null;
-  },
-};
-
-// Session management utilities
-export const sessionUtils = {
-  // Check if user session is valid
-  async isSessionValid(): Promise<boolean> {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    return session !== null && session.user.email_confirmed_at !== null;
-  },
-
-  // Get session token for API calls
-  async getSessionToken(): Promise<string | null> {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    return session?.access_token || null;
-  },
-
-  // Refresh session token
-  async refreshSessionToken(): Promise<string | null> {
-    try {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.refreshSession();
-
-      if (error) {
-        console.error("Failed to refresh session token:", error);
-        return null;
-      }
-
-      return session?.access_token || null;
-    } catch (error) {
-      console.error("Failed to refresh session token:", error);
-      return null;
-    }
-  },
-
-  // Check if session token is expired
-  async isTokenExpired(): Promise<boolean> {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    if (!session) return true;
-
-    const expirationTime = new Date(session.expires_at! * 1000);
-    const now = new Date();
-
-    // Consider token expired if it expires within the next 5 minutes
-    const bufferTime = 5 * 60 * 1000; // 5 minutes in milliseconds
-    return expirationTime.getTime() - now.getTime() < bufferTime;
-  },
-
-  // Handle session timeout
-  async handleSessionTimeout(): Promise<void> {
-    try {
-      await authServices.logout();
-      // Redirect to login page would be handled by the useAuth hook
-    } catch (error) {
-      console.error("Failed to handle session timeout:", error);
-    }
   },
 };

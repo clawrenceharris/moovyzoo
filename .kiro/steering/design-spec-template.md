@@ -1,7 +1,7 @@
 ---
 inclusion: fileMatch
 
-fileMatchPattern: specs/**/design.md
+fileMatchPattern: "design.md"
 ---
 
 # Design Spec Template

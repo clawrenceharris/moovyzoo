@@ -1,7 +1,7 @@
 ---
 inclusion: fileMatch
 
-fileMatchPattern: specs/**/requirements.md
+fileMatchPattern: "requirements.md"
 ---
 
 # Reuqirements Spec Template

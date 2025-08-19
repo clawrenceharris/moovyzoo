@@ -1,5 +1,5 @@
 import { profilesRepository } from "../data/profiles.repository";
-import { createProfileSchema, updateProfileSchema } from "./profiles.schema";
+import { updateProfileSchema } from "./profiles.schema";
 import type {
   UserProfile,
   CreateProfileData,
@@ -19,13 +19,8 @@ export class ProfilesService {
    */
   async createProfile(data: CreateProfileData): Promise<UserProfile> {
     try {
-      // Validate input data
-      const validationResult = createProfileSchema.safeParse(data);
-      if (!validationResult.success) {
-        throw validationResult.error;
-      }
       // Sanitize and process data
-      const sanitizedData = this.sanitizeProfileData(validationResult.data);
+      const sanitizedData = this.sanitizeProfileData(data);
 
       // Create profile
       return await profilesRepository.create(sanitizedData);

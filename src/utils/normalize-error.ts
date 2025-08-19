@@ -22,7 +22,6 @@ export function normalizeError(error: any): AppError {
 
   // Handle Supabase errors
   if (isAuthApiError(error) || isSupabaseError(error)) {
-    console.log("Returning: " + normalizeSupabaseError(error));
     return errorMap[normalizeSupabaseError(error)];
   }
 
@@ -90,11 +89,9 @@ export function normalizeSupabaseError(error: {
 }): AppErrorCode {
   const code = error.code?.toLowerCase() || "";
   const message = error.message?.toLowerCase() || "";
-  console.log("code: " + code);
 
   // ---------- AUTH ERRORS ----------
   if (code === "email_address_invalid") {
-    console.log("Returning: " + AppErrorCode.AUTH_INVALID_EMAIL);
     return AppErrorCode.AUTH_INVALID_EMAIL;
   }
   if (code === "email_not_confirmed") {

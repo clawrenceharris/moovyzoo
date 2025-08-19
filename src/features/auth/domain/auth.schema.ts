@@ -20,35 +20,23 @@ export const displayNameOnboardingSchema = z.object({
 });
 
 export const avatarOnboardingSchema = z.object({
-  avatarUrl: z
-    .string()
-    .url("Please enter a valid URL")
-    .optional()
-    .or(z.literal("")),
+  avatarUrl: z.url("Please enter a valid URL").optional().or(z.literal("")),
 });
 
-export const onboardingDataSchema = z.object({
-  favoriteGenres: z
-    .array(z.string())
-    .min(1, "Please select at least one favorite genre")
-    .max(10, "You can select up to 10 favorite genres"),
+export const onboardingProfileDataSchema = z.object({
   displayName: z
     .string()
     .min(2, "Display name must be at least 2 characters")
-    .max(50, "Display name must be less than 50 characters")
+    .max(15, "Display name must be less than 15 characters")
     .regex(
       /^[a-zA-Z0-9\s_-]+$/,
       "Display name can only contain letters, numbers, spaces, hyphens, and underscores"
     ),
-  avatarUrl: z
-    .string()
-    .url("Please enter a valid URL")
-    .optional()
-    .or(z.literal("")),
+  quote: z.string().optional(),
 });
 
 export const signupSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
+  email: z.email("Please enter a valid email address"),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters long")

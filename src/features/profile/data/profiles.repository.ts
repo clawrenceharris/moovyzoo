@@ -20,15 +20,13 @@ export class ProfilesRepository {
       const { data: profile, error } = await supabase
         .from("user_profiles")
         .insert({
-          user_id: data.userId,
           display_name: data.displayName,
+          email: data.email,
+          onboarding_completed: data.onboardingCompleted,
+          username: data.username,
+          quote: data.quote,
           avatar_url: data.avatarUrl || null,
           favorite_genres: data.favoriteGenres,
-          privacy_settings: data.privacySettings || {
-            profileVisibility: "public",
-            showFavoriteGenres: true,
-            allowDirectMessages: true,
-          },
         })
         .select()
         .single();
@@ -201,6 +199,8 @@ export class ProfilesRepository {
     return {
       id: dbProfile.id,
       userId: dbProfile.id,
+      username: dbProfile.username,
+      onboardingCompleted: dbProfile.onboarding_completed,
       displayName: dbProfile.display_name,
       avatarUrl: dbProfile.avatar_url,
       favoriteGenres: dbProfile.favorite_genres || [],

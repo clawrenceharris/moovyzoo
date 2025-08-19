@@ -1,8 +1,10 @@
 ---
 inclusion: fileMatch
 
-fileMatch: src/components/**/*.tsx
-fileMatch: src/features/**/components/*.tsx
+fileMatch: "src/components/**/*.tsx"
+fileMatch: "src/features/**/components/*.tsx"
+fileMatch: "*.css"
+
 ---
 
 # UI Standards – Zoovie (Tailwind v4 + Shadcn UI First)

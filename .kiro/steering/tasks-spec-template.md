@@ -1,14 +1,14 @@
 ---
 inclusion: fileMatch
 
-fileMatchPattern: specs/**/tasks.md
+fileMatchPattern: "tasks.md"
 ---
 
 # Tasks Spec Template
 
-This file template outlines how to structure the tasks spec file.
+This file is used to breakdown how tasks are implmented and to guide the process to ensure it aligns with team goals.
 
-**Kiro:** Use this template for creating the `tasks.md` spec file, ensuring each section is addressed.
+**Kiro:** Use this task analysis template when executing a task in `tasks.md` spec file, ensuring each section is addressed.
 
 **Team:** Review and edit to make sure it aligns with our goals.
 

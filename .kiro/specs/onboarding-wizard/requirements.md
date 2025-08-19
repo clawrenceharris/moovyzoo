@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The onboarding wizard is a guided, multi-step flow that activates immediately after a user successfully signs up for Zoovie. This wizard will collect essential user preferences and information needed to personalize their experience, including movie/TV preferences, favorite genres, and initial profile setup. The wizard should feel engaging and cinematic while being quick to complete, ensuring users can start exploring the platform with a tailored experience from day one.
+The onboarding wizard is a guided, multi-step flow that activates immediately after a user successfully signs up for Zoovie. This wizard will collect essential user preferences and information needed to personalize their experience, including display name, favorite genres, movie quote and avatar. The wizard should feel engaging and cinematic while being quick to complete, ensuring users can start exploring the platform with a tailored experience from day one.
 
 ## Requirements
 
@@ -12,9 +12,9 @@ The onboarding wizard is a guided, multi-step flow that activates immediately af
 
 #### Acceptance Criteria
 
-1. WHEN a user successfully completes the signup process THEN the system SHALL automatically redirect them to the onboarding wizard
+1. WHEN a user successfully completes the signup process THEN the system SHALL automatically show an onboarding wizard modal
 2. WHEN the onboarding wizard starts THEN the system SHALL display a welcome screen with clear progress indication
-3. WHEN a user is in the onboarding flow THEN the system SHALL prevent navigation away without confirmation to avoid losing progress
+3. WHEN a user is in the onboarding flow THEN the system SHALL allow the user to skip a step at any time.
 
 ### Requirement 2
 
@@ -33,10 +33,8 @@ The onboarding wizard is a guided, multi-step flow that activates immediately af
 
 #### Acceptance Criteria
 
-1. WHEN the user reaches the profile setup step THEN the system SHALL display fields for display name, bio, and profile picture upload
-2. WHEN a user enters a display name THEN the system SHALL validate it's unique and meets length requirements (3-30 characters)
-3. WHEN a user uploads a profile picture THEN the system SHALL validate file type and size constraints
-4. WHEN profile information is entered THEN the system SHALL save it to the user's profile record
+1. WHEN the user reaches the profile setup step THEN the system SHALL display fields for display name, favorite movie quote and avatar
+2. WHEN onboarding is complete THEN the system SHALL save the data to the user's profile record
 
 ### Requirement 4
 
@@ -47,7 +45,6 @@ The onboarding wizard is a guided, multi-step flow that activates immediately af
 1. WHEN the onboarding wizard is displayed THEN the system SHALL show a progress indicator with current step and total steps
 2. WHEN a user completes a step THEN the system SHALL update the progress indicator and advance to the next step
 3. WHEN a user wants to go back THEN the system SHALL allow navigation to previous steps without losing data
-4. WHEN the final step is completed THEN the system SHALL show a completion celebration before redirecting to the main app
 
 ### Requirement 5
 
@@ -56,9 +53,7 @@ The onboarding wizard is a guided, multi-step flow that activates immediately af
 #### Acceptance Criteria
 
 1. WHEN the onboarding wizard is displayed THEN the system SHALL provide a "Skip for now" option on each step
-2. WHEN a user chooses to skip onboarding THEN the system SHALL redirect them to the main app with default settings
-3. WHEN a user skips onboarding THEN the system SHALL mark their profile as incomplete and prompt them to complete it later
-4. WHEN a user with incomplete onboarding logs in again THEN the system SHALL offer to complete the remaining steps
+2. WHEN a user chooses to skip THEN the system SHALL skip to the next step
 
 ### Requirement 6
 
@@ -69,7 +64,6 @@ The onboarding wizard is a guided, multi-step flow that activates immediately af
 1. WHEN the onboarding wizard loads THEN the system SHALL display animations and transitions that match the app's visual design system
 2. WHEN a user interacts with onboarding elements THEN the system SHALL provide smooth, cinematic feedback animations
 3. WHEN content is displayed THEN the system SHALL use the app's dark theme with cinematic red accents and proper typography
-4. WHEN the wizard completes THEN the system SHALL show a celebratory animation before transitioning to the main app
 
 ### Requirement 7
 
@@ -78,6 +72,5 @@ The onboarding wizard is a guided, multi-step flow that activates immediately af
 #### Acceptance Criteria
 
 1. WHEN the onboarding wizard is accessed on mobile THEN the system SHALL display a responsive layout optimized for touch interaction
-2. WHEN a user interacts with form elements on mobile THEN the system SHALL provide appropriate keyboard types and input validation
-3. WHEN a user uploads images on mobile THEN the system SHALL support both camera capture and gallery selection
-4. WHEN the device orientation changes THEN the system SHALL maintain the current step and form data
+2. WHEN a user uploads images on mobile THEN the system SHALL support both camera capture and gallery selection
+3. WHEN the device orientation changes THEN the system SHALL maintain the current step and form data

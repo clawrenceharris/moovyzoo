@@ -1,11 +1,11 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { User as SupabaseUser } from "@supabase/supabase-js";
+import { User } from "@supabase/supabase-js";
 import type { AuthState, SignupData, LoginData } from "..//domain/auth.types";
-import { authServices, sessionUtils } from "../domain/auth.service";
+import { authServices } from "../domain/auth.service";
 import { useRouter } from "next/navigation";
 import { getFriendlyErrorMessage } from "@/utils/normalize-error";
-// Custom hook for authentication state management
+
 export function useAuth() {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
@@ -17,11 +17,10 @@ export function useAuth() {
   // Initialize auth state and listen for changes
   useEffect(() => {
     const unsubscribe = authServices.onAuthStateChange(
-      async (supabaseUser: SupabaseUser | null) => {
+      async (user: User | null) => {
         try {
-          if (supabaseUser) {
+          if (user) {
             // Convert Supabase user to app User interface
-            const user = authServices.convertSupabaseUser(supabaseUser);
 
             setAuthState({
               user,
@@ -50,25 +49,20 @@ export function useAuth() {
   }, [router]);
 
   // Sign up new user
-  const signup = useCallback(
-    async (data: SignupData): Promise<void> => {
-      setAuthState((prev) => ({ ...prev, loading: true, error: null }));
+  const signup = useCallback(async (data: SignupData): Promise<User> => {
+    setAuthState((prev) => ({ ...prev, loading: true, error: null }));
 
-      try {
-        await authServices.signup(data);
-        router.replace("/");
-      } catch (error) {
-        setAuthState((prev) => ({
-          ...prev,
-          loading: false,
-          error: getFriendlyErrorMessage(error),
-        }));
-        console.log("Sign up error: " + error);
-        throw error;
-      }
-    },
-    [router]
-  );
+    try {
+      return await authServices.signup(data);
+    } catch (error) {
+      setAuthState((prev) => ({
+        ...prev,
+        loading: false,
+        error: getFriendlyErrorMessage(error),
+      }));
+      throw error;
+    }
+  }, []);
 
   // Sign in existing user
   const login = useCallback(
@@ -82,9 +76,8 @@ export function useAuth() {
         setAuthState((prev) => ({
           ...prev,
           loading: false,
-          error: error instanceof Error ? error.message : "Login failed",
+          error: getFriendlyErrorMessage(error),
         }));
-        console.error(error);
         throw error;
       }
     },
@@ -115,9 +108,10 @@ export function useAuth() {
     try {
       await authServices.resetPassword(email);
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Password reset failed";
-      setAuthState((prev) => ({ ...prev, error: errorMessage }));
+      setAuthState((prev) => ({
+        ...prev,
+        error: getFriendlyErrorMessage(error),
+      }));
       throw error;
     }
   }, []);
@@ -130,9 +124,10 @@ export function useAuth() {
       try {
         await authServices.updateUserPassword(newPassword);
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Password update failed";
-        setAuthState((prev) => ({ ...prev, error: errorMessage }));
+        setAuthState((prev) => ({
+          ...prev,
+          error: getFriendlyErrorMessage(error),
+        }));
         throw error;
       }
     },
@@ -147,34 +142,14 @@ export function useAuth() {
       try {
         await authServices.reauthenticate(password);
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Reauthentication failed";
-        setAuthState((prev) => ({ ...prev, error: errorMessage }));
-        throw error;
+        setAuthState((prev) => ({
+          ...prev,
+          error: getFriendlyErrorMessage(error),
+        }));
       }
     },
     []
   );
-
-  // Get current session token
-  const getSessionToken = useCallback(async (): Promise<string | null> => {
-    try {
-      return await sessionUtils.getSessionToken();
-    } catch (error) {
-      console.error("Failed to get session token:", error);
-      return null;
-    }
-  }, []);
-
-  // Refresh session token
-  const refreshSessionToken = useCallback(async (): Promise<string | null> => {
-    try {
-      return await sessionUtils.refreshSessionToken();
-    } catch (error) {
-      console.error("Failed to refresh session token:", error);
-      return null;
-    }
-  }, []);
 
   // Clear error state
   const clearError = useCallback(() => {
@@ -185,17 +160,6 @@ export function useAuth() {
   const isAuthenticated = authState.user !== null;
 
   // Check if user has verified email
-  const isEmailVerified = authState.user?.emailVerified ?? false;
-
-  // Check if session is valid (async function - should be called when needed)
-  const checkSessionValid = useCallback(async (): Promise<boolean> => {
-    try {
-      return await sessionUtils.isSessionValid();
-    } catch (error) {
-      console.error("Failed to check session validity:", error);
-      return false;
-    }
-  }, []);
 
   return {
     // State
@@ -203,7 +167,6 @@ export function useAuth() {
     loading: authState.loading,
     error: authState.error,
     isAuthenticated,
-    isEmailVerified,
 
     // Actions
     signup,
@@ -212,9 +175,6 @@ export function useAuth() {
     resetPassword,
     updatePassword,
     reauthenticate,
-    getSessionToken,
-    refreshSessionToken,
-    checkSessionValid,
     clearError,
   };
 }

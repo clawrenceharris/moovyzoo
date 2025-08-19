@@ -10,7 +10,7 @@ export interface Database {
           email: string;
           display_name: string;
           avatar_url: string | null;
-          bio: string | null;
+          quote: string | null;
           favorite_genres: string[];
           favorite_titles: string[];
           is_public: boolean;
@@ -23,7 +23,7 @@ export interface Database {
           email: string;
           display_name: string;
           avatar_url?: string | null;
-          bio?: string | null;
+          quote?: string | null;
           favorite_genres?: string[];
           favorite_titles?: string[];
           is_public?: boolean;
@@ -36,7 +36,7 @@ export interface Database {
           email?: string;
           display_name?: string;
           avatar_url?: string | null;
-          bio?: string | null;
+          quote?: string | null;
           favorite_genres?: string[];
           favorite_titles?: string[];
           is_public?: boolean;

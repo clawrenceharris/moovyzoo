@@ -1,3 +1,4 @@
+import { QueryProvider } from "../(app)/providers";
 import "../globals.css";
 
 export const metadata = {
@@ -11,12 +12,10 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body>
         <main className="mx-auto justify-center max-w-xl flex-col">
-          <h1 className="text-red-500 bold">Zoovie</h1>
-          <p>Where movies goers can stay</p>
-          {children}
+          <QueryProvider>{children}</QueryProvider>
         </main>
       </body>
     </html>

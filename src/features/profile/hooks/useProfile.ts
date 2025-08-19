@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { profilesService } from "../domain/profiles.service";
 import type {
-  UserProfile,
   CreateProfileData,
   UpdateProfileData,
 } from "../domain/profiles.types";
@@ -11,7 +10,6 @@ import type {
  */
 export function useProfile(userId: string) {
   const queryClient = useQueryClient();
-
   // Query for getting user profile
   const profileQuery = useQuery({
     queryKey: ["profile", userId],
@@ -28,11 +26,14 @@ export function useProfile(userId: string) {
       return failureCount < 3;
     },
   });
-
   // Mutation for creating profile
   const createProfileMutation = useMutation({
     mutationFn: async (data: CreateProfileData) => {
-      return await profilesService.createProfile(data);
+      const profile = await profilesService.createProfile(data);
+      return profile;
+    },
+    onError: (error) => {
+      console.log(error);
     },
     onSuccess: (data) => {
       // Update cache with new profile
@@ -69,29 +70,9 @@ export function useProfile(userId: string) {
   });
 
   // Function to update last active
-  const updateLastActive = async () => {
-    if (!userId) return;
-
-    try {
-      await profilesService.updateLastActive(userId);
-      // Optimistically update the cache
-      queryClient.setQueryData(
-        ["profile", userId],
-        (old: UserProfile | undefined) => {
-          if (!old) return old;
-          return { ...old, lastActiveAt: new Date() };
-        }
-      );
-    } catch (error) {
-      // Silently fail for last active updates
-      console.warn("Failed to update last active:", error);
-    }
-  };
 
   // Function to check if profile exists
-  const checkProfileExists = async (): Promise<boolean> => {
-    if (!userId) return false;
-
+  const checkProfileExists = async (userId: string): Promise<boolean> => {
     try {
       return await profilesService.profileExists(userId);
     } catch {
@@ -102,10 +83,9 @@ export function useProfile(userId: string) {
   return {
     // Query state
     profile: profileQuery.data,
-    isLoading: profileQuery.isLoading,
+    loading: profileQuery.isLoading,
     isError: profileQuery.isError,
-    error: profileQuery.error,
-
+    error: profileQuery.error?.message,
     // Mutations
     createProfile: createProfileMutation.mutate,
     updateProfile: updateProfileMutation.mutate,
@@ -122,11 +102,8 @@ export function useProfile(userId: string) {
     deleteError: deleteProfileMutation.error,
 
     // Utility functions
-    updateLastActive,
     checkProfileExists,
 
-    // Query controls
-    refetch: profileQuery.refetch,
     invalidate: () =>
       queryClient.invalidateQueries({ queryKey: ["profile", userId] }),
   };

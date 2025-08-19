@@ -3,11 +3,8 @@
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { LoginData } from "../domain/auth.types";
-import { fieldValidators } from "../utils";
-import { Label } from "@/components/ui/label";
 import { Button, Input } from "@/components/ui";
 import { FormField, FormItem, FormLabel } from "@/components/ui/form";
-import Link from "next/link";
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -16,12 +13,11 @@ interface LoginFormProps {
   className?: string;
 }
 
-export function LoginForm({
+export default function LoginForm({
   onSwitchToSignup,
   onForgotPassword,
 }: LoginFormProps) {
   const {
-    register,
     getValues,
     control,
     formState: { errors, disabled },
@@ -36,17 +32,17 @@ export function LoginForm({
       <FormField
         control={control}
         name="email"
+        defaultValue=""
         render={({ field }) => (
           <FormItem>
-            <FormLabel htmlFor="signup-email">Email Address</FormLabel>
+            <FormLabel className="sr-only" htmlFor="signup-email">
+              Email Address
+            </FormLabel>
             <Input
               id="signup-email"
               type="email"
               disabled={field.disabled}
               placeholder="Enter your email"
-              {...register("email", {
-                validate: (email) => fieldValidators.validateEmailField(email),
-              })}
             />
             {errors.email && <p>{errors.email.message}</p>}
           </FormItem>
@@ -57,7 +53,8 @@ export function LoginForm({
       <div>
         <FormField
           control={control}
-          name="email"
+          name="password"
+          defaultValue=""
           render={({ field }) => (
             <FormItem>
               <FormLabel htmlFor="signup-email">Password</FormLabel>
@@ -69,10 +66,6 @@ export function LoginForm({
                   autoComplete="current-password"
                   disabled={field.disabled}
                   placeholder="Enter your password"
-                  {...register("password", {
-                    validate: (password) =>
-                      fieldValidators.validatePasswordField(password),
-                  })}
                 />
                 <Button
                   type="button"
