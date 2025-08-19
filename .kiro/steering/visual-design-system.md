@@ -30,7 +30,7 @@ _Modern, sleek design for young adults with the cinematic elegance of Netflix, t
 ### Primary Palette
 
 ```css
---primary: #e50914; /* Cinematic red for CTAs and highlights */
+--primary: #DA0B0B; /* Cinematic red for CTAs and highlights */
 ```
 
 ### Dark Theme Foundation

@@ -64,7 +64,7 @@ export default config;
 :root {
   --font-primary: Inter, sans-serif;
   --background: /* app bg */ ;
-  --primary: #e50914; /* brand */
+  --primary: #DA0B0B; /* brand */
 }
 ```
 

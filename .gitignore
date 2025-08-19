@@ -124,6 +124,9 @@ dist
 .vscode-test
 **/.vscode/
 
+.kiro/settings
+.kiro/hooks
+
 # yarn v3
 .pnp.*
 .yarn/*

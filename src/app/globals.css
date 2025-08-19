@@ -72,6 +72,44 @@
   --popover-foreground: oklch(0.141 0.005 285.823);
   --primary: #e50914; /* Cinematic red for CTAs and highlights */
 
+  /* Brand Red Colors from Figma */
+  --brand-red-40: #B21919;
+  --brand-red-45: #DA0B0B;
+  --brand-red-55: #F42525;
+  --brand-red-60: #F53D3D;
+  --brand-red-70: #F76E6E;
+  --brand-red-80: #FA9E9E;
+  --brand-red-90: #FFCCCC;
+  --brand-red-95: #FFE5E5;
+  /* Brand Blue Colors from Figma */
+  --brand-blue-30: #075292;
+  --brand-blue-45: #0B7ADA;
+  --brand-blue-55: #2594F4;
+  --brand-blue-60: #3DA0F5;
+  --brand-blue-70: #6DB8F8;
+  --brand-blue-80: #9ECFFA;
+  --brand-blue-90: #CEE7FD;
+  --brand-blue-95: #E7F3FE;
+
+  /* Neutral colors */
+  --brand-black-06: #0F0F0F;
+  --brand-black-08: #141414;
+  --brand-black-10: #1A1A1A;
+  --brand-black-12: #1F1F1F;
+  --brand-black-15: #262626;
+  --brand-black-20: #333333;
+  --brand-black-25: #404040;
+  --brand-black-30: #4D4D4D;
+  --brand-grey-60: #999999;
+  --brand-grey-65: #A6A6A6;
+  --brand-grey-70: #B3B3B3;
+  --brand-grey-75: #BFBFBF;
+  --brand-grey-90: #E4E4E7;
+  --brand-grey-95: #F1F1F3;
+  --brand-grey-97: #F7F7F8;
+  --brand-grey-99: #FCFCFD;
+
+
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.967 0.001 286.375);
   --secondary-foreground: oklch(0.21 0.006 285.885);
