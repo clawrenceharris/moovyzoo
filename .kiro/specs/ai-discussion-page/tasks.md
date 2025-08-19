@@ -1,9 +1,10 @@
 # Implementation Plan
 
-- [] 1. Set up project structure and dependencies
+- [ ] 1. Set up project structure and dependencies
   - Install LangGraph.js and related dependencies
-  - Create directory structure for AI discussion feature
-  - Set up TypeScript interfaces and types
+  - Create directory structure for AI sidebar feature
+  - Set up TypeScript interfaces and types for sidebar functionality
+  - Update globals.css with any additional brand color utilities needed
   - _Requirements: 7.1, 7.2_
 
 - [ ] 2. Implement core data models and validation
@@ -19,23 +20,42 @@
   - Write unit tests for LangGraph integration
   - _Requirements: 5.1, 5.2, 5.4, 7.3, 7.4, 7.5_
 
-- [ ] 4. Build core chat components
-  - [ ] 4.1 Create MessageBubble component for individual messages
-    - Implement user vs AI message styling
+- [ ] 4. Build core sidebar and FAB components
+  - [ ] 4.1 Create AIChatFAB component
+    - Implement floating action button with brand red styling
+    - Add fixed positioning and responsive sizing
+    - Include hover effects and rotation animation
+    - Add proper accessibility attributes
+    - Write component tests
+    - _Requirements: 1.1, 1.2, 6.6_
+
+  - [ ] 4.2 Create AIChatSidebar component with overlay
+    - Implement sidebar container with backdrop overlay
+    - Add slide-in/out animations (desktop: from right, mobile: full-screen)
+    - Include click-outside-to-close functionality
+    - Add escape key handling
+    - Use brand colors for theming
+    - Write component tests
+    - _Requirements: 1.3, 1.4, 6.1, 6.2, 6.4_
+
+  - [ ] 4.3 Create MessageBubble component for individual messages
+    - Implement user vs AI message styling with brand colors
     - Add support for text and image content display
     - Include timestamp and copy functionality
+    - Use brand blue for AI messages, appropriate contrast for user messages
     - Write component tests
-    - _Requirements: 3.4, 5.3_
+    - _Requirements: 3.4, 5.3, 6.4_
 
-  - [ ] 4.2 Create MessageList component for conversation history
-    - Implement scrollable message container
+  - [ ] 4.4 Create MessageList component for conversation history
+    - Implement scrollable message container within sidebar
     - Add auto-scroll to bottom functionality
     - Include loading indicator for AI responses
+    - Optimize for sidebar width constraints
     - Write component tests
     - _Requirements: 3.5, 5.2_
 
-  - [ ] 4.3 Create TypingIndicator component for AI loading state
-    - Implement animated typing indicator
+  - [ ] 4.5 Create TypingIndicator component for AI loading state
+    - Implement animated typing indicator with brand colors
     - Add proper accessibility labels
     - Write component tests
     - _Requirements: 5.2_
@@ -70,41 +90,52 @@
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
 - [ ] 7. Create main chat interface container
-  - Build ChatInterface component that orchestrates all chat functionality
+  - Build ChatInterface component that orchestrates all chat functionality within sidebar
   - Implement chat state management with custom hooks
-  - Add responsive layout for mobile, tablet, and desktop
+  - Add responsive layout optimized for sidebar constraints
+  - Integrate with sidebar state management
   - Write integration tests for complete chat flow
-  - _Requirements: 1.1, 1.2, 1.3, 6.1, 6.2, 6.3, 6.4, 6.5_
+  - _Requirements: 1.1, 1.2, 1.3, 1.5, 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 8. Implement chat state management hooks
-  - [ ] 8.1 Create useChat hook for conversation state
+- [ ] 8. Implement chat and sidebar state management hooks
+  - [ ] 8.1 Create useChatSidebar hook for sidebar state
+    - Manage sidebar open/close state
+    - Handle animations and transitions
+    - Implement keyboard and click-outside handling
+    - Persist sidebar preferences in localStorage
+    - Write hook tests
+    - _Requirements: 1.2, 1.3, 1.4_
+
+  - [ ] 8.2 Create useChat hook for conversation state
     - Manage messages array and conversation state
     - Handle message sending and receiving
     - Implement error state management
+    - Integrate with sidebar state
     - Write hook tests
     - _Requirements: 3.1, 3.2, 3.3, 5.1_
 
-  - [ ] 8.2 Create useLangGraph hook for AI integration
+  - [ ] 8.3 Create useLangGraph hook for AI integration
     - Integrate with LangGraph.js workflows
     - Handle text and image message processing
     - Implement conversation context management
     - Write hook tests
     - _Requirements: 5.1, 5.5, 7.3, 7.4, 7.5_
 
-  - [ ] 8.3 Create useImageUpload hook for file handling
+  - [ ] 8.4 Create useImageUpload hook for file handling
     - Handle image file selection and validation
     - Implement image preview and removal
     - Add error handling for upload failures
     - Write hook tests
     - _Requirements: 4.1, 4.2, 4.3, 4.5, 4.6_
 
-- [ ] 9. Create the main AI discussion page
-  - Build the Next.js page component at /ai-discussion
-  - Integrate ChatInterface component with proper layout
-  - Add page metadata and SEO optimization
-  - Implement error boundaries for the page
-  - Write page-level tests
-  - _Requirements: 1.1, 1.2, 1.3_
+- [ ] 9. Integrate AI chat sidebar globally
+  - Add AIChatFAB and AIChatSidebar to root layout
+  - Ensure sidebar is accessible from all pages
+  - Implement proper z-index layering
+  - Add global state management for sidebar
+  - Implement error boundaries for the sidebar
+  - Write integration tests
+  - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
 - [ ] 10. Add responsive design and accessibility
   - Implement mobile-first responsive design
@@ -139,9 +170,10 @@
   - _Requirements: All requirements covered through testing_
 
 - [ ] 14. Final integration and polish
-  - Integrate with existing application navigation
-  - Add proper loading states and transitions
+  - Ensure sidebar works seamlessly across all existing pages
+  - Add proper loading states and smooth transitions
   - Implement conversation persistence in localStorage
-  - Add final UI polish and animations
-  - Conduct final testing and bug fixes
-  - _Requirements: 1.1, 1.2, 1.3, 6.1, 6.2, 6.3, 6.4, 6.5_
+  - Add final UI polish with brand color consistency
+  - Optimize animations and performance
+  - Conduct final testing and bug fixes across different screen sizes
+  - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6_

@@ -1,4 +1,9 @@
+---
+inclusion: manual
+---
+
 # MoovyZoo Naming Conventions (Next.js + TypeScript)
+
 
 This document defines file and folder naming conventions for the MoovyZoo project, aligned with common Next.js and modern TypeScript/React best practices.
 

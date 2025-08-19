@@ -2,9 +2,9 @@
 
 ## Overview
 
-The AI Discussion Page will be implemented as a dedicated Next.js page that provides users with an interactive chat interface for conversing with an AI assistant. The feature leverages LangGraph.js for AI integration, follows the existing application's design system, and provides a responsive, accessible user experience.
+The AI Discussion Sidebar will be implemented as a global component that provides users with an interactive chat interface accessible from any page. The feature leverages LangGraph.js for AI integration, follows the MoovyZoo brand design system using the defined brand colors, and provides a responsive, accessible user experience.
 
-The page will be structured as a full-screen chat interface with three main areas: a header with navigation, a scrollable message history area, and a fixed input area at the bottom. When no conversation exists, starter prompts will be displayed in the message area to help users begin conversations.
+The sidebar will be triggered by a floating action button (FAB) positioned in the bottom right corner of every page. When activated, it slides in from the right as an overlay sidebar on desktop (400px width) or full-screen modal on mobile. The interface includes three main areas: a header with close button, a scrollable message history area, and a fixed input area at the bottom. When no conversation exists, starter prompts will be displayed in the message area to help users begin conversations.
 
 ## Architecture
 
@@ -17,12 +17,13 @@ The page will be structured as a full-screen chat interface with three main area
 - **Validation**: Zod 4.0.17 for message and file validation
 - **File Handling**: Native File API for image attachments
 
-### Page Structure
+### Component Structure
 ```
-/ai-discussion
-├── page.tsx (Main chat interface)
+src/features/ai/
 ├── components/
-│   ├── ChatInterface.tsx (Main chat container)
+│   ├── AIChatFAB.tsx (Floating action button trigger)
+│   ├── AIChatSidebar.tsx (Main sidebar container with overlay)
+│   ├── ChatInterface.tsx (Chat content container)
 │   ├── MessageList.tsx (Scrollable message history)
 │   ├── MessageBubble.tsx (Individual message display)
 │   ├── ChatInput.tsx (Input field with attachment support)
@@ -32,7 +33,8 @@ The page will be structured as a full-screen chat interface with three main area
 ├── hooks/
 │   ├── useChat.ts (Chat state management)
 │   ├── useLangGraph.ts (LangGraph.js integration)
-│   └── useImageUpload.ts (Image handling logic)
+│   ├── useImageUpload.ts (Image handling logic)
+│   └── useChatSidebar.ts (Sidebar state management)
 ├── types/
 │   └── chat.ts (TypeScript interfaces)
 └── utils/
@@ -45,14 +47,34 @@ The page will be structured as a full-screen chat interface with three main area
 
 ### Core Components
 
+#### AIChatFAB Component
+- **Purpose**: Floating action button that triggers the chat sidebar
+- **Props**: `onClick: () => void`, `isOpen: boolean`
+- **Features**:
+  - Fixed positioning in bottom right corner
+  - Brand red background (--brand-red-45) with hover effects
+  - Smooth rotation animation when sidebar is open
+  - Accessible with proper ARIA labels
+  - Responsive sizing for mobile/desktop
+
+#### AIChatSidebar Component
+- **Purpose**: Main sidebar container with overlay and slide animations
+- **Props**: `isOpen: boolean`, `onClose: () => void`
+- **Features**:
+  - Overlay background with backdrop blur
+  - Slide-in animation from right (desktop) or full-screen (mobile)
+  - Click outside to close functionality
+  - Escape key handling
+  - Brand color theming throughout
+
 #### ChatInterface Component
-- **Purpose**: Main container component that orchestrates the entire chat experience
-- **Props**: None (self-contained page component)
+- **Purpose**: Inner chat content container within the sidebar
+- **Props**: None (manages its own state)
 - **State**: Manages overall chat state, current conversation, and UI states
 - **Responsibilities**:
   - Initialize LangGraph.js connection
   - Coordinate between child components
-  - Handle responsive layout adjustments
+  - Handle responsive layout adjustments within sidebar
   - Manage error boundaries
 
 #### MessageList Component
@@ -206,16 +228,28 @@ graph TD
 ## UI/UX Design
 
 ### Layout Structure
-- **Header**: Fixed header with page title and navigation
+- **FAB**: Fixed positioned button (bottom: 24px, right: 24px) on all pages
+- **Sidebar Overlay**: Full-height overlay with backdrop (desktop: 400px width, mobile: full-screen)
+- **Sidebar Header**: Fixed header with MoovyZoo branding and close button
 - **Message Area**: Flexible scrollable area for conversation history
 - **Input Area**: Fixed bottom area with input field and controls
-- **Responsive Breakpoints**: Adapt layout for mobile, tablet, and desktop
+- **Responsive Breakpoints**: 
+  - Desktop (≥768px): 400px sidebar slides in from right
+  - Mobile (<768px): Full-screen modal with slide-up animation
 
 ### Visual Design
-- **Color Scheme**: Follow existing application design system
-- **Typography**: Use established text styles from `styles.ts`
+- **Color Scheme**: Use MoovyZoo brand colors from globals.css
+  - Primary: Brand Red 45 (--brand-red-45: #DA0B0B) for FAB and primary actions
+  - Secondary: Brand Blue 45 (--brand-blue-45: #0B7ADA) for AI messages
+  - Background: Brand Black variants for dark theme consistency
+  - Text: Brand Grey variants for proper contrast
+- **Typography**: Use established text styles following the design system
 - **Spacing**: Consistent spacing using the 4px grid system
-- **Animations**: Subtle transitions for message appearance and UI state changes
+- **Animations**: 
+  - Smooth slide-in/out transitions (300ms ease-in-out)
+  - FAB rotation animation when active
+  - Message appearance animations
+  - Typing indicator animations
 
 ### Accessibility
 - **Keyboard Navigation**: Full keyboard support for all interactions

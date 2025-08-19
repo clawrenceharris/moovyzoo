@@ -1,3 +1,7 @@
+---
+inclusion: manual
+---
+
 ## Hackathon Details - MoovyZoo
 
 ### Dev Plan Breakdown
