@@ -51,7 +51,7 @@ export function MessageList({ messages, isLoading, className }: MessageListProps
             Welcome to Zoovie AI!
           </h3>
           <p className="text-brand-grey-70 text-sm max-w-xs">
-            I'm here to help you discover amazing movies and TV shows. Ask me anything about cinema!
+            I&apos;m here to help you discover amazing movies and TV shows. Ask me anything about cinema!
           </p>
         </div>
       ) : (

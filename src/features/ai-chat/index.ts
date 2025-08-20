@@ -47,3 +47,28 @@ export {
   createChatModel, 
   configureLangSmith 
 } from './utils/langraph-config';
+
+// TMDB Data & Tools
+export {
+  searchMovie,
+  getMovieDetails,
+  getSimilarMovies,
+  getTrendingNowOrUpcoming,
+  discoverByGenre,
+  getMovieGenres,
+  formatMovieForDisplay,
+  getImageUrl,
+  type TMDBMovie,
+  type TMDBMovieDetails,
+  type TMDBSearchResponse
+} from './data/tmdb.repository';
+
+export {
+  tmdbTools,
+  searchMovieTool,
+  getMovieDetailsTool,
+  getSimilarMoviesTool,
+  getTrendingNowOrUpcomingTool,
+  discoverByGenreTool,
+  getMovieGenresTool
+} from './utils/tmdb-tools';

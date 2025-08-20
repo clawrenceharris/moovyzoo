@@ -7,7 +7,6 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useProfile } from "@/features/profile/hooks/useProfile";
 
 export type OnboardingData = {
   displayName: string;

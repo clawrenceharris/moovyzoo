@@ -1,7 +1,6 @@
 import { ChatOpenAI } from '@langchain/openai';
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
-import { tool } from '@langchain/core/tools';
-import { z } from 'zod';
+import { tmdbTools } from './tmdb-tools';
 
 // Initialize the OpenAI model
 export const createChatModel = () => {
@@ -19,54 +18,8 @@ export const createChatModel = () => {
   });
 };
 
-// Movie-related tools for Zoovie
-export const getMovieRecommendation = tool((input) => {
-  // This is a mock implementation - in a real app, you'd integrate with TMDB API
-  const genres = ['action', 'comedy', 'drama', 'horror', 'sci-fi', 'romance'];
-  const randomGenre = genres[Math.floor(Math.random() * genres.length)];
-  
-  const mockMovies = {
-    action: ['Mad Max: Fury Road', 'John Wick', 'The Dark Knight'],
-    comedy: ['The Grand Budapest Hotel', 'Superbad', 'Anchorman'],
-    drama: ['The Shawshank Redemption', 'Parasite', 'Moonlight'],
-    horror: ['Hereditary', 'Get Out', 'The Conjuring'],
-    'sci-fi': ['Blade Runner 2049', 'Interstellar', 'Ex Machina'],
-    romance: ['The Princess Bride', 'Eternal Sunshine', 'Her']
-  };
-
-  const movies = mockMovies[randomGenre as keyof typeof mockMovies] || mockMovies.drama;
-  const randomMovie = movies[Math.floor(Math.random() * movies.length)];
-  
-  return `Based on your preferences for ${input.genre || 'great movies'}, I recommend "${randomMovie}" - it's a fantastic ${randomGenre} film that many Zoovie users love!`;
-}, {
-  name: 'get_movie_recommendation',
-  description: 'Get personalized movie recommendations based on genre preferences',
-  schema: z.object({
-    genre: z.string().optional().describe('Preferred movie genre (action, comedy, drama, etc.)'),
-    mood: z.string().optional().describe('Current mood or what type of experience they want')
-  })
-});
-
-export const analyzeMovieScene = tool((input) => {
-  // Mock scene analysis - in a real app, this would use computer vision
-  const analyses = [
-    'This scene uses warm lighting and close-up shots to create intimacy between characters.',
-    'The cinematography here employs the rule of thirds and leading lines to guide the viewer\'s eye.',
-    'Notice the color palette shift from cool blues to warm oranges, symbolizing the character\'s emotional journey.',
-    'The use of shallow depth of field isolates the subject and creates visual emphasis.',
-    'This establishing shot uses wide framing to show the character\'s isolation in the environment.'
-  ];
-  
-  const randomAnalysis = analyses[Math.floor(Math.random() * analyses.length)];
-  return `Scene Analysis: ${randomAnalysis} The scene you're describing likely contains rich visual storytelling elements that enhance the narrative.`;
-}, {
-  name: 'analyze_movie_scene',
-  description: 'Analyze movie scenes for cinematography, symbolism, and storytelling techniques',
-  schema: z.object({
-    description: z.string().describe('Description of the movie scene to analyze'),
-    movie: z.string().optional().describe('Name of the movie (if known)')
-  })
-});
+// TMDB-powered movie tools for Zoovie
+// All movie-related tools are now imported from tmdb-tools.ts 
 
 // Create the LangGraph agent with movie-focused tools
 export const createAIAgent = () => {
@@ -74,8 +27,8 @@ export const createAIAgent = () => {
   
   const agent = createReactAgent({
     llm: model,
-    tools: [getMovieRecommendation, analyzeMovieScene],
-    messageModifier: `You are Zoovie's AI assistant, a friendly and knowledgeable companion for movie and TV enthusiasts. 
+    tools: tmdbTools,
+    messageModifier: `You are Zoovie's AI assistant, a friendly and knowledgeable companion for movie and TV enthusiasts. You have access to The Movie Database (TMDB) through specialized tools, giving you real-time access to accurate movie information.
 
 Your personality:
 - Passionate about cinema and storytelling
@@ -84,15 +37,25 @@ Your personality:
 - Excited to help users discover new content and deepen their appreciation
 - Casual and conversational, like talking to a fellow movie buff
 
-Guidelines:
-- Always relate responses back to movies, TV shows, or entertainment when possible
-- Encourage users to explore different genres and eras of cinema
-- Share interesting film facts and behind-the-scenes insights
-- Help users find their next great watch
-- Be enthusiastic about the art of filmmaking
-- If users ask about non-movie topics, gently guide the conversation back to entertainment
+Your capabilities (via TMDB tools):
+- Search for movies by title (search_movie)
+- Get detailed movie information including cast, crew, plot, and trailers (get_movie_details)
+- Find movies similar to ones users like (get_similar_movies)
+- Show trending, now playing, or upcoming movies (get_trending_now_or_upcoming)
+- Discover movies by genre with filters (discover_by_genre)
+- Provide available movie genres (get_movie_genres)
 
-Remember: You're here to enhance the Zoovie experience and help users connect with great content!`
+Guidelines:
+- Always use your TMDB tools to provide accurate, up-to-date movie information
+- When users mention a movie title, use search_movie to find it and get_movie_details for comprehensive info
+- Proactively suggest similar movies when discussing a film they like
+- Share interesting facts from cast, crew, and production details
+- Help users discover new content based on their preferences
+- Encourage exploration of different genres and eras
+- If users ask about non-movie topics, gently guide back to entertainment
+- Always provide movie IDs when listing movies so users can get more details
+
+Remember: You have real movie data at your fingertips - use it to enhance every conversation and help users connect with great content!`,
   });
 
   return agent;

@@ -27,7 +27,7 @@ export const useChat = (): UseChatReturn => {
       if (stored) {
         const parsedMessages = JSON.parse(stored);
         // Convert timestamp strings back to Date objects
-        const messagesWithDates = parsedMessages.map((msg: any) => ({
+        const messagesWithDates = parsedMessages.map((msg: Message & { timestamp: string }) => ({
           ...msg,
           timestamp: new Date(msg.timestamp)
         }));
@@ -69,22 +69,93 @@ export const useChat = (): UseChatReturn => {
       // Update user message status to sent
       updateMessageStatus(userMessage.id, 'sent');
 
-      // TODO: Replace with actual LangGraph.js integration
-      // For now, simulate AI response
-      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+      // Get the current conversation context including the new user message
+      const currentMessages = [...messages, userMessage];
       
-      const aiResponse = createAssistantMessage(
-        `I received your message: "${content}". This is a placeholder response while we integrate LangGraph.js. ${image ? 'I can see you attached an image as well!' : ''}`
-      );
+      // Create the initial AI message that will be updated as we stream
+      const aiMessage = createAssistantMessage('');
+      setMessages(prev => [...prev, aiMessage]);
       
-      setMessages(prev => [...prev, aiResponse]);
+      // Call the API route with Server-Sent Events
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: currentMessages.map(msg => ({
+            id: msg.id,
+            content: msg.content,
+            role: msg.role,
+            timestamp: msg.timestamp.toISOString(),
+            status: msg.status
+          })),
+          conversationId: conversationId
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Handle Server-Sent Events streaming
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedContent = '';
+
+      if (reader) {
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n');
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                try {
+                  const data = JSON.parse(line.slice(6));
+                  
+                  if (data.type === 'content') {
+                    accumulatedContent += data.content;
+                    
+                    // Update the AI message with accumulated content
+                    setMessages(prev => prev.map(msg => 
+                      msg.id === aiMessage.id 
+                        ? { ...msg, content: accumulatedContent }
+                        : msg
+                    ));
+                  } else if (data.type === 'error') {
+                    throw new Error(data.error);
+                  } else if (data.type === 'complete') {
+                    // Streaming completed successfully
+                    break;
+                  }
+                } catch (parseError) {
+                  console.error('Error parsing SSE data:', parseError);
+                }
+              }
+            }
+          }
+        } finally {
+          reader.releaseLock();
+        }
+      }
+      
     } catch (err) {
+      console.error('Chat API error:', err);
       setError(err instanceof Error ? err.message : 'Failed to send message');
       updateMessageStatus(userMessage.id, 'error');
+      
+      // Remove any empty AI messages if there was an error
+      setMessages(prev => prev.filter(msg => 
+        !(msg.role === 'assistant' && msg.content.trim() === '')
+      ));
     } finally {
       setIsLoading(false);
     }
-  }, [updateMessageStatus]);
+  }, [messages, updateMessageStatus, conversationId]);
 
   const retryLastMessage = useCallback(async () => {
     if (!lastUserMessageRef.current) return;
