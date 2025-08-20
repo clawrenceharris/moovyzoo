@@ -3,12 +3,15 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode, useState } from "react";
 import { UserContext } from "@/hooks";
-import { User } from "@/features/auth/domain/auth.types";
-
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { User } from "@supabase/supabase-js";
 export function QueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools />
+      {children}
+    </QueryClientProvider>
   );
 }
 
