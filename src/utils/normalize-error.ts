@@ -131,6 +131,10 @@ export function normalizeSupabaseError(error: {
 
   // ---------- DATABASE ERRORS ----------
   if (code === "pgrst116" || message.includes("not found")) {
+    // Check if it's habitat-related
+    if (message.includes("habitat")) {
+      return AppErrorCode.HABITAT_NOT_FOUND;
+    }
     return AppErrorCode.PROFILE_NOT_FOUND;
   }
   if (
@@ -138,6 +142,10 @@ export function normalizeSupabaseError(error: {
     message.includes("duplicate key") ||
     message.includes("already exists")
   ) {
+    // Check if it's habitat membership related
+    if (message.includes("habitat_members")) {
+      return AppErrorCode.HABITAT_ALREADY_MEMBER;
+    }
     return AppErrorCode.PROFILE_ALREADY_EXISTS;
   }
   if (code === "42501" || message.includes("permission denied")) {
@@ -170,6 +178,91 @@ export function normalizeSupabaseError(error: {
     return AppErrorCode.VALIDATION_INVALID_GENRES;
   }
 
+  // ---------- HABITAT-SPECIFIC ERRORS ----------
+  if (message.includes("habitat") && message.includes("access denied")) {
+    return AppErrorCode.HABITAT_ACCESS_DENIED;
+  }
+  if (message.includes("access denied to habitat")) {
+    return AppErrorCode.HABITAT_ACCESS_DENIED;
+  }
+  if (message.includes("access denied to private habitat")) {
+    return AppErrorCode.HABITAT_ACCESS_DENIED;
+  }
+  if (message.includes("cannot join private habitat")) {
+    return AppErrorCode.HABITAT_ACCESS_DENIED;
+  }
+  if (message.includes("habitat") && message.includes("not member")) {
+    return AppErrorCode.HABITAT_NOT_MEMBER;
+  }
+  if (message.includes("user is not a member")) {
+    return AppErrorCode.HABITAT_NOT_MEMBER;
+  }
+  if (message.includes("already a member")) {
+    return AppErrorCode.HABITAT_ALREADY_MEMBER;
+  }
+  if (message.includes("owners cannot leave")) {
+    return AppErrorCode.HABITAT_ACCESS_DENIED;
+  }
+  if (message.includes("message") && message.includes("too long")) {
+    return AppErrorCode.MESSAGE_TOO_LONG;
+  }
+  if (message.includes("message is too long")) {
+    return AppErrorCode.MESSAGE_TOO_LONG;
+  }
+  if (message.includes("message") && message.includes("invalid")) {
+    return AppErrorCode.MESSAGE_INVALID_CONTENT;
+  }
+  if (message.includes("message content is invalid")) {
+    return AppErrorCode.MESSAGE_INVALID_CONTENT;
+  }
+  if (message.includes("message content is required")) {
+    return AppErrorCode.MESSAGE_INVALID_CONTENT;
+  }
+  if (message.includes("message content cannot be empty")) {
+    return AppErrorCode.MESSAGE_INVALID_CONTENT;
+  }
+  if (message.includes("unauthorized to delete")) {
+    return AppErrorCode.MESSAGE_UNAUTHORIZED;
+  }
+  if (message.includes("realtime") || message.includes("websocket")) {
+    return AppErrorCode.REALTIME_CONNECTION_FAILED;
+  }
+
+  // ---------- HABITAT CREATION ERRORS ----------
+  if (message.includes("habitat name") && message.includes("required")) {
+    return AppErrorCode.HABITAT_INVALID_NAME;
+  }
+  if (message.includes("habitat name") && message.includes("invalid")) {
+    return AppErrorCode.HABITAT_INVALID_NAME;
+  }
+  if (
+    message.includes("habitat name") &&
+    (message.includes("too long") || message.includes("too short"))
+  ) {
+    return AppErrorCode.HABITAT_INVALID_NAME;
+  }
+  if (message.includes("habitat description") && message.includes("required")) {
+    return AppErrorCode.HABITAT_INVALID_DESCRIPTION;
+  }
+  if (message.includes("habitat description") && message.includes("invalid")) {
+    return AppErrorCode.HABITAT_INVALID_DESCRIPTION;
+  }
+  if (
+    message.includes("habitat description") &&
+    (message.includes("too long") || message.includes("too short"))
+  ) {
+    return AppErrorCode.HABITAT_INVALID_DESCRIPTION;
+  }
+  if (
+    message.includes("tags") &&
+    (message.includes("required") || message.includes("invalid"))
+  ) {
+    return AppErrorCode.HABITAT_INVALID_TAGS;
+  }
+  if (message.includes("maximum") && message.includes("tags")) {
+    return AppErrorCode.HABITAT_INVALID_TAGS;
+  }
+
   // ---------- FALLBACKS ----------
   if (message.includes("network")) {
     return AppErrorCode.NETWORK_ERROR;
@@ -188,6 +281,89 @@ function normalizeStandardError(
 ): AppErrorCode {
   const message = error.message.toLowerCase();
 
+  // Habitat-specific errors
+  if (message.includes("habitat not found")) {
+    return AppErrorCode.HABITAT_NOT_FOUND;
+  }
+  if (message.includes("habitat") && message.includes("access denied")) {
+    return AppErrorCode.HABITAT_ACCESS_DENIED;
+  }
+  if (message.includes("access denied to habitat")) {
+    return AppErrorCode.HABITAT_ACCESS_DENIED;
+  }
+  if (message.includes("access denied to private habitat")) {
+    return AppErrorCode.HABITAT_ACCESS_DENIED;
+  }
+  if (message.includes("cannot join private habitat")) {
+    return AppErrorCode.HABITAT_ACCESS_DENIED;
+  }
+  if (message.includes("user is not a member")) {
+    return AppErrorCode.HABITAT_NOT_MEMBER;
+  }
+  if (message.includes("already a member")) {
+    return AppErrorCode.HABITAT_ALREADY_MEMBER;
+  }
+  if (message.includes("owners cannot leave")) {
+    return AppErrorCode.HABITAT_ACCESS_DENIED;
+  }
+  if (message.includes("message") && message.includes("too long")) {
+    return AppErrorCode.MESSAGE_TOO_LONG;
+  }
+  if (message.includes("message is too long")) {
+    return AppErrorCode.MESSAGE_TOO_LONG;
+  }
+  if (message.includes("message content is invalid")) {
+    return AppErrorCode.MESSAGE_INVALID_CONTENT;
+  }
+  if (message.includes("message content is required")) {
+    return AppErrorCode.MESSAGE_INVALID_CONTENT;
+  }
+  if (message.includes("message content cannot be empty")) {
+    return AppErrorCode.MESSAGE_INVALID_CONTENT;
+  }
+  if (message.includes("unauthorized to delete")) {
+    return AppErrorCode.MESSAGE_UNAUTHORIZED;
+  }
+  if (message.includes("realtime") && message.includes("connection")) {
+    return AppErrorCode.REALTIME_CONNECTION_FAILED;
+  }
+
+  // Habitat creation errors
+  if (message.includes("habitat name") && message.includes("required")) {
+    return AppErrorCode.HABITAT_INVALID_NAME;
+  }
+  if (message.includes("habitat name") && message.includes("invalid")) {
+    return AppErrorCode.HABITAT_INVALID_NAME;
+  }
+  if (
+    message.includes("habitat name") &&
+    (message.includes("too long") || message.includes("too short"))
+  ) {
+    return AppErrorCode.HABITAT_INVALID_NAME;
+  }
+  if (message.includes("habitat description") && message.includes("required")) {
+    return AppErrorCode.HABITAT_INVALID_DESCRIPTION;
+  }
+  if (message.includes("habitat description") && message.includes("invalid")) {
+    return AppErrorCode.HABITAT_INVALID_DESCRIPTION;
+  }
+  if (
+    message.includes("habitat description") &&
+    (message.includes("too long") || message.includes("too short"))
+  ) {
+    return AppErrorCode.HABITAT_INVALID_DESCRIPTION;
+  }
+  if (
+    message.includes("tags") &&
+    (message.includes("required") || message.includes("invalid"))
+  ) {
+    return AppErrorCode.HABITAT_INVALID_TAGS;
+  }
+  if (message.includes("maximum") && message.includes("tags")) {
+    return AppErrorCode.HABITAT_INVALID_TAGS;
+  }
+
+  // Profile errors
   if (message.includes("profile not found")) {
     return AppErrorCode.PROFILE_NOT_FOUND;
   }

@@ -2,14 +2,18 @@
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import FormLayout from "@/components/FormLayout";
+import { FormLayout } from "@/components";
 import { LoginData } from "@/features/auth/domain/auth.types";
 import { LoginForm } from "@/features/auth/components";
 import { loginSchema } from "@/features/auth/domain/auth.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-export default function LoginPage({ nextPath = "/" }: { nextPath?: string }) {
+export default function LoginPage() {
   const router = useRouter();
   const { login, loading, error, resetPassword } = useAuth(); // implement with supabase.auth
+
+  // Get nextPath from URL params
+  const nextPath = "/";
 
   return (
     <div className="bg-secondary-background">
@@ -20,7 +24,7 @@ export default function LoginPage({ nextPath = "/" }: { nextPath?: string }) {
         defaultValues={{ email: "", password: "" }}
         submitText="Sign In"
         isLoading={loading}
-        formSchema={loginSchema}
+        resolver={zodResolver(loginSchema)}
         error={error}
         onSubmit={login}
       >

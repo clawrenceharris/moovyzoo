@@ -41,7 +41,7 @@ We are standardizing all forms to use **React Hook Form** (`react-hook-form`) wi
 
 ```tsx
 <FormLayout<LoginFormData>
-  resolver={zodResolver(LoginSchema)}
+  resolver={zodResolver(loginSchema)}
   defaultValues={{ email: "", password: "" }}
   onSubmit={(data) => login(data)}
 >

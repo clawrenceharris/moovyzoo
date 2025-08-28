@@ -5,6 +5,7 @@ import {
   type FieldValues,
   type DefaultValues,
   type UseFormReturn,
+  Resolver,
 } from "react-hook-form";
 import { Button } from "./ui";
 import { Form, FormDescription, FormMessage } from "./ui/form";
@@ -26,10 +27,10 @@ export interface FormLayoutProps<T extends FieldValues>
   mode?: "onChange" | "onBlur" | "onSubmit" | "onTouched" | "all";
   isOpen?: boolean;
   description?: string;
+  resolver?: Resolver<T, any, T>;
   descriptionStyle?: React.CSSProperties;
   defaultValues?: DefaultValues<T>;
   enableBeforeUnloadProtection?: boolean;
-  formSchema: z.ZodType<T, T>;
 }
 
 function FormLayout<T extends FieldValues>({
@@ -48,13 +49,13 @@ function FormLayout<T extends FieldValues>({
   descriptionStyle,
   defaultValues,
   enableBeforeUnloadProtection = false,
-  formSchema,
+  resolver,
   ...formProps
 }: FormLayoutProps<T>) {
   const form = useForm<T>({
     ...formProps,
     mode,
-    resolver: zodResolver(formSchema),
+    resolver: resolver,
     defaultValues,
   });
 

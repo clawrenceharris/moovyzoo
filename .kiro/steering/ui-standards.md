@@ -15,6 +15,7 @@ fileMatch: "*.css"
 >
 > - **Visual Design System**: `.kiro/steering/visual-design-system.md`
 > - **Component Library**: `.kiro/steering/component-library.md`
+> - **Structure**: `.kiro/steering/structure.md`
 
 ---
 
@@ -35,8 +36,9 @@ fileMatch: "*.css"
 ## Core Principles
 
 1. **Component-first composition** – Use component classes for styling. Use Shadcn default or variant styles as a starting point, and build from there.
-2. **Tokenized styling** – Use `@theme` variables; no hardcoded hex/px in components.
-3. **Mobile-first, fast** – Minimal DOM, hydrate only where needed, avoid over-rendering.
+2. **Modular, reusable components** – Extract common patterns to shared components in `/src/components/`. Avoid subcomponents declared inside other component files.
+3. **Tokenized styling** – Use `@theme` variables; no hardcoded hex/px in components.
+4. **Mobile-first, fast** – Minimal DOM, hydrate only where needed, avoid over-rendering.
 
 ---
 
@@ -66,7 +68,7 @@ export default config;
 :root {
   --font-primary: Inter, sans-serif;
   --background: /* app bg */ ;
-  --primary: #DA0B0B; /* brand */
+  --primary: #da0b0b; /* brand */
 }
 ```
 
@@ -96,9 +98,45 @@ export default config;
 
 ---
 
+## Component Composition Guidelines
+
+### Shared Component Usage
+
+Always prefer shared components over inline implementations:
+
+```tsx
+// ✅ Good: Use shared components
+import { LoadingState, ErrorState } from "@/components/states";
+import { HabitatCard } from "@/components/cards";
+
+// ❌ Avoid: Inline subcomponents
+const LoadingCard = () => <div className="animate-pulse">...</div>;
+```
+
+### Component Organization
+
+- **State components** (`/components/states/`) for loading, error, empty states
+- **Card components** (`/components/cards/`) for domain-specific display cards
+- **UI components** (`/components/ui/`) for Shadcn base components
+- **Feature components** (`/features/*/components/`) compose shared components
+
+### Barrel Exports
+
+Use clean imports via barrel exports:
+
+```tsx
+// ✅ Clean imports
+import { LoadingState, ErrorState, EmptyState } from "@/components/states";
+import { HabitatCard, DiscussionCard } from "@/components/cards";
+
+// ❌ Avoid direct file imports
+import LoadingState from "@/components/states/LoadingState/LoadingState";
+```
+
 ## Authoring Rules for Kiro (Steering)
 
 - Prefer using **Shadcn UI** components for UI. If an installation is needed for a new component use `npx shadcn@latest add <component_name>`
+- **Extract reusable patterns** to shared components instead of creating subcomponents in files
 - Generate Tailwind v4 code that **imports only** `src/app/globals.css`.
 - Use **component classes** (`btn`, `card`, `form-input`, etc.) for variants.
 - Keep inline utilities minimal and **tokenized**

@@ -14,6 +14,7 @@ import { OnboardingProvider, useOnboarding } from "../OnboardingContext";
 import { SignUpForm } from "@/features/auth/components";
 import { useProfileActions } from "@/features/profile/hooks/useProfileActions";
 import { User } from "@supabase/supabase-js";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 function OnboardingBody({ user }: { user: User }) {
   const router = useRouter();
@@ -159,7 +160,7 @@ export default function OnboardingWizard(props: { nextPath?: string }) {
                 mode="onChange"
                 submitText="Get Started!"
                 description="Sign up to start watching your favorite movies with your favorite people!"
-                formSchema={signupSchema}
+                resolver={zodResolver(signupSchema)}
                 onSubmit={signup}
               >
                 <SignUpForm

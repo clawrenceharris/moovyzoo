@@ -1,6 +1,6 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/Input";
 import {
   FormControl,
   FormField,
@@ -11,6 +11,7 @@ import {
 import FormLayout from "@/components/FormLayout";
 import { onboardingProfileDataSchema } from "@/features/auth/domain/auth.schema";
 import { useOnboarding } from "../OnboardingContext";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function ProfileSetupStep() {
   const { data, updateData } = useOnboarding();
@@ -26,7 +27,7 @@ export default function ProfileSetupStep() {
 
       <div className="space-y-6">
         <FormLayout<{ displayName: string; quote?: string }>
-          formSchema={onboardingProfileDataSchema}
+          resolver={zodResolver(onboardingProfileDataSchema)}
           defaultValues={{ displayName: data.displayName, quote: data.quote }}
           showsSubmitButton={false}
         >

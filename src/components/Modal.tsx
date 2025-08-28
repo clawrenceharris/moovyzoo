@@ -1,5 +1,4 @@
 import { useEffect, type ReactElement, type ReactNode } from "react";
-import "./Modal.scss";
 import {
   Dialog,
   DialogContent,

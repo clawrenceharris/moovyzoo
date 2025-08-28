@@ -1,28 +1,25 @@
-import { ReactNode } from "react";
+"use client";
 import "../globals.css";
+
+import { QueryProvider, UserProvider } from "@/app/(app)/providers";
 import Header from "@/components/Header";
-import AuthedLayout from "@/features/auth/components/AuthedLayout";
-import { QueryProvider } from "./providers";
+import { useAuth } from "@/features/auth/hooks";
 
-export const metadata = {
-  title: "Zoovie",
-  description: "Watch, chat, and play with your movie crew",
-};
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { user } = useAuth();
+
+  if (!user) return null;
+
   return (
-    <html lang="en">
-      <body className="bg-gray-50 text-gray-900">
-        <div className="flex min-h-screen flex-col">
-          <Header />
-
-          {/* Page Content */}
-          <main className="flex-1">
-            <QueryProvider>
-              <AuthedLayout>{children}</AuthedLayout>
-            </QueryProvider>
-          </main>
-        </div>
-      </body>
-    </html>
+    <QueryProvider>
+      <UserProvider user={user}>
+        <Header />
+        <main className="flex-1">{children}</main>
+      </UserProvider>
+    </QueryProvider>
   );
 }
