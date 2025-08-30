@@ -13,16 +13,16 @@ const starterPrompts: StarterPrompt[] = [
   {
     id: 'creative-1',
     category: 'creative',
-    title: 'Movie Night Ideas',
-    prompt: 'Suggest some great movies for a cozy movie night with friends',
-    icon: '🍿'
+    title: 'Hidden Gems',
+    prompt: 'What are some underrated movies that deserve more attention?',
+    icon: '💎'
   },
   {
     id: 'creative-2',
     category: 'creative',
-    title: 'Hidden Gems',
-    prompt: 'What are some underrated movies that deserve more attention?',
-    icon: '💎'
+    title: 'TV Show Recommendations',
+    prompt: 'Recommend shows similar to **The Office**',
+    icon: '📺'
   },
   {
     id: 'analytical-1',
@@ -37,6 +37,13 @@ const starterPrompts: StarterPrompt[] = [
     title: 'Director Styles',
     prompt: 'Compare the directing styles of Christopher Nolan and Denis Villeneuve',
     icon: '🎭'
+  },
+  {
+    id: 'analytical-3',
+    category: 'analytical',
+    title: 'TV Show Analysis',
+    prompt: 'What is **Breaking Bad** about?',
+    icon: '🧪'
   },
   {
     id: 'educational-1',
@@ -65,6 +72,13 @@ const starterPrompts: StarterPrompt[] = [
     title: 'Mood-Based',
     prompt: 'I want something funny and uplifting to watch',
     icon: '😊'
+  },
+  {
+    id: 'casual-3',
+    category: 'casual',
+    title: 'Trending TV Shows',
+    prompt: 'What TV shows are trending right now?',
+    icon: '🔥'
   }
 ];
 
@@ -97,7 +111,7 @@ export function StarterPrompts({ onSelectPrompt, className }: StarterPromptsProp
       <div className="grid grid-cols-1 gap-3">
         {starterPrompts.map((prompt) => {
           const IconComponent = categoryIcons[prompt.category];
-          
+
           return (
             <button
               key={prompt.id}
@@ -116,7 +130,7 @@ export function StarterPrompts({ onSelectPrompt, className }: StarterPromptsProp
                     <span className="text-lg">{prompt.icon}</span>
                   </div>
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <IconComponent className="w-4 h-4 text-brand-grey-70" />
