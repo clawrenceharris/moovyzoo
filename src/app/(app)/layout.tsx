@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import "../globals.css";
 import Header from "@/components/Header";
+import { AIChatProvider } from "@/features/ai-chat";
 import AuthedLayout from "@/features/auth/components/AuthedLayout";
 import { QueryProvider } from "./providers";
 
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <AuthedLayout>{children}</AuthedLayout>
             </QueryProvider>
           </main>
+          <AIChatProvider />
         </div>
       </body>
     </html>

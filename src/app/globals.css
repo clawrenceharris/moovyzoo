@@ -131,6 +131,38 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-brand-red-45: var(--brand-red-45);
+  --color-brand-red-40: var(--brand-red-40);
+  --color-brand-red-55: var(--brand-red-55);
+  --color-brand-red-60: var(--brand-red-60);
+  --color-brand-red-70: var(--brand-red-70);
+  --color-brand-red-80: var(--brand-red-80);
+  --color-brand-red-90: var(--brand-red-90);
+  --color-brand-red-95: var(--brand-red-95);
+  --color-brand-blue-30: var(--brand-blue-30);
+  --color-brand-blue-45: var(--brand-blue-45);
+  --color-brand-blue-55: var(--brand-blue-55);
+  --color-brand-blue-60: var(--brand-blue-60);
+  --color-brand-blue-70: var(--brand-blue-70);
+  --color-brand-blue-80: var(--brand-blue-80);
+  --color-brand-blue-90: var(--brand-blue-90);
+  --color-brand-blue-95: var(--brand-blue-95);
+  --color-brand-black-06: var(--brand-black-06);
+  --color-brand-black-08: var(--brand-black-08);
+  --color-brand-black-10: var(--brand-black-10);
+  --color-brand-black-12: var(--brand-black-12);
+  --color-brand-black-15: var(--brand-black-15);
+  --color-brand-black-20: var(--brand-black-20);
+  --color-brand-black-25: var(--brand-black-25);
+  --color-brand-black-30: var(--brand-black-30);
+  --color-brand-grey-60: var(--brand-grey-60);
+  --color-brand-grey-65: var(--brand-grey-65);
+  --color-brand-grey-70: var(--brand-grey-70);
+  --color-brand-grey-75: var(--brand-grey-75);
+  --color-brand-grey-90: var(--brand-grey-90);
+  --color-brand-grey-95: var(--brand-grey-95);
+  --color-brand-grey-97: var(--brand-grey-97);
+  --color-brand-grey-99: var(--brand-grey-99);
 }
 
 :root {
@@ -170,6 +202,43 @@
   --sidebar-accent-foreground: #0a0a0a;
   --sidebar-border: #e5e5e5;
   --sidebar-ring: #00d4ff;
+
+  /* Brand Red Colors from Figma */
+  --brand-red-40: #B21919;
+  --brand-red-45: #DA0B0B;
+  --brand-red-55: #F42525;
+  --brand-red-60: #F53D3D;
+  --brand-red-70: #F76E6E;
+  --brand-red-80: #FA9E9E;
+  --brand-red-90: #FFCCCC;
+  --brand-red-95: #FFE5E5;
+  /* Brand Blue Colors from Figma */
+  --brand-blue-30: #075292;
+  --brand-blue-45: #0B7ADA;
+  --brand-blue-55: #2594F4;
+  --brand-blue-60: #3DA0F5;
+  --brand-blue-70: #6DB8F8;
+  --brand-blue-80: #9ECFFA;
+  --brand-blue-90: #CEE7FD;
+  --brand-blue-95: #E7F3FE;
+
+  /* Neutral colors */
+  --brand-black-06: #0F0F0F;
+  --brand-black-08: #141414;
+  --brand-black-10: #1A1A1A;
+  --brand-black-12: #1F1F1F;
+  --brand-black-15: #262626;
+  --brand-black-20: #333333;
+  --brand-black-25: #404040;
+  --brand-black-30: #4D4D4D;
+  --brand-grey-60: #999999;
+  --brand-grey-65: #A6A6A6;
+  --brand-grey-70: #B3B3B3;
+  --brand-grey-75: #BFBFBF;
+  --brand-grey-90: #E4E4E7;
+  --brand-grey-95: #F1F1F3;
+  --brand-grey-97: #F7F7F8;
+  --brand-grey-99: #FCFCFD;
 }
 
 .dark {
