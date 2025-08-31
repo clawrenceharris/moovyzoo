@@ -13,13 +13,11 @@ export const useChatSidebar = (): UseChatSidebarReturn => {
 
   const openSidebar = useCallback(() => {
     setIsOpen(true);
-    // Prevent body scroll when sidebar is open
     document.body.style.overflow = 'hidden';
   }, []);
 
   const closeSidebar = useCallback(() => {
     setIsOpen(false);
-    // Restore body scroll
     document.body.style.overflow = 'unset';
   }, []);
 
@@ -31,7 +29,6 @@ export const useChatSidebar = (): UseChatSidebarReturn => {
     }
   }, [isOpen, openSidebar, closeSidebar]);
 
-  // Handle escape key
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) {
@@ -48,7 +45,6 @@ export const useChatSidebar = (): UseChatSidebarReturn => {
     };
   }, [isOpen, closeSidebar]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       document.body.style.overflow = 'unset';

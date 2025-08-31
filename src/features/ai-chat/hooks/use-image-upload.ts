@@ -41,7 +41,6 @@ export const useImageUpload = (): UseImageUploadReturn => {
 
   const removeAttachment = useCallback(() => {
     if (attachment?.preview) {
-      // Clean up the blob URL to prevent memory leaks
       URL.revokeObjectURL(attachment.preview);
     }
     setAttachment(null);

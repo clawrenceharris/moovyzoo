@@ -12,15 +12,21 @@ export interface ProcessedImage {
 }
 
 export const validateImageFile = (file: File): { isValid: boolean; error?: string } => {
-  try {
-    ImageFileSchema.parse(file);
-    return { isValid: true };
-  } catch (error) {
-    if (error instanceof Error) {
-      return { isValid: false, error: error.message };
-    }
-    return { isValid: false, error: 'Invalid file format' };
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return {
+      isValid: false,
+      error: `Invalid file type. Please upload ${ALLOWED_TYPES.join(', ')}`
+    };
   }
+  
+  if (file.size > MAX_FILE_SIZE) {
+    return {
+      isValid: false,
+      error: `File too large. Maximum size is ${formatFileSize(MAX_FILE_SIZE)}`
+    };
+  }
+  
+  return { isValid: true };
 };
 
 export const createImagePreview = (file: File): Promise<string> => {
@@ -45,7 +51,6 @@ export const compressImage = (file: File, maxWidth = MAX_DIMENSIONS.width, maxHe
     const img = new Image();
 
     img.onload = () => {
-      // Calculate new dimensions
       let { width, height } = img;
       
       if (width > maxWidth || height > maxHeight) {
@@ -57,7 +62,6 @@ export const compressImage = (file: File, maxWidth = MAX_DIMENSIONS.width, maxHe
       canvas.width = width;
       canvas.height = height;
 
-      // Draw and compress
       ctx?.drawImage(img, 0, 0, width, height);
       
       canvas.toBlob(
@@ -95,12 +99,10 @@ export const processImageFile = async (file: File): Promise<ProcessedImage> => {
   }
 
   try {
-    // Create preview
     const preview = await createImagePreview(file);
     
-    // Compress if needed
     let processedFile = file;
-    if (file.size > MAX_FILE_SIZE / 2) { // Compress if larger than 5MB
+    if (file.size > MAX_FILE_SIZE / 2) {
       processedFile = await compressImage(file);
     }
 

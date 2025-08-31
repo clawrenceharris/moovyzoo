@@ -2,10 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAIAgent, configureLangSmith } from '@/features/ai-chat/utils/langraph-config';
 import { HumanMessage, AIMessage, BaseMessage } from '@langchain/core/messages';
 
-// Configure LangSmith tracing once when the module loads
 configureLangSmith();
 
-// Create agent instance (will be reused across requests)
 let agentInstance: ReturnType<typeof createAIAgent> | null = null;
 const getAgentInstance = () => {
   if (!agentInstance) {
@@ -27,7 +25,6 @@ interface ChatRequest {
   conversationId: string;
 }
 
-// Convert chat messages to LangChain format
 function convertMessagesToLangChain(messages: ChatMessage[]): BaseMessage[] {
   return messages.map((msg) => {
     if (msg.role === 'user') {
@@ -50,19 +47,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert to LangChain format
     const langchainMessages = convertMessagesToLangChain(messages);
-    
-    // Get agent instance
     const agent = getAgentInstance();
 
-    // Create a ReadableStream for Server-Sent Events
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();
         
         try {
-          // Stream response from LangGraph agent
           const agentStream = await agent.stream(
             { messages: langchainMessages },
             {
@@ -75,14 +67,10 @@ export async function POST(request: NextRequest) {
 
           let hasContent = false;
           
-          // Process streaming chunks
           for await (const [message] of agentStream) {
-            
-            // Only stream AI assistant messages, not tool messages
             if (message.constructor.name == "AIMessageChunk" && message.content && typeof message.content === 'string') {
               hasContent = true;
               
-              // Send chunk as Server-Sent Event
               const data = JSON.stringify({
                 type: 'content',
                 content: message.content
@@ -90,10 +78,8 @@ export async function POST(request: NextRequest) {
               
               controller.enqueue(encoder.encode(`data: ${data}\n\n`));
             }
-            // Skip ToolMessage instances to avoid showing raw tool output
           }
 
-          // If no content was received, send a fallback message
           if (!hasContent) {
             const fallbackData = JSON.stringify({
               type: 'content',
@@ -102,7 +88,6 @@ export async function POST(request: NextRequest) {
             controller.enqueue(encoder.encode(`data: ${fallbackData}\n\n`));
           }
 
-          // Send completion signal
           const completeData = JSON.stringify({ type: 'complete' });
           controller.enqueue(encoder.encode(`data: ${completeData}\n\n`));
           
@@ -120,7 +105,6 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Return streaming response
     return new Response(stream, {
       headers: {
         'Content-Type': 'text/event-stream',
@@ -141,7 +125,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Handle OPTIONS request for CORS
 export async function OPTIONS() {
   return new Response(null, {
     status: 200,

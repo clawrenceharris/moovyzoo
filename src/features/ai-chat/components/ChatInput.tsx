@@ -40,7 +40,6 @@ export function ChatInput({
     setMessage('');
     removeAttachment();
     
-    // Reset textarea height
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
@@ -58,7 +57,6 @@ export function ChatInput({
     if (file) {
       handleFileSelect(file);
     }
-    // Reset input value to allow selecting the same file again
     e.target.value = '';
   };
 
@@ -168,7 +166,7 @@ export function ChatInput({
               style={{ minHeight: '64px', maxHeight: '120px' }}
             />
             
-            {/* Character count (optional) */}
+            {/* Character count */}
             {message.length > 3800 && (
               <div className="absolute bottom-1 right-12 text-xs text-brand-grey-70">
                 {message.length}/4000

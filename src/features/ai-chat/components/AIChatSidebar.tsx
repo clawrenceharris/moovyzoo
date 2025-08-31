@@ -14,7 +14,6 @@ interface AIChatSidebarProps {
 export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
   const sidebarRef = useRef<HTMLDivElement>(null);
 
-  // Handle click outside to close
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -27,7 +26,6 @@ export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
     };
 
     if (isOpen) {
-      // Add a small delay to prevent immediate closing when opening
       const timer = setTimeout(() => {
         document.addEventListener('mousedown', handleClickOutside);
       }, 100);
@@ -42,10 +40,8 @@ export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
   return (
     <div className={cn(
       "fixed inset-0 z-50",
-      // Hide the entire portal when closed
       !isOpen && "pointer-events-none"
     )}>
-      {/* Backdrop overlay */}
       <div 
         className={cn(
           'absolute inset-0 bg-black/50 backdrop-blur-sm',
@@ -55,7 +51,6 @@ export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
         onClick={onClose}
       />
 
-      {/* Sidebar container */}
       <div
         ref={sidebarRef}
         className={cn(
@@ -63,16 +58,11 @@ export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
           'bg-brand-black-08 border-l border-brand-black-15',
           'shadow-2xl shadow-brand-black-06/50',
           'transition-transform duration-300 ease-in-out',
-          
-          // Responsive layout
           'flex flex-col w-full md:w-[500px]',
-          
-          // Animation states
           isOpen ? 'translate-x-0' : 'translate-x-full'
         )}
       >
         <div className="flex flex-col w-full h-full">
-          {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-brand-black-15">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-full bg-brand-red-45 flex items-center justify-center">
@@ -105,7 +95,6 @@ export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
             </button>
           </div>
 
-          {/* Chat interface */}
           <div className="flex-1 overflow-hidden">
             <ChatInterface />
           </div>

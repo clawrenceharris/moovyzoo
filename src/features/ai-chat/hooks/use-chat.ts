@@ -26,7 +26,6 @@ export const useChat = (): UseChatReturn => {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsedMessages = JSON.parse(stored);
-        // Convert timestamp strings back to Date objects
         const messagesWithDates = parsedMessages.map((msg: Message & { timestamp: string }) => ({
           ...msg,
           timestamp: new Date(msg.timestamp)
@@ -56,23 +55,17 @@ export const useChat = (): UseChatReturn => {
   const sendMessage = useCallback(async (content: string, image?: File) => {
     if (!content.trim() && !image) return;
 
-    // Store the user message for potential retry
     lastUserMessageRef.current = { content, image };
 
-    // Create and add user message
     const userMessage = createUserMessage(content, image);
     setMessages(prev => [...prev, userMessage]);
     setError(null);
     setIsLoading(true);
 
     try {
-      // Update user message status to sent
       updateMessageStatus(userMessage.id, 'sent');
 
-      // Get the current conversation context including the new user message
       const currentMessages = [...messages, userMessage];
-      
-      // Create the initial AI message that will be updated as we stream
       const aiMessage = createAssistantMessage('');
       setMessages(prev => [...prev, aiMessage]);
       
@@ -120,7 +113,6 @@ export const useChat = (): UseChatReturn => {
                   if (data.type === 'content') {
                     accumulatedContent += data.content;
                     
-                    // Update the AI message with accumulated content
                     setMessages(prev => prev.map(msg => 
                       msg.id === aiMessage.id 
                         ? { ...msg, content: accumulatedContent }
@@ -129,7 +121,6 @@ export const useChat = (): UseChatReturn => {
                   } else if (data.type === 'error') {
                     throw new Error(data.error);
                   } else if (data.type === 'complete') {
-                    // Streaming completed successfully
                     break;
                   }
                 } catch (parseError) {
@@ -142,13 +133,11 @@ export const useChat = (): UseChatReturn => {
           reader.releaseLock();
         }
       }
-      
     } catch (err) {
       console.error('Chat API error:', err);
       setError(err instanceof Error ? err.message : 'Failed to send message');
       updateMessageStatus(userMessage.id, 'error');
       
-      // Remove any empty AI messages if there was an error
       setMessages(prev => prev.filter(msg => 
         !(msg.role === 'assistant' && msg.content.trim() === '')
       ));

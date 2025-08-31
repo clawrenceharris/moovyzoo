@@ -50,12 +50,11 @@ export const formatTimestamp = (timestamp: Date): string => {
 };
 
 export const formatMessageContent = (content: string): string => {
-  // Basic markdown-like formatting for AI responses
   return content
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-    .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
-    .replace(/`(.*?)`/g, '<code>$1</code>') // Inline code
-    .replace(/\n/g, '<br>'); // Line breaks
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`(.*?)`/g, '<code>$1</code>')
+    .replace(/\n/g, '<br>');
 };
 
 export const truncateMessage = (content: string, maxLength: number = 100): string => {

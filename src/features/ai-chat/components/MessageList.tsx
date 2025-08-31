@@ -20,15 +20,12 @@ export function MessageList({ messages, isLoading, className }: MessageListProps
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     const scrollToBottom = () => {
-      if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'end'
-        });
-      }
+      messagesEndRef.current?.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'end'
+      });
     };
 
-    // Small delay to ensure DOM is updated
     const timer = setTimeout(scrollToBottom, 100);
     return () => clearTimeout(timer);
   }, [messages, isLoading]);
@@ -62,11 +59,9 @@ export function MessageList({ messages, isLoading, className }: MessageListProps
           </p>
         </div>
       ) : (
-        // Messages
         <div className="min-h-full">
           {messages
             .filter((message) => {
-              // Hide empty AI messages when loading to prevent duplicate AI icons
               if (isLoading && message.role === 'assistant' && !message.content.trim()) {
                 return false;
               }
@@ -80,10 +75,7 @@ export function MessageList({ messages, isLoading, className }: MessageListProps
               />
             ))}
           
-          {/* Typing indicator */}
           {isLoading && <TypingIndicator />}
-          
-          {/* Scroll anchor */}
           <div ref={messagesEndRef} className="h-1" />
         </div>
       )}

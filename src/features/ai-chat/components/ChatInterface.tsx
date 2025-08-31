@@ -22,14 +22,6 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
 
   const hasMessages = messages.length > 0;
 
-  const handleSendMessage = async (content: string, image?: File) => {
-    await sendMessage(content, image);
-  };
-
-  const handlePromptSelect = (prompt: string) => {
-    sendMessage(prompt);
-  };
-
   return (
     <div className={cn('flex flex-col h-full bg-brand-black-08', className)}>
       {/* Main content area */}
@@ -42,7 +34,7 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
           />
         ) : (
           <div className="flex-1 overflow-y-auto">
-            <StarterPrompts onSelectPrompt={handlePromptSelect} />
+            <StarterPrompts onSelectPrompt={sendMessage} />
           </div>
         )}
 
@@ -72,7 +64,7 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
 
       {/* Input area */}
       <ChatInput
-        onSendMessage={handleSendMessage}
+        onSendMessage={sendMessage}
         disabled={isLoading}
       />
 
