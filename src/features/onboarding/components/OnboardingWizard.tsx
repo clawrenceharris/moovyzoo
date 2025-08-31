@@ -12,15 +12,13 @@ import { signupSchema } from "../../auth/domain/auth.schema";
 import { useAuth } from "../../auth/hooks";
 import { OnboardingProvider, useOnboarding } from "../OnboardingContext";
 import { SignUpForm } from "@/features/auth/components";
-import { useEffect } from "react";
-import { useProfile } from "@/features/profile/hooks/useProfile";
+import { useProfileActions } from "@/features/profile/hooks/useProfileActions";
 import { User } from "@supabase/supabase-js";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 function OnboardingBody({ user }: { user: User }) {
   const router = useRouter();
-  const { profile, createProfile, isCreating, createError } = useProfile(
-    user.id
-  );
+  const { createProfile, isCreating, createError } = useProfileActions(user.id);
   const {
     currentStep,
 
@@ -32,10 +30,6 @@ function OnboardingBody({ user }: { user: User }) {
     data,
   } = useOnboarding();
 
-  useEffect(() => {
-    if (profile && profile.onboardingCompleted) {
-    }
-  }, [profile, router]);
   const handleNext = async () => {
     if (isLastStep) {
       completeOnboarding();
@@ -166,7 +160,7 @@ export default function OnboardingWizard(props: { nextPath?: string }) {
                 mode="onChange"
                 submitText="Get Started!"
                 description="Sign up to start watching your favorite movies with your favorite people!"
-                formSchema={signupSchema}
+                resolver={zodResolver(signupSchema)}
                 onSubmit={signup}
               >
                 <SignUpForm

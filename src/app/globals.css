@@ -64,6 +64,158 @@
     @apply shadow-lg transform bg-primary/30;
   }
 
+  .section {
+    @apply border-2 border-outline p-10 rounded-md;
+  }
+  .card {
+    @apply flex flex-col;
+  }
+
+  /* Habitat Card Components */
+  .habitat-card {
+    @apply relative overflow-hidden rounded-xl bg-card border border-border/50 cursor-pointer transition-all duration-300 hover:scale-[1.02];
+  }
+
+  .habitat-card-banner {
+    @apply relative aspect-[16/10] overflow-hidden;
+  }
+
+  .habitat-card-banner::after {
+    @apply bg-background/50 absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent;
+    content: "";
+  }
+
+  .card-content {
+    @apply inset-0 flex flex-col justify-between p-6 text-white z-10;
+  }
+
+  h3 {
+    @apply text-2xl font-bold;
+  }
+
+  .card-description {
+    @apply text-sm text-white/80 line-clamp-3 mb-4 flex-1;
+  }
+
+  .card-footer {
+    @apply flex items-center p-6 justify-between mt-auto;
+  }
+
+  .habitat-card-members {
+    @apply flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-sm font-medium;
+  }
+
+  .habitat-card-members-icon {
+    @apply w-4 h-4 text-accent;
+  }
+
+  .habitat-card-cta {
+    @apply px-6 py-2.5 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold rounded-lg transition-colors duration-200;
+  }
+
+  .habitat-card-tags {
+    @apply absolute top-4 right-4 flex flex-wrap gap-1.5 z-20;
+  }
+
+  .habitat-card-tag {
+    @apply px-2 py-1 text-xs font-medium bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white/90;
+  }
+
+  /* Loading State Components */
+  .loading-state {
+    @apply w-full;
+  }
+
+  .loading-state-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6;
+  }
+
+  .loading-state-list {
+    @apply space-y-4;
+  }
+
+  .loading-state-inline {
+    @apply flex gap-4 overflow-x-auto;
+  }
+
+  .loading-state-card {
+    @apply space-y-3;
+  }
+
+  /* Error State Components */
+  .error-state {
+    @apply w-full;
+  }
+
+  .error-state-default {
+    @apply flex flex-col items-center justify-center min-h-[200px];
+  }
+
+  .error-state-minimal {
+    @apply inline-flex;
+  }
+
+  .error-state-inline {
+    @apply w-full;
+  }
+
+  .error-state-card {
+    @apply w-full max-w-md mx-auto;
+  }
+
+  /* Empty State Components */
+  .empty-state {
+    @apply w-full;
+  }
+
+  .empty-state-default {
+    @apply flex flex-col items-center justify-center min-h-[200px];
+  }
+
+  .empty-state-minimal {
+    @apply inline-flex;
+  }
+
+  .empty-state-inline {
+    @apply w-full;
+  }
+
+  .empty-state-card {
+    @apply w-full max-w-md mx-auto;
+  }
+
+  /* Media Search Components */
+  .media-search-dropdown {
+    @apply absolute top-full left-0 right-0 z-50 mt-1 max-h-80 overflow-y-auto rounded-md border bg-popover shadow-lg backdrop-blur-sm;
+  }
+
+  .media-search-result {
+    @apply w-full flex items-center gap-3 p-3 text-left hover:bg-primary-surface focus:bg-primary-surface focus:outline-none transition-colors cursor-pointer;
+  }
+
+  .media-search-result.selected {
+    @apply bg-accent/20;
+  }
+
+  .media-search-poster {
+    @apply flex-shrink-0 w-12 h-16 bg-muted rounded overflow-hidden;
+  }
+
+  .media-search-poster-placeholder {
+    @apply w-full h-full flex items-center justify-center;
+  }
+
+  .media-type-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .media-type-badge.movie {
+    @apply bg-accent/20 text-accent-foreground;
+  }
+
+  .media-type-badge.tv {
+    @apply bg-accent/20 text-accent;
+  }
   /* Cinematic animations */
   @keyframes fadeInUp {
     from {
@@ -131,6 +283,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-outline: var(--outline);
+  --color-primary-surface: var(--primary-surface);
   --color-brand-red-45: var(--brand-red-45);
   --color-brand-red-40: var(--brand-red-40);
   --color-brand-red-55: var(--brand-red-55);
@@ -170,6 +324,7 @@
   --foreground: #0a0a0a;
   --secondary-background: #ffff;
   --tertiary-background: #ffff;
+  --primary-surface: #0f0f0f;
   --radius: 1rem;
   --card: #ffffff;
   --card-foreground: #0a0a0a;
@@ -202,51 +357,54 @@
   --sidebar-accent-foreground: #0a0a0a;
   --sidebar-border: #e5e5e5;
   --sidebar-ring: #00d4ff;
+  --outline: #333333;
 
   /* Brand Red Colors from Figma */
-  --brand-red-40: #B21919;
-  --brand-red-45: #DA0B0B;
-  --brand-red-55: #F42525;
-  --brand-red-60: #F53D3D;
-  --brand-red-70: #F76E6E;
-  --brand-red-80: #FA9E9E;
-  --brand-red-90: #FFCCCC;
-  --brand-red-95: #FFE5E5;
+  --brand-red-40: #b21919;
+  --brand-red-45: #da0b0b;
+  --brand-red-55: #f42525;
+  --brand-red-60: #f53d3d;
+  --brand-red-70: #f76e6e;
+  --brand-red-80: #fa9e9e;
+  --brand-red-90: #ffcccc;
+  --brand-red-95: #ffe5e5;
   /* Brand Blue Colors from Figma */
   --brand-blue-30: #075292;
-  --brand-blue-45: #0B7ADA;
-  --brand-blue-55: #2594F4;
-  --brand-blue-60: #3DA0F5;
-  --brand-blue-70: #6DB8F8;
-  --brand-blue-80: #9ECFFA;
-  --brand-blue-90: #CEE7FD;
-  --brand-blue-95: #E7F3FE;
+  --brand-blue-45: #0b7ada;
+  --brand-blue-55: #2594f4;
+  --brand-blue-60: #3da0f5;
+  --brand-blue-70: #6db8f8;
+  --brand-blue-80: #9ecffa;
+  --brand-blue-90: #cee7fd;
+  --brand-blue-95: #e7f3fe;
 
   /* Neutral colors */
-  --brand-black-06: #0F0F0F;
+  --brand-black-06: #0f0f0f;
   --brand-black-08: #141414;
-  --brand-black-10: #1A1A1A;
-  --brand-black-12: #1F1F1F;
+  --brand-black-10: #1a1a1a;
+  --brand-black-12: #1f1f1f;
   --brand-black-15: #262626;
   --brand-black-20: #333333;
   --brand-black-25: #404040;
-  --brand-black-30: #4D4D4D;
+  --brand-black-30: #4d4d4d;
   --brand-grey-60: #999999;
-  --brand-grey-65: #A6A6A6;
-  --brand-grey-70: #B3B3B3;
-  --brand-grey-75: #BFBFBF;
-  --brand-grey-90: #E4E4E7;
-  --brand-grey-95: #F1F1F3;
-  --brand-grey-97: #F7F7F8;
-  --brand-grey-99: #FCFCFD;
+  --brand-grey-65: #a6a6a6;
+  --brand-grey-70: #b3b3b3;
+  --brand-grey-75: #bfbfbf;
+  --brand-grey-90: #e4e4e7;
+  --brand-grey-95: #f1f1f3;
+  --brand-grey-97: #f7f7f8;
+  --brand-grey-99: #fcfcfd;
+
 }
 
 .dark {
-  --background: #0a0a0a; /* Theater black */
+  --background: #141414; /* Theater black */
   --foreground: #ffffff;
   --secondary-background: #141414;
+  --primary-background: 
   --tertiary-background: #1f1f1f;
-  --card: #141414; /* Netflix card gray */
+  --card: #1a1a1a; /* Netflix card gray */
   --card-foreground: #ffffff;
   --popover: #1f1f1f; /* Elevated surfaces */
   --popover-foreground: #ffffff;

@@ -5,11 +5,13 @@ import {
   type FieldValues,
   type DefaultValues,
   type UseFormReturn,
+  Resolver,
 } from "react-hook-form";
 import { Button } from "./ui";
 import { Form, FormDescription, FormMessage } from "./ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
+import { normalizeError } from "@/utils/normalize-error";
 
 export interface FormLayoutProps<T extends FieldValues>
   extends UseFormProps<T> {
@@ -26,10 +28,10 @@ export interface FormLayoutProps<T extends FieldValues>
   mode?: "onChange" | "onBlur" | "onSubmit" | "onTouched" | "all";
   isOpen?: boolean;
   description?: string;
+  resolver?: Resolver<T, any, T>;
   descriptionStyle?: React.CSSProperties;
   defaultValues?: DefaultValues<T>;
   enableBeforeUnloadProtection?: boolean;
-  formSchema: z.ZodType<T, T>;
 }
 
 function FormLayout<T extends FieldValues>({
@@ -48,13 +50,13 @@ function FormLayout<T extends FieldValues>({
   descriptionStyle,
   defaultValues,
   enableBeforeUnloadProtection = false,
-  formSchema,
+  resolver,
   ...formProps
 }: FormLayoutProps<T>) {
   const form = useForm<T>({
     ...formProps,
     mode,
-    resolver: zodResolver(formSchema),
+    resolver: resolver,
     defaultValues,
   });
 
@@ -82,7 +84,8 @@ function FormLayout<T extends FieldValues>({
       try {
         await onSubmit(data);
       } catch (error) {
-        console.error("Form submission error:", error);
+        const normalizedError = normalizeError(error);
+        form.setError("root", { message: normalizedError.message });
       }
     }
   };

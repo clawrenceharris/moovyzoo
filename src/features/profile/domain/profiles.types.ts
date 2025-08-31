@@ -21,7 +21,7 @@ export interface UserProfileDocument {
   display_name?: string;
   avatar_url?: string;
   favorite_genres?: string[];
-  privacy_settings: PrivacySettingsDocument;
+  is_public: boolean;
   badges: BadgeDocument[];
   created_at: string;
   updated_at: string;
@@ -48,7 +48,7 @@ export interface UserProfile {
   username: string;
   avatarUrl?: string;
   favoriteGenres: string[];
-  privacySettings: PrivacySettings;
+  is_public: boolean;
   createdAt: Date;
   updatedAt: Date;
   lastActiveAt: Date;

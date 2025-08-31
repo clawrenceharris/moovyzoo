@@ -1,15 +1,20 @@
-import { ReactNode } from "react";
+"use client";
 import "../globals.css";
-import Header from "@/components/Header";
-import { AIChatProvider } from "@/features/ai-chat";
-import AuthedLayout from "@/features/auth/components/AuthedLayout";
-import { QueryProvider } from "./providers";
 
-export const metadata = {
-  title: "Zoovie",
-  description: "Watch, chat, and play with your movie crew",
-};
-export default function RootLayout({ children }: { children: ReactNode }) {
+import { QueryProvider, UserProvider } from "@/app/(app)/providers";
+import Header from "@/components/Header";
+import { useAuth } from "@/features/auth/hooks";
+import { AIChatProvider } from "@/features/ai-chat";
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { user } = useAuth();
+
+  if (!user) return null;
+
   return (
     <html lang="en">
       <body className="bg-gray-50 text-gray-900">
@@ -19,7 +24,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {/* Page Content */}
           <main className="flex-1">
             <QueryProvider>
-              <AuthedLayout>{children}</AuthedLayout>
+              <UserProvider user={user}>
+                <Header />
+                <main className="flex-1">{children}</main>
+              </UserProvider>
             </QueryProvider>
           </main>
           <AIChatProvider />

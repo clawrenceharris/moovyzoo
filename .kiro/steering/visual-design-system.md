@@ -4,6 +4,8 @@ inclusion: fileMatch
 fileMatch: "src/components/**/*.tsx"
 fileMatch: "src/features/**/components/*.tsx"
 fileMatch: "*.css"
+fileMatch: "page.tsx"
+
 
 ---
 
@@ -39,7 +41,7 @@ _Modern, sleek design for young adults with the cinematic elegance of Netflix, t
 ### Primary Palette
 
 ```css
---primary: #DA0B0B; /* Cinematic red for CTAs and highlights */
+--primary: #da0b0b; /* Cinematic red for CTAs and highlights */
 ```
 
 ### Dark Theme Foundation
@@ -95,22 +97,46 @@ font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, san
 
 ## Component Patterns
 
+### MANDATORY: Use Shadcn UI Components
+
+**All UI components must use Shadcn UI as the foundation.** This includes:
+
+- **Buttons**: Use `@/components/ui/button` with variants
+- **Forms**: Use `@/components/ui/input`, `@/components/ui/label`, `@/components/ui/form`
+- **Cards**: Use `@/components/ui/card` with custom styling
+- **Dialogs**: Use `@/components/ui/dialog` for modals
+- **Navigation**: Use `@/components/ui/tabs`, `@/components/ui/navigation-menu`
+
 ### Cards
 
+- Built on Shadcn UI `Card` component
 - Dark backgrounds with subtle shadows
 - Rounded corners (1rem default)
 - Glow + scale on hover for interactivity
 
 ### Buttons
 
-- **Primary**: Cinematic red
-- **Secondary**: Glassmorphism background for subtlety
-- **Accent**: Bright playful colors for social features
+- Built on Shadcn UI `Button` component with custom variants:
+  - **Primary**: Cinematic red (`--primary`)
+  - **Secondary**: Glassmorphism background for subtlety
+  - **Accent**: Bright playful colors for social features
 
 ### Forms
 
-- Rounded, glass-style inputs
-- Clear focus states in accent cyan
+- Built on Shadcn UI form components (`Input`, `Label`, `Form`)
+- Rounded, glass-style inputs with design system tokens
+- Clear focus states in accent cyan (`--accent`)
+- Always wrapped in `FormLayout` component
+
+### Installation Requirements
+
+Before implementing any UI component, ensure required Shadcn components are installed:
+
+```bash
+# Core components (install as needed)
+npx shadcn@latest add button input label card form dialog tabs
+npx shadcn@latest add navigation-menu select textarea checkbox
+```
 
 ## Accessibility
 
@@ -121,8 +147,12 @@ font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, san
 
 Before shipping any UI component:
 
+- [ ] **MANDATORY**: Uses Shadcn UI components as foundation
+- [ ] **MANDATORY**: Forms use FormLayout wrapper
 - [ ] Works in dark mode (default) and light mode (optional)
 - [ ] Feels both sleek and fun
 - [ ] Animations enhance, not distract
 - [ ] Clear visual hierarchy for navigation
 - [ ] Responsive for mobile-first experience
+- [ ] Uses design system tokens (no hardcoded colors/spacing)
+- [ ] Follows component composition patterns from component library

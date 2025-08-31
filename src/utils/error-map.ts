@@ -163,4 +163,208 @@ export const errorMap: Record<AppErrorCode, AppError> = {
     title: "Unverified Email",
     message: "You have to verify your email",
   },
+
+  // Habitat errors
+  [AppErrorCode.HABITAT_NOT_FOUND]: {
+    title: "Habitat Not Found",
+    message: "This habitat doesn't exist or has been removed.",
+  },
+  [AppErrorCode.HABITAT_ACCESS_DENIED]: {
+    title: "Access Denied",
+    message: "You don't have permission to access this habitat.",
+  },
+  [AppErrorCode.HABITAT_CREATION_FAILED]: {
+    title: "Creation Failed",
+    message: "Could not create the habitat. Please try again.",
+  },
+  [AppErrorCode.HABITAT_UPDATE_FAILED]: {
+    title: "Update Failed",
+    message: "Could not update the habitat. Please try again.",
+  },
+  [AppErrorCode.HABITAT_DELETE_FAILED]: {
+    title: "Delete Failed",
+    message: "Could not delete the habitat. Please try again.",
+  },
+  [AppErrorCode.HABITAT_JOIN_FAILED]: {
+    title: "Join Failed",
+    message: "Could not join the habitat. Please try again.",
+  },
+  [AppErrorCode.HABITAT_LEAVE_FAILED]: {
+    title: "Leave Failed",
+    message: "Could not leave the habitat. Please try again.",
+  },
+  [AppErrorCode.HABITAT_ALREADY_MEMBER]: {
+    title: "Already a Member",
+    message: "You're already a member of this habitat.",
+  },
+  [AppErrorCode.HABITAT_NOT_MEMBER]: {
+    title: "Not a Member",
+    message: "You need to join this habitat first.",
+  },
+  [AppErrorCode.HABITAT_INVALID_DATA]: {
+    title: "Invalid Data",
+    message: "Some habitat information is invalid. Please check and try again.",
+  },
+  [AppErrorCode.HABITAT_INVALID_NAME]: {
+    title: "Invalid Name",
+    message: "Habitat name must be 3-100 characters long.",
+  },
+  [AppErrorCode.HABITAT_INVALID_DESCRIPTION]: {
+    title: "Invalid Description",
+    message: "Description must be 10-500 characters long.",
+  },
+  [AppErrorCode.HABITAT_INVALID_TAGS]: {
+    title: "Invalid Tags",
+    message: "Please add 1-5 unique tags, each up to 30 characters.",
+  },
+
+  // Message errors
+  [AppErrorCode.MESSAGE_NOT_FOUND]: {
+    title: "Message Not Found",
+    message: "This message no longer exists.",
+  },
+  [AppErrorCode.MESSAGE_TOO_LONG]: {
+    title: "Message Too Long",
+    message: "Messages must be 1000 characters or less.",
+  },
+  [AppErrorCode.MESSAGE_SEND_FAILED]: {
+    title: "Send Failed",
+    message: "Could not send your message. Please try again.",
+  },
+  [AppErrorCode.MESSAGE_DELETE_FAILED]: {
+    title: "Delete Failed",
+    message: "Could not delete the message. Please try again.",
+  },
+  [AppErrorCode.MESSAGE_INVALID_CONTENT]: {
+    title: "Invalid Message",
+    message: "Message content is invalid or empty.",
+  },
+  [AppErrorCode.MESSAGE_UNAUTHORIZED]: {
+    title: "Unauthorized",
+    message: "You can only delete your own messages.",
+  },
+
+  // Real-time connection errors
+  [AppErrorCode.REALTIME_CONNECTION_FAILED]: {
+    title: "Connection Failed",
+    message: "Could not connect to chat. Please refresh and try again.",
+  },
+  [AppErrorCode.REALTIME_CHANNEL_ERROR]: {
+    title: "Chat Error",
+    message: "Chat connection interrupted. Messages may be delayed.",
+  },
+  [AppErrorCode.REALTIME_SUBSCRIPTION_FAILED]: {
+    title: "Subscription Failed",
+    message: "Could not subscribe to chat updates. Please refresh.",
+  },
+
+  // Discussion errors
+  [AppErrorCode.DISCUSSION_NOT_FOUND]: {
+    title: "Discussion Not Found",
+    message: "This discussion doesn't exist or has been removed.",
+  },
+  [AppErrorCode.DISCUSSION_CREATION_FAILED]: {
+    title: "Creation Failed",
+    message: "Could not create the discussion. Please try again.",
+  },
+  [AppErrorCode.DISCUSSION_UPDATE_FAILED]: {
+    title: "Update Failed",
+    message: "Could not update the discussion. Please try again.",
+  },
+  [AppErrorCode.DISCUSSION_DELETE_FAILED]: {
+    title: "Delete Failed",
+    message: "Could not delete the discussion. Please try again.",
+  },
+  [AppErrorCode.DISCUSSION_INVALID_NAME]: {
+    title: "Invalid Name",
+    message: "Discussion name must be 3-100 characters long.",
+  },
+  [AppErrorCode.DISCUSSION_INVALID_DESCRIPTION]: {
+    title: "Invalid Description",
+    message: "Description must be 500 characters or less.",
+  },
+  [AppErrorCode.DISCUSSION_UNAUTHORIZED]: {
+    title: "Unauthorized",
+    message: "You don't have permission to modify this discussion.",
+  },
+
+  // Poll errors
+  [AppErrorCode.POLL_NOT_FOUND]: {
+    title: "Poll Not Found",
+    message: "This poll doesn't exist or has been removed.",
+  },
+  [AppErrorCode.POLL_CREATION_FAILED]: {
+    title: "Creation Failed",
+    message: "Could not create the poll. Please try again.",
+  },
+  [AppErrorCode.POLL_UPDATE_FAILED]: {
+    title: "Update Failed",
+    message: "Could not update the poll. Please try again.",
+  },
+  [AppErrorCode.POLL_DELETE_FAILED]: {
+    title: "Delete Failed",
+    message: "Could not delete the poll. Please try again.",
+  },
+  [AppErrorCode.POLL_INVALID_TITLE]: {
+    title: "Invalid Title",
+    message: "Poll title must be 5-200 characters long.",
+  },
+  [AppErrorCode.POLL_INVALID_OPTIONS]: {
+    title: "Invalid Options",
+    message: "Polls need 2-6 options, each 1-100 characters long.",
+  },
+  [AppErrorCode.POLL_VOTE_FAILED]: {
+    title: "Vote Failed",
+    message: "Could not record your vote. Please try again.",
+  },
+  [AppErrorCode.POLL_UNAUTHORIZED]: {
+    title: "Unauthorized",
+    message: "You don't have permission to modify this poll.",
+  },
+
+  // Watch Party errors
+  [AppErrorCode.WATCH_PARTY_NOT_FOUND]: {
+    title: "Watch Party Not Found",
+    message: "This watch party doesn't exist or has been removed.",
+  },
+  [AppErrorCode.WATCH_PARTY_CREATION_FAILED]: {
+    title: "Creation Failed",
+    message: "Could not create the watch party. Please try again.",
+  },
+  [AppErrorCode.WATCH_PARTY_UPDATE_FAILED]: {
+    title: "Update Failed",
+    message: "Could not update the watch party. Please try again.",
+  },
+  [AppErrorCode.WATCH_PARTY_DELETE_FAILED]: {
+    title: "Delete Failed",
+    message: "Could not delete the watch party. Please try again.",
+  },
+  [AppErrorCode.WATCH_PARTY_INVALID_TITLE]: {
+    title: "Invalid Title",
+    message: "Watch party title must be 5-200 characters long.",
+  },
+  [AppErrorCode.WATCH_PARTY_INVALID_DESCRIPTION]: {
+    title: "Invalid Description",
+    message: "Description must be 500 characters or less.",
+  },
+  [AppErrorCode.WATCH_PARTY_INVALID_TIME]: {
+    title: "Invalid Time",
+    message: "Please schedule the party for a future date and time.",
+  },
+  [AppErrorCode.WATCH_PARTY_JOIN_FAILED]: {
+    title: "Join Failed",
+    message: "Could not join the watch party. Please try again.",
+  },
+  [AppErrorCode.WATCH_PARTY_LEAVE_FAILED]: {
+    title: "Leave Failed",
+    message: "Could not leave the watch party. Please try again.",
+  },
+  [AppErrorCode.WATCH_PARTY_FULL]: {
+    title: "Party Full",
+    message: "This watch party has reached its maximum capacity.",
+  },
+  [AppErrorCode.WATCH_PARTY_UNAUTHORIZED]: {
+    title: "Unauthorized",
+    message: "You don't have permission to modify this watch party.",
+  },
 };

@@ -143,5 +143,5 @@ vite.config.ts.timestamp-*
 
 #Kiro
 .kiro/settings/
-.kiro/settings
-.kiro/hooks
+*storybook.log
+storybook-static

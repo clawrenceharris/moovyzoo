@@ -26,9 +26,23 @@ Each feature follows a modular, responsibility-based structure:
 │  ├─ globals.css
 │  └─ middleware.ts                      # Auth/role guards (redirects)
 ├─ components/                           # Reusable, app-wide UI components (PascalCase)
-│  ├─ ui/
-│  │  ├─ Modal/
+│  ├─ ui/                                # Shadcn UI components (Button, Input, Card, etc.)
+│  │  ├─ Button.tsx
+│  │  ├─ Input.tsx
+│  │  ├─ card.tsx
 │  │  └─ ...
+│  ├─ states/                            # Reusable state components
+│  │  ├─ LoadingState.tsx               # Standardized loading indicators
+│  │  ├─ ErrorState.tsx                 # Consistent error display with retry
+│  │  ├─ EmptyState.tsx                 # Configurable empty state display
+│  │  └─ index.ts                       # Barrel exports
+│  ├─ cards/                            # Domain-specific card components
+│  │  ├─ HabitatCard.tsx               # Habitat display cards
+│  │  ├─ DiscussionCard.tsx            # Discussion display cards
+│  │  ├─ PollCard.tsx                  # Poll display cards
+│  │  ├─ WatchPartyCard.tsx            # Watch party display cards
+│  │  └─ index.ts                       # Barrel exports
+│  └─ index.ts                          # Main barrel export for all shared components
 ├─ features/                             # Feature modules (vertical slices)
 │  ├─ auth/
 │  │  ├─ components/                     # Feature-specific components (PascalCase)
@@ -85,7 +99,31 @@ Each feature follows a modular, responsibility-based structure:
 
 ```
 
-## Rules
+## Component Architecture Principles
+
+### Modular, Reusable Design
+
+- **Extract common patterns**: Shared components live in `/src/components/` organized by purpose
+- **Single responsibility**: Each component has one clear purpose and responsibility
+- **Composition over inheritance**: Build complex components by composing smaller, focused components
+- **Consistent interfaces**: Similar components follow predictable prop patterns and naming conventions
+
+### Component Categories
+
+1. **UI Components** (`/components/ui/`): Shadcn UI base components (Button, Input, Card)
+2. **State Components** (`/components/states/`): Reusable loading, error, and empty states
+3. **Card Components** (`/components/cards/`): Domain-specific display cards for different content types
+4. **Feature Components** (`/features/*/components/`): Feature-specific components that compose shared components
+
+### Component Composition Rules
+
+- **Parent components** handle data flow and business logic only
+- **Child components** are pure and focused on presentation
+- **Use barrel exports** (`index.ts`) for clean imports across the application
+- **Avoid subcomponents** declared inside other component files - extract to shared components instead
+- **Consistent prop interfaces** with TypeScript for predictable usage patterns
+
+## File Organization Rules
 
 - **Split by responsibility** (small, focused files)
 - **data/** only contains Supabase SDK calls

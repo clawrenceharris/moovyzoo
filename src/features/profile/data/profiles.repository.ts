@@ -51,7 +51,6 @@ export class ProfilesRepository {
         .select("*")
         .eq("user_id", userId)
         .single();
-
       if (error) {
         throw error;
       }
@@ -203,10 +202,9 @@ export class ProfilesRepository {
       onboardingCompleted: dbProfile.onboarding_completed,
       displayName: dbProfile.display_name,
       avatarUrl: dbProfile.avatar_url,
+      is_public: dbProfile.is_public,
       favoriteGenres: dbProfile.favorite_genres || [],
-      privacySettings: {
-        isPublic: dbProfile.privacy_settings.is_public,
-      },
+
       createdAt: new Date(dbProfile.created_at),
       updatedAt: new Date(dbProfile.updated_at),
       lastActiveAt: new Date(dbProfile.last_active_at),
