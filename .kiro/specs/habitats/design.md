@@ -120,10 +120,15 @@ graph TB
 
 ##### Creation Modals
 
-- **DiscussionCreationModal**: Modal wrapper for discussion creation form
-- **PollCreationModal**: Modal wrapper for poll creation form
-- **WatchPartyCreationModal**: Modal wrapper for watch party creation form
-- **Features**: Consistent modal styling, backdrop click handling, escape key support
+- **DiscussionCreationModal**: Modal wrapper using Shadcn UI Dialog component
+- **PollCreationModal**: Modal wrapper using Shadcn UI Dialog component
+- **WatchPartyCreationModal**: Modal wrapper using Shadcn UI Dialog component
+- **Features**:
+  - Built on Shadcn UI Dialog (`@/components/ui/dialog`)
+  - Uses Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter components
+  - Consistent modal styling with backdrop click handling and escape key support
+  - Proper accessibility with focus management and ARIA attributes
+  - Responsive design with mobile-first approach
 
 ### Data Models
 
@@ -321,13 +326,13 @@ CREATE TABLE habitat_watch_parties (
 2. **Real-time Connection Errors**: WebSocket disconnections, reconnection logic
 3. **Database Errors**: Failed queries, constraint violations
 4. **Validation Errors**: Form validation failures, invalid input data
-5. **Creation Errors**: Failed content creation, duplicate names, scheduling conflicts
+5. **Creation Errors**: Failed content creation
 
 ### Error Handling Strategy
 
 - Use centralized error mapping from `error-map.ts`
 - Implement retry logic for real-time connections
-- User-friendly error messages following brand voice
+- Get user-friendly error messages following brand voice using the `getFriendErrorMessage` method
 - Form-specific validation with real-time feedback
 - Graceful degradation for creation failures
 
@@ -339,26 +344,6 @@ enum HabitatErrorCode {
   ACCESS_DENIED = "ACCESS_DENIED",
   MESSAGE_TOO_LONG = "MESSAGE_TOO_LONG",
   REALTIME_CONNECTION_FAILED = "REALTIME_CONNECTION_FAILED",
-
-  // Creation-specific errors
-  DISCUSSION_NAME_REQUIRED = "DISCUSSION_NAME_REQUIRED",
-  DISCUSSION_NAME_TOO_SHORT = "DISCUSSION_NAME_TOO_SHORT",
-  DISCUSSION_NAME_TOO_LONG = "DISCUSSION_NAME_TOO_LONG",
-  DISCUSSION_DESCRIPTION_TOO_LONG = "DISCUSSION_DESCRIPTION_TOO_LONG",
-
-  POLL_TITLE_REQUIRED = "POLL_TITLE_REQUIRED",
-  POLL_TITLE_TOO_SHORT = "POLL_TITLE_TOO_SHORT",
-  POLL_TITLE_TOO_LONG = "POLL_TITLE_TOO_LONG",
-  POLL_OPTIONS_REQUIRED = "POLL_OPTIONS_REQUIRED",
-  POLL_OPTION_TOO_LONG = "POLL_OPTION_TOO_LONG",
-  POLL_TOO_MANY_OPTIONS = "POLL_TOO_MANY_OPTIONS",
-
-  WATCH_PARTY_TITLE_REQUIRED = "WATCH_PARTY_TITLE_REQUIRED",
-  WATCH_PARTY_TITLE_TOO_SHORT = "WATCH_PARTY_TITLE_TOO_SHORT",
-  WATCH_PARTY_TITLE_TOO_LONG = "WATCH_PARTY_TITLE_TOO_LONG",
-  WATCH_PARTY_DESCRIPTION_TOO_LONG = "WATCH_PARTY_DESCRIPTION_TOO_LONG",
-  WATCH_PARTY_INVALID_TIME = "WATCH_PARTY_INVALID_TIME",
-  WATCH_PARTY_TIME_IN_PAST = "WATCH_PARTY_TIME_IN_PAST",
 }
 ```
 
@@ -383,6 +368,60 @@ enum HabitatErrorCode {
 - Multi-user chat scenarios
 - Real-time synchronization across multiple clients
 - Mobile responsiveness
+
+## Dialog Component Architecture
+
+### Shadcn UI Dialog Integration
+
+All creation modals use the Shadcn UI Dialog component system for consistency and accessibility:
+
+```typescript
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+```
+
+### Modal Structure Pattern
+
+Each creation modal follows this consistent structure:
+
+```tsx
+<Dialog open={isOpen} onOpenChange={setIsOpen}>
+  <DialogContent className="sm:max-w-md">
+    <DialogHeader>
+      <DialogTitle>Create [Content Type]</DialogTitle>
+    </DialogHeader>
+
+    {/* Form Component */}
+    <[ContentType]CreationForm
+      habitatId={habitatId}
+      onSuccess={handleSuccess}
+      onCancel={handleCancel}
+    />
+
+    <DialogFooter>
+      <Button variant="outline" onClick={handleCancel}>
+        Cancel
+      </Button>
+      <Button type="submit" form="creation-form">
+        Create [Content Type]
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+### Dialog State Management
+
+- Modal state managed by parent component (HabitatDashboard)
+- Form submission handled within form components
+- Success/error states communicated via callbacks
+- Automatic modal closing on successful creation
 
 ## Creation Workflow Design
 
@@ -436,9 +475,12 @@ enum HabitatErrorCode {
 
 #### Modal Interaction
 
-- Consistent modal styling across all creation forms
-- Backdrop click and escape key to cancel
-- Clear cancel and submit actions
+- Built using Shadcn UI Dialog components for consistency
+- Standard Dialog structure: DialogContent > DialogHeader + Form + DialogFooter
+- DialogHeader contains DialogTitle and optional DialogDescription
+- DialogFooter contains Cancel and Submit buttons
+- Backdrop click and escape key to cancel (built into Dialog component)
+- Proper focus management and accessibility handled by Radix UI primitives
 - Proper focus management for accessibility
 
 ## Implementation Considerations

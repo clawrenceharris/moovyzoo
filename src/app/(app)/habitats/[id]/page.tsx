@@ -4,6 +4,8 @@ import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { HabitatDashboard } from "@/features/habitats/components";
 import { useUser } from "@/hooks/useUser";
+import { errorMap } from "@/utils/error-map";
+import { AppErrorCode } from "@/types/error";
 
 export default function HabitatDashboardPage() {
   const params = useParams();
@@ -63,17 +65,16 @@ export default function HabitatDashboardPage() {
           </svg>
         </div>
 
-        <h1 className="text-xl font-semibold text-foreground mb-2">
-          Invalid Habitat
+        <h1 className="text-xl  text-foreground mb-2">
+          {errorMap[AppErrorCode.HABITAT_NOT_FOUND].title}
         </h1>
         <p className="text-sm text-muted-foreground mb-6 max-w-md">
-          The habitat you&apos;re looking for doesn&apos;t exist or the link is
-          invalid.
+          {errorMap[AppErrorCode.HABITAT_NOT_FOUND].message}
         </p>
 
         <button
           onClick={() => router.push("/habitats")}
-          className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+          className="px-4 py-2 text-sm  bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
         >
           Back to Habitats
         </button>

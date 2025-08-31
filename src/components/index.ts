@@ -2,6 +2,7 @@
 export * from "./ui";
 export * from "./states";
 export * from "./cards";
+export * from "./media";
 
 // Individual component exports (using default exports)
 export { default as FormLayout } from "./FormLayout";

@@ -183,6 +183,39 @@
   .empty-state-card {
     @apply w-full max-w-md mx-auto;
   }
+
+  /* Media Search Components */
+  .media-search-dropdown {
+    @apply absolute top-full left-0 right-0 z-50 mt-1 max-h-80 overflow-y-auto rounded-md border bg-popover shadow-lg backdrop-blur-sm;
+  }
+
+  .media-search-result {
+    @apply w-full flex items-center gap-3 p-3 text-left hover:bg-primary-surface focus:bg-primary-surface focus:outline-none transition-colors cursor-pointer;
+  }
+
+  .media-search-result.selected {
+    @apply bg-accent/20;
+  }
+
+  .media-search-poster {
+    @apply flex-shrink-0 w-12 h-16 bg-muted rounded overflow-hidden;
+  }
+
+  .media-search-poster-placeholder {
+    @apply w-full h-full flex items-center justify-center;
+  }
+
+  .media-type-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .media-type-badge.movie {
+    @apply bg-accent/20 text-accent-foreground;
+  }
+
+  .media-type-badge.tv {
+    @apply bg-accent/20 text-accent;
+  }
   /* Cinematic animations */
   @keyframes fadeInUp {
     from {

@@ -1,11 +1,20 @@
+import { errorMap } from "@/utils/error-map";
 import { habitatsRepository } from "../data/habitats.repository";
 import type {
   Habitat,
   HabitatWithMembership,
   MessageWithProfile,
   HabitatMember,
+  HabitatDashboardData,
+  DiscussionWithStats,
+  Discussion,
+  Poll,
+  WatchParty,
+  CreateWatchPartyData,
+  WatchPartyMedia,
 } from "./habitats.types";
 import { normalizeError } from "@/utils/normalize-error";
+import { AppErrorCode } from "@/types/error";
 
 /**
  * Service layer for habitats feature
@@ -288,6 +297,120 @@ export class HabitatsService {
   }
 
   /**
+   * Get messages for a specific discussion with access control
+   */
+  async getMessagesByDiscussion(
+    discussionId: string,
+    userId: string,
+    limit = 50,
+    offset = 0
+  ): Promise<MessageWithProfile[]> {
+    try {
+      if (!discussionId || !userId) {
+        throw new Error("Discussion ID and User ID are required");
+      }
+
+      // Get discussion details to validate access
+      const discussion = await habitatsRepository.getDiscussionById(
+        discussionId
+      );
+
+      // Validate access to the habitat that contains this discussion
+      await this.validateHabitatAccess(discussion.habitat_id, userId);
+
+      // Update user's last active timestamp
+      await habitatsRepository.updateLastActive(discussion.habitat_id, userId);
+
+      return await habitatsRepository.getMessagesByDiscussion(
+        discussionId,
+        limit,
+        offset
+      );
+    } catch (error) {
+      const normalizedError = normalizeError(error);
+      throw normalizedError;
+    }
+  }
+
+  /**
+   * Send a message to a specific discussion with validation and sanitization
+   */
+  async sendMessageToDiscussion(
+    habitatId: string,
+    discussionId: string,
+    userId: string,
+    content: string
+  ): Promise<MessageWithProfile> {
+    try {
+      if (!habitatId || !discussionId || !userId) {
+        throw new Error("Habitat ID, Discussion ID, and User ID are required");
+      }
+
+      // Validate and sanitize message content
+      const sanitizedContent = this.validateAndSanitizeMessage(content);
+
+      // Validate access to habitat
+      await this.validateHabitatAccess(habitatId, userId);
+
+      // Validate that discussion exists and belongs to the habitat
+      const discussion = await habitatsRepository.getDiscussionById(
+        discussionId
+      );
+      if (discussion.habitat_id !== habitatId) {
+        const error = new Error("Discussion does not belong to this habitat");
+        error.name = "DISCUSSION_INVALID_HABITAT";
+        throw error;
+      }
+
+      return await habitatsRepository.sendMessageToDiscussion(
+        habitatId,
+        discussionId,
+        userId,
+        sanitizedContent
+      );
+    } catch (error) {
+      const normalizedError = normalizeError(error);
+      throw normalizedError;
+    }
+  }
+
+  /**
+   * Get messages after a specific timestamp for a discussion (for real-time updates)
+   */
+  async getDiscussionMessagesAfter(
+    discussionId: string,
+    userId: string,
+    timestamp: string
+  ): Promise<MessageWithProfile[]> {
+    try {
+      if (!discussionId || !userId || !timestamp) {
+        throw new Error("Discussion ID, User ID, and timestamp are required");
+      }
+
+      // Validate timestamp format
+      if (isNaN(Date.parse(timestamp))) {
+        throw new Error("Invalid timestamp format");
+      }
+
+      // Get discussion details to validate access
+      const discussion = await habitatsRepository.getDiscussionById(
+        discussionId
+      );
+
+      // Validate access to the habitat that contains this discussion
+      await this.validateHabitatAccess(discussion.habitat_id, userId);
+
+      return await habitatsRepository.getDiscussionMessagesAfter(
+        discussionId,
+        timestamp
+      );
+    } catch (error) {
+      const normalizedError = normalizeError(error);
+      throw normalizedError;
+    }
+  }
+
+  /**
    * Check if user can access a habitat (business logic)
    * Used for authorization checks in UI components
    */
@@ -323,6 +446,173 @@ export class HabitatsService {
   }
 
   /**
+   * Get all members of a habitat
+   * Implements business logic for member access and filtering
+   */
+  async getHabitatMembers(habitatId: string): Promise<HabitatMember[]> {
+    try {
+      if (!habitatId) {
+        throw new Error("Habitat ID is required");
+      }
+
+      return await habitatsRepository.getHabitatMembers(habitatId);
+    } catch (error) {
+      const normalizedError = normalizeError(error);
+      throw normalizedError;
+    }
+  }
+
+  /**
+   * Get discussions for a habitat with access control
+   * Implements business logic for discussion access and filtering
+   */
+  async getDiscussionsByHabitat(
+    habitatId: string,
+    userId: string
+  ): Promise<DiscussionWithStats[]> {
+    try {
+      if (!habitatId || !userId) {
+        throw new Error("Habitat ID and User ID are required");
+      }
+
+      // Validate access to habitat
+      await this.validateHabitatAccess(habitatId, userId);
+
+      return await habitatsRepository.getDiscussionsByHabitat(habitatId);
+    } catch (error) {
+      const normalizedError = normalizeError(error);
+      throw normalizedError;
+    }
+  }
+
+  /**
+   * Create a new discussion in a habitat with validation
+   * Implements business logic for discussion creation and access control
+   */
+  async createDiscussion(
+    habitatId: string,
+    name: string,
+    description: string | undefined,
+    userId: string
+  ): Promise<Discussion> {
+    try {
+      if (!habitatId || !userId) {
+        throw new Error("Habitat ID and User ID are required");
+      }
+
+      // Validate access to habitat - user must be a member to create discussions
+      await this.validateHabitatAccess(habitatId, userId);
+
+      // Create the discussion
+      const discussion = await habitatsRepository.createDiscussion({
+        habitat_id: habitatId,
+        name,
+        description,
+        created_by: userId,
+      });
+
+      return discussion;
+    } catch (error) {
+      const normalizedError = normalizeError(error);
+      throw normalizedError;
+    }
+  }
+
+  /**
+   * Get a specific discussion by ID with access control
+   */
+  async getDiscussionById(
+    discussionId: string,
+    userId: string
+  ): Promise<Discussion> {
+    try {
+      if (!discussionId || !userId) {
+        throw new Error("Discussion ID and User ID are required");
+      }
+
+      // Get discussion details
+      const discussion = await habitatsRepository.getDiscussionById(
+        discussionId
+      );
+
+      // Validate access to the habitat that contains this discussion
+      await this.validateHabitatAccess(discussion.habitat_id, userId);
+
+      return discussion;
+    } catch (error) {
+      const normalizedError = normalizeError(error);
+      throw normalizedError;
+    }
+  }
+
+  /**
+   * Create a new poll in a habitat with validation
+   * Implements business logic for poll creation and access control
+   */
+  async createPoll(
+    habitatId: string,
+    title: string,
+    options: Record<string, number>,
+    userId: string
+  ): Promise<Poll> {
+    try {
+      if (!habitatId || !userId) {
+        throw new Error("Habitat ID and User ID are required");
+      }
+
+      // Validate access to habitat - user must be a member to create polls
+      await this.validateHabitatAccess(habitatId, userId);
+
+      // Create the poll
+      const poll = await habitatsRepository.createPoll({
+        habitat_id: habitatId,
+        title,
+        options,
+        created_by: userId,
+      });
+
+      return poll;
+    } catch (error) {
+      const normalizedError = normalizeError(error);
+      throw normalizedError;
+    }
+  }
+
+  async createWatchParty(
+    habitatId: string,
+    userId: string,
+    data: CreateWatchPartyData
+  ): Promise<WatchParty> {
+    try {
+      if (!habitatId) {
+        throw new Error(errorMap[AppErrorCode.HABITAT_CREATION_FAILED].message);
+      }
+
+      // Create the watch party
+      const watchParty = await habitatsRepository.createWatchParty({
+        habitat_id: habitatId,
+        title: data.media.media_title,
+        description: data.description,
+        scheduled_time: data.scheduledTime,
+        participant_count: 1, // Creator is automatically a participant
+        max_participants: data.maxParticipants,
+        created_by: userId,
+        tmdb_id: data.media.tmdb_id,
+        media_type: data.media.media_type,
+        media_title: data.media.media_title,
+        poster_path: data.media?.poster_path,
+        release_date: data.media?.release_date,
+        runtime: data.media?.runtime,
+      });
+
+      return watchParty;
+    } catch (error) {
+      const normalizedError = normalizeError(error);
+      throw normalizedError;
+    }
+  }
+
+  /**
    * Create a new habitat with comprehensive validation and business logic
    */
   async createHabitat(
@@ -337,26 +627,86 @@ export class HabitatsService {
         throw new Error("User ID is required");
       }
 
-      // Validate and sanitize habitat name
-      const sanitizedName = this.validateAndSanitizeHabitatName(name);
-
-      // Validate and sanitize description
-      const sanitizedDescription =
-        this.validateAndSanitizeDescription(description);
-
-      // Validate and sanitize tags
-      const sanitizedTags = this.validateAndSanitizeTags(tags);
-
       // Create the habitat
       const habitat = await habitatsRepository.createHabitat(
-        sanitizedName,
-        sanitizedDescription,
-        sanitizedTags,
+        name,
+        description,
+        tags,
         isPublic,
         userId
       );
 
       return habitat;
+    } catch (error) {
+      const normalizedError = normalizeError(error);
+      throw normalizedError;
+    }
+  }
+
+  /**
+   * Get aggregated dashboard data for a habitat
+   * Implements business logic for dashboard data aggregation and access control
+   */
+  async getDashboardData(
+    habitatId: string,
+    userId: string
+  ): Promise<HabitatDashboardData> {
+    try {
+      if (!habitatId || !userId) {
+        throw new Error("Habitat ID and User ID are required");
+      }
+
+      // Validate access to habitat first
+      await this.validateHabitatAccess(habitatId, userId);
+
+      // Get habitat details with membership info
+      const habitat = await habitatsRepository.getHabitatById(
+        habitatId,
+        userId
+      );
+
+      // Fetch all dashboard data in parallel for better performance
+      const [discussions, watchParties, members] = await Promise.all([
+        habitatsRepository.getDiscussionsByHabitat(habitatId),
+        habitatsRepository.getWatchPartiesByHabitat(habitatId),
+        this.getHabitatMembers(habitatId),
+      ]);
+
+      // Process watch parties to include user participation status
+      const processedWatchParties = watchParties.map((watchParty) => ({
+        ...watchParty,
+        is_participant: watchParty.participants.some(
+          (participant) => participant.user_id === userId
+        ),
+      }));
+
+      // Get online members (members active in last 15 minutes)
+      const onlineMembers = this.getOnlineMembers(members);
+
+      // Create dashboard data object
+      const dashboardData: HabitatDashboardData = {
+        habitat: {
+          id: habitat.id,
+          name: habitat.name,
+          description: habitat.description,
+          tags: habitat.tags,
+          member_count: habitat.member_count,
+          is_public: habitat.is_public,
+          created_by: habitat.created_by,
+          created_at: habitat.created_at,
+          updated_at: habitat.updated_at,
+          banner_url: habitat.banner_url,
+          is_member: true, // User must be a member to access dashboard
+        },
+        discussions,
+        polls: [], // TODO: Implement polls in next subtask
+        watchParties: processedWatchParties,
+        members,
+        onlineMembers,
+        totalMembers: members.length,
+      };
+
+      return dashboardData;
     } catch (error) {
       const normalizedError = normalizeError(error);
       throw normalizedError;
@@ -412,6 +762,19 @@ export class HabitatsService {
   }
 
   /**
+   * Private helper to filter online members
+   * Members are considered online if they were active in the last 15 minutes
+   */
+  private getOnlineMembers(members: HabitatMember[]): HabitatMember[] {
+    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+
+    return members.filter((member) => {
+      const lastActive = new Date(member.last_active);
+      return lastActive > fifteenMinutesAgo;
+    });
+  }
+
+  /**
    * Private helper to validate and sanitize message content
    * Implements business logic for message validation and sanitization
    */
@@ -461,145 +824,6 @@ export class HabitatsService {
     // - Mention parsing
 
     return sanitized;
-  }
-
-  /**
-   * Private helper to validate and sanitize habitat name
-   */
-  private validateAndSanitizeHabitatName(name: string): string {
-    if (!name || typeof name !== "string") {
-      const error = new Error("Habitat name is required");
-      error.name = "HABITAT_INVALID_NAME";
-      throw error;
-    }
-
-    const trimmed = name.trim();
-
-    if (!trimmed) {
-      const error = new Error("Habitat name cannot be empty");
-      error.name = "HABITAT_INVALID_NAME";
-      throw error;
-    }
-
-    if (trimmed.length < 3) {
-      const error = new Error("Habitat name must be at least 3 characters");
-      error.name = "HABITAT_INVALID_NAME";
-      throw error;
-    }
-
-    if (trimmed.length > 100) {
-      const error = new Error("Habitat name is too long (max 100 characters)");
-      error.name = "HABITAT_INVALID_NAME";
-      throw error;
-    }
-
-    // Basic sanitization
-    const sanitized = trimmed
-      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
-
-    if (!sanitized || sanitized.length < 3) {
-      const error = new Error("Habitat name is invalid");
-      error.name = "HABITAT_INVALID_NAME";
-      throw error;
-    }
-
-    return sanitized;
-  }
-
-  /**
-   * Private helper to validate and sanitize habitat description
-   */
-  private validateAndSanitizeDescription(description: string): string {
-    if (!description || typeof description !== "string") {
-      const error = new Error("Habitat description is required");
-      error.name = "HABITAT_INVALID_DESCRIPTION";
-      throw error;
-    }
-
-    const trimmed = description.trim();
-
-    if (!trimmed) {
-      const error = new Error("Habitat description cannot be empty");
-      error.name = "HABITAT_INVALID_DESCRIPTION";
-      throw error;
-    }
-
-    if (trimmed.length < 10) {
-      const error = new Error(
-        "Habitat description must be at least 10 characters"
-      );
-      error.name = "HABITAT_INVALID_DESCRIPTION";
-      throw error;
-    }
-
-    if (trimmed.length > 500) {
-      const error = new Error(
-        "Habitat description is too long (max 500 characters)"
-      );
-      error.name = "HABITAT_INVALID_DESCRIPTION";
-      throw error;
-    }
-
-    // Basic sanitization
-    const sanitized = trimmed
-      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
-
-    if (!sanitized || sanitized.length < 10) {
-      const error = new Error("Habitat description is invalid");
-      error.name = "HABITAT_INVALID_DESCRIPTION";
-      throw error;
-    }
-
-    return sanitized;
-  }
-
-  /**
-   * Private helper to validate and sanitize habitat tags
-   */
-  private validateAndSanitizeTags(tags: string[]): string[] {
-    if (!Array.isArray(tags)) {
-      const error = new Error("Tags must be an array");
-      error.name = "HABITAT_INVALID_TAGS";
-      throw error;
-    }
-
-    if (tags.length === 0) {
-      const error = new Error("At least one tag is required");
-      error.name = "HABITAT_INVALID_TAGS";
-      throw error;
-    }
-
-    if (tags.length > 5) {
-      const error = new Error("Maximum 5 tags allowed");
-      error.name = "HABITAT_INVALID_TAGS";
-      throw error;
-    }
-
-    const sanitizedTags = tags
-      .map((tag) => {
-        if (typeof tag !== "string") {
-          return "";
-        }
-        return tag.trim().toLowerCase();
-      })
-      .filter((tag) => tag.length > 0)
-      .filter((tag) => tag.length <= 30)
-      .slice(0, 5); // Ensure max 5 tags
-
-    if (sanitizedTags.length === 0) {
-      const error = new Error("At least one valid tag is required");
-      error.name = "HABITAT_INVALID_TAGS";
-      throw error;
-    }
-
-    // Remove duplicates
-    const uniqueTags = [...new Set(sanitizedTags)];
-
-    return uniqueTags;
   }
 }
 

@@ -7,10 +7,11 @@
 
 ## Migration Overview
 
-The habitats feature requires two migrations:
+The habitats feature requires three migrations:
 
 1. **Base Schema** - Core habitats, members, and messages tables
 2. **Dashboard Migration** - Discussion rooms, polls, and watch parties
+3. **Media Integration** - TMDB media support for watch parties
 
 ## Step-by-Step Migration Process
 
@@ -30,14 +31,21 @@ The habitats feature requires two migrations:
 3. Paste it into the SQL Editor
 4. Click **Run** to execute the dashboard migration
 
-### 3. Verify the Complete Migration
+### 3. Run the Media Integration Migration
+
+1. In the SQL Editor, create a new query
+2. Copy the entire contents of `scripts/watch-party-media-integration-migration.sql`
+3. Paste it into the SQL Editor
+4. Click **Run** to execute the media integration migration
+
+### 4. Verify the Complete Migration
 
 1. In the SQL Editor, create a new query
 2. Copy the contents of `scripts/verify-complete-habitats-schema.sql`
 3. Paste and run the comprehensive verification script
 4. Review the output to ensure all tables, indexes, and policies were created
 
-### 4. Expected Results
+### 5. Expected Results
 
 After successful migration, you should see:
 
@@ -55,7 +63,14 @@ After successful migration, you should see:
 - ✅ Dashboard-specific indexes and RLS policies
 - ✅ 3 dashboard views for data aggregation
 
-### 5. Troubleshooting
+**Media Integration:**
+
+- ✅ 6 new media columns in `habitat_watch_parties` table
+- ✅ Media-specific indexes and validation constraints
+- ✅ Updated views with media information
+- ✅ Helper functions for TMDB integration
+
+### 6. Troubleshooting
 
 If you encounter errors:
 
@@ -64,7 +79,15 @@ If you encounter errors:
 3. **Duplicate object errors**: The scripts use `IF NOT EXISTS` clauses, so they're safe to re-run
 4. **Migration order errors**: Always run base schema before dashboard migration
 
-### 6. Rollback Options
+### 7. Rollback Options
+
+#### Rollback Media Integration Only
+
+Use the media integration rollback script:
+
+```sql
+-- Copy contents of scripts/rollback-media-integration-migration.sql
+```
 
 #### Rollback Dashboard Migration Only
 
@@ -97,9 +120,13 @@ DROP FUNCTION IF EXISTS set_updated_at() CASCADE;
 
 - **`habitats-schema.sql`** - Base schema migration
 - **`habitats-dashboard-migration.sql`** - Dashboard architecture migration
+- **`watch-party-media-integration-migration.sql`** - Media integration migration
 - **`verify-complete-habitats-schema.sql`** - Comprehensive verification
+- **`verify-media-integration-migration.sql`** - Media integration verification
 - **`rollback-dashboard-migration.sql`** - Dashboard rollback only
+- **`rollback-media-integration-migration.sql`** - Media integration rollback
 - **`dashboard-migration-README.md`** - Detailed dashboard migration docs
+- **`media-integration-migration-README.md`** - Detailed media integration docs
 
 ## Next Steps
 

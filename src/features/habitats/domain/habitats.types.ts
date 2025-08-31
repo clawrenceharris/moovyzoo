@@ -64,6 +64,13 @@ export interface WatchParty {
   created_by: string;
   created_at: string;
   is_active: boolean;
+  // Media integration fields
+  tmdb_id?: number;
+  media_type?: "movie" | "tv";
+  media_title?: string;
+  poster_path?: string;
+  release_date?: string;
+  runtime?: number;
 }
 
 // Database insert/update types
@@ -131,6 +138,13 @@ export interface WatchPartyInsert {
   participant_count?: number;
   max_participants?: number;
   created_by: string;
+  // Media integration fields
+  tmdb_id?: number;
+  media_type?: "movie" | "tv";
+  media_title?: string;
+  poster_path?: string;
+  release_date?: string;
+  runtime?: number;
 }
 
 export interface WatchPartyUpdate {
@@ -140,6 +154,13 @@ export interface WatchPartyUpdate {
   participant_count?: number;
   max_participants?: number;
   is_active?: boolean;
+  // Media integration fields
+  tmdb_id?: number;
+  media_type?: "movie" | "tv";
+  media_title?: string;
+  poster_path?: string;
+  release_date?: string;
+  runtime?: number;
 }
 
 // Response types for API/service layer
@@ -172,7 +193,7 @@ export interface WatchPartyWithParticipants extends WatchParty {
 
 // Dashboard-specific aggregated types
 export interface HabitatDashboardData {
-  habitat: Habitat;
+  habitat: HabitatWithMembership;
   discussions: DiscussionWithStats[];
   polls: PollWithVotes[];
   watchParties: WatchPartyWithParticipants[];
@@ -223,4 +244,42 @@ export interface HabitatActivity {
   activity_data: Record<string, unknown>;
   created_by: string;
   created_at: string;
+}
+
+// Media integration types
+export interface WatchPartyMedia {
+  tmdb_id: number;
+  media_type: "movie" | "tv";
+  media_title: string;
+  poster_path?: string;
+  release_date?: string;
+  runtime?: number;
+}
+
+// Selected media type for UI components (matches TMDB service interface)
+export interface SelectedMedia {
+  tmdb_id: number;
+  media_type: "movie" | "tv";
+  media_title: string;
+  poster_path?: string;
+  release_date?: string;
+  runtime?: number;
+}
+
+export interface CreateWatchPartyData {
+  title: string;
+  description?: string;
+  scheduledTime: string;
+  maxParticipants?: number;
+  media: WatchPartyMedia;
+}
+
+// Form-specific interface for watch party creation
+export interface CreateWatchPartyFormData {
+  title: string;
+  description?: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  maxParticipants?: string;
+  media: SelectedMedia;
 }

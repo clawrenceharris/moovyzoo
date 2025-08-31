@@ -27,7 +27,7 @@ Kiro must include these sections in its PR summary or output:
 
 ## Architecture Guardrails
 
-- **UI**: Shadcn UI (Button, Input, Card, etc) + Tailwind v4 tokens via `@theme`. Use component classes (`btn`, `card`, `form-*`) + TS variant helpers (`button(variant, size)`).
+- **UI**: Shadcn UI (Button, Input, Card, Dialogue, etc) + Tailwind v4 tokens via `@theme`. Use component classes (`btn`, `card`, `form-*`)
 - **State & Data**: Keep data fetching in hooks (`/src/hooks`) or feature data layer. Avoid putting data logic inside components.
 
 ## Quality Gates (must pass)

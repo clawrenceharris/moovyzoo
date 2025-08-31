@@ -77,7 +77,6 @@ export const watchPartyTitleSchema = z
 export const watchPartyDescriptionSchema = z
   .string()
   .trim()
-  .min(10, "Watch party description must be at least 10 characters")
   .max(500, "Watch party description is too long (max 500 characters)")
   .refine(
     (description) => description.replace(/\s+/g, " ").length >= 10,
@@ -281,6 +280,18 @@ export const votePollSchema = z.object({
   option: z.string().min(1, "Vote option is required"),
 });
 
+// Media validation schemas
+export const mediaTypeSchema = z.enum(["movie", "tv"]);
+
+export const watchPartyMediaSchema = z.object({
+  tmdb_id: z.number().int().positive("Enter a movie or show to start watching"),
+  media_type: mediaTypeSchema,
+  media_title: z.string(),
+  poster_path: z.string().optional(),
+  release_date: z.string().optional(),
+  runtime: z.number().int().positive().optional(),
+});
+
 // Watch party validation schemas
 export const createWatchPartySchema = z.object({
   habitatId: habitatIdSchema,
@@ -289,6 +300,7 @@ export const createWatchPartySchema = z.object({
   scheduledTime: scheduledTimeSchema,
   maxParticipants: maxParticipantsSchema,
   userId: userIdSchema,
+  media: watchPartyMediaSchema,
 });
 
 export const getWatchPartiesByHabitatSchema = z.object({
@@ -354,7 +366,34 @@ export type CreatePollInput = z.infer<typeof createPollSchema>;
 export type GetPollsByHabitatInput = z.infer<typeof getPollsByHabitatSchema>;
 export type VotePollInput = z.infer<typeof votePollSchema>;
 
+// Watch party form validation schema (for UI components)
+export const createWatchPartyFormSchema = z
+  .object({
+    title: watchPartyTitleSchema,
+    description: watchPartyDescriptionSchema.optional(),
+    scheduledDate: z.string().min(1, "Scheduled date is required"),
+    scheduledTime: z.string().min(1, "Scheduled time is required"),
+    maxParticipants: z.string().optional(),
+    media: watchPartyMediaSchema,
+  })
+  .refine(
+    (data) => {
+      // Validate that scheduled date/time is in the future
+      const scheduledDateTime = new Date(
+        `${data.scheduledDate}T${data.scheduledTime}`
+      );
+      return scheduledDateTime > new Date();
+    },
+    {
+      message: "Scheduled time must be in the future",
+      path: ["scheduledDate"],
+    }
+  );
+
 export type CreateWatchPartyInput = z.infer<typeof createWatchPartySchema>;
+export type CreateWatchPartyFormInput = z.infer<
+  typeof createWatchPartyFormSchema
+>;
 export type GetWatchPartiesByHabitatInput = z.infer<
   typeof getWatchPartiesByHabitatSchema
 >;
@@ -364,3 +403,4 @@ export type LeaveWatchPartyInput = z.infer<typeof leaveWatchPartySchema>;
 // Additional validation type exports
 export type WatchPartyDescription = z.infer<typeof watchPartyDescriptionSchema>;
 export type MaxParticipants = z.infer<typeof maxParticipantsSchema>;
+export type MediaType = z.infer<typeof mediaTypeSchema>;

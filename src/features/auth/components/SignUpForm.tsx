@@ -53,34 +53,38 @@ export default function SignUpForm({ onSwitchToLogin }: SignupFormProps) {
 
       {/* Password */}
       <div>
-        <FormItem>
-          <FormLabel className="sr-only" htmlFor="signup-password">
-            Password
-          </FormLabel>
-          <Input
-            id="signup-password"
-            type={showPassword ? "text" : "password"}
-            autoComplete="new-password"
-            placeholder="Password"
-            {...register("password", {
-              required: "Password is required",
-            })}
-          />
-          <Button
-            type="button"
-            variant={"default"}
-            size={"icon"}
-            aria-label={showPassword ? "Hide password" : "Show password"}
-            onClick={() => setShowPassword((s) => !s)}
-            className="absolute-center  flex  text-gray-400 hover:text-gray-600 left-[95%]"
-            disabled={disabled}
-          >
-            {showPassword ? <EyeOff /> : <Eye />}
-          </Button>
-          {errors.password && (
-            <FormMessage>{errors.password.message}</FormMessage>
+        <FormField
+          defaultValue=""
+          control={control}
+          name="password"
+          render={() => (
+            <FormItem>
+              <FormLabel className="sr-only" htmlFor="signup-password">
+                Password
+              </FormLabel>
+              <Input
+                id="signup-password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
+                placeholder="Password"
+              />
+              <Button
+                type="button"
+                variant={"default"}
+                size={"icon"}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowPassword((s) => !s)}
+                className="absolute-center  flex  text-gray-400 hover:text-gray-600 left-[95%]"
+                disabled={disabled}
+              >
+                {showPassword ? <EyeOff /> : <Eye />}
+              </Button>
+              {errors.password && (
+                <FormMessage>{errors.password.message}</FormMessage>
+              )}
+            </FormItem>
           )}
-        </FormItem>
+        />
       </div>
 
       {/* Switch to login */}

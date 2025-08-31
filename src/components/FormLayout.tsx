@@ -11,6 +11,7 @@ import { Button } from "./ui";
 import { Form, FormDescription, FormMessage } from "./ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
+import { normalizeError } from "@/utils/normalize-error";
 
 export interface FormLayoutProps<T extends FieldValues>
   extends UseFormProps<T> {
@@ -83,7 +84,8 @@ function FormLayout<T extends FieldValues>({
       try {
         await onSubmit(data);
       } catch (error) {
-        console.error("Form submission error:", error);
+        const normalizedError = normalizeError(error);
+        form.setError("root", { message: normalizedError.message });
       }
     }
   };

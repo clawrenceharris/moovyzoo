@@ -1,365 +1,417 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { WatchPartyCard } from "../WatchPartyCard";
+import type { WatchPartyWithParticipants } from "@/features/habitats/domain/habitats.types";
 
-// Mock Date to have consistent test results
-const mockDate = new Date("2024-01-15T15:00:00Z");
-
-const mockWatchParty = {
-  id: "party-1",
-  title: "Blade Runner 2049 Watch Party",
-  description: "Join us for a viewing of Denis Villeneuve's masterpiece sequel",
-  scheduled_time: "2024-01-15T20:00:00Z", // 5 hours after mock current time
-  participant_count: 12,
-  is_participant: false,
-  habitat_id: "habitat-1",
-  creator_id: "user-1",
-  created_at: "2024-01-01T00:00:00Z",
-  updated_at: "2024-01-01T00:00:00Z",
-  participants: [],
-  created_by: {
-    id: "user-1",
-    username: "movie_host",
-    avatar_url: null,
+// Mock the TMDB service
+vi.mock("@/utils/tmdb/service", () => ({
+  tmdbService: {
+    getPosterUrl: vi.fn((path: string, size: string) =>
+      path ? `https://image.tmdb.org/t/p/${size}${path}` : ""
+    ),
   },
-  is_active: true,
-};
-
-const mockLiveWatchParty = {
-  ...mockWatchParty,
-  scheduled_time: "2024-01-15T15:15:00Z", // 15 minutes after mock current time (within 30 min window)
-};
-
-const mockEndedWatchParty = {
-  ...mockWatchParty,
-  scheduled_time: "2024-01-15T10:00:00Z", // 5 hours before mock current time
-};
-
-const mockJoinedWatchParty = {
-  ...mockWatchParty,
-  is_participant: true,
-};
+}));
 
 describe("WatchPartyCard", () => {
+  const mockOnClick = vi.fn();
+
+  const baseWatchParty: WatchPartyWithParticipants = {
+    id: "1",
+    habitat_id: "habitat-1",
+    title: "Test Watch Party",
+    description: "A test watch party description",
+    scheduled_time: new Date("2024-12-25T20:00:00Z").toISOString(),
+    participant_count: 5,
+    max_participants: 10,
+    created_by: "user-1",
+    created_at: new Date().toISOString(),
+    is_active: true,
+    participants: [],
+    is_participant: false,
+  };
+
+  const watchPartyWithMedia: WatchPartyWithParticipants = {
+    ...baseWatchParty,
+    tmdb_id: 27205,
+    media_type: "movie",
+    media_title: "Inception",
+    poster_path: "/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",
+    release_date: "2010-07-16",
+    runtime: 148,
+  };
+
   beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(mockDate);
+    vi.clearAllMocks();
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
+  describe("Basic Functionality", () => {
+    it("renders watch party title", () => {
+      render(
+        <WatchPartyCard watchParty={baseWatchParty} onClick={mockOnClick} />
+      );
+
+      expect(screen.getByText("Test Watch Party")).toBeInTheDocument();
+    });
+
+    it("renders watch party description when showDescription is true", () => {
+      render(
+        <WatchPartyCard
+          watchParty={baseWatchParty}
+          onClick={mockOnClick}
+          showDescription={true}
+        />
+      );
+
+      expect(
+        screen.getByText("A test watch party description")
+      ).toBeInTheDocument();
+    });
+
+    it("does not render description when showDescription is false", () => {
+      render(
+        <WatchPartyCard
+          watchParty={baseWatchParty}
+          onClick={mockOnClick}
+          showDescription={false}
+        />
+      );
+
+      expect(
+        screen.queryByText("A test watch party description")
+      ).not.toBeInTheDocument();
+    });
+
+    it("calls onClick when card is clicked", () => {
+      render(
+        <WatchPartyCard watchParty={baseWatchParty} onClick={mockOnClick} />
+      );
+
+      fireEvent.click(screen.getByTestId("watch-party-card"));
+      expect(mockOnClick).toHaveBeenCalledTimes(1);
+    });
+
+    it("displays participant count", () => {
+      render(
+        <WatchPartyCard watchParty={baseWatchParty} onClick={mockOnClick} />
+      );
+
+      expect(screen.getByTestId("watch-party-participants")).toHaveTextContent(
+        "5 joined"
+      );
+    });
+
+    it("displays scheduled date and time", () => {
+      render(
+        <WatchPartyCard watchParty={baseWatchParty} onClick={mockOnClick} />
+      );
+
+      expect(screen.getByTestId("watch-party-date")).toBeInTheDocument();
+      expect(screen.getByTestId("watch-party-time")).toBeInTheDocument();
+    });
   });
 
-  it("renders watch party information correctly", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard watchParty={mockWatchParty} onClick={mockOnClick} />
-    );
+  describe("Status Display", () => {
+    it("shows 'Upcoming' status for future events", () => {
+      const futureWatchParty = {
+        ...baseWatchParty,
+        scheduled_time: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours from now
+      };
 
-    expect(
-      screen.getByText("Blade Runner 2049 Watch Party")
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "Join us for a viewing of Denis Villeneuve's masterpiece sequel"
-      )
-    ).toBeInTheDocument();
-    expect(screen.getByText("12 joined")).toBeInTheDocument();
+      render(
+        <WatchPartyCard watchParty={futureWatchParty} onClick={mockOnClick} />
+      );
+
+      expect(screen.getByTestId("watch-party-status")).toHaveTextContent(
+        "Upcoming"
+      );
+    });
+
+    it("shows 'Live' status for current events", () => {
+      const liveWatchParty = {
+        ...baseWatchParty,
+        scheduled_time: new Date(Date.now() - 10 * 60 * 1000).toISOString(), // 10 minutes ago
+      };
+
+      render(
+        <WatchPartyCard watchParty={liveWatchParty} onClick={mockOnClick} />
+      );
+
+      expect(screen.getByTestId("watch-party-status")).toHaveTextContent(
+        "Live"
+      );
+    });
+
+    it("shows 'Ended' status for past events", () => {
+      const pastWatchParty = {
+        ...baseWatchParty,
+        scheduled_time: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+      };
+
+      render(
+        <WatchPartyCard watchParty={pastWatchParty} onClick={mockOnClick} />
+      );
+
+      expect(screen.getByTestId("watch-party-status")).toHaveTextContent(
+        "Ended"
+      );
+    });
   });
 
-  it("displays upcoming status for future watch parties", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard watchParty={mockWatchParty} onClick={mockOnClick} />
-    );
+  describe("Participation Status", () => {
+    it("shows 'Join party →' for non-participants", () => {
+      render(
+        <WatchPartyCard watchParty={baseWatchParty} onClick={mockOnClick} />
+      );
 
-    const status = screen.getByTestId("watch-party-status");
-    expect(status).toHaveTextContent("Upcoming");
-    expect(status).toHaveClass("text-blue-500");
+      expect(screen.getByTestId("watch-party-action")).toHaveTextContent(
+        "Join party →"
+      );
+    });
+
+    it("shows 'Joined →' for participants", () => {
+      const participantWatchParty = {
+        ...baseWatchParty,
+        is_participant: true,
+      };
+
+      render(
+        <WatchPartyCard
+          watchParty={participantWatchParty}
+          onClick={mockOnClick}
+        />
+      );
+
+      expect(screen.getByTestId("watch-party-action")).toHaveTextContent(
+        "Joined →"
+      );
+    });
   });
 
-  it("displays live status for current watch parties", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard watchParty={mockLiveWatchParty} onClick={mockOnClick} />
-    );
+  describe("Media Display", () => {
+    it("displays media information when showMediaInfo is true and media exists", () => {
+      render(
+        <WatchPartyCard
+          watchParty={watchPartyWithMedia}
+          onClick={mockOnClick}
+          showMediaInfo={true}
+        />
+      );
 
-    const status = screen.getByTestId("watch-party-status");
-    expect(status).toHaveTextContent("Live");
-    expect(status).toHaveClass("text-green-500");
+      expect(screen.getByTestId("watch-party-media-title")).toHaveTextContent(
+        "Inception"
+      );
+      expect(screen.getByTestId("watch-party-media-type")).toHaveTextContent(
+        "Movie"
+      );
+      expect(screen.getByTestId("watch-party-release-year")).toHaveTextContent(
+        "2010"
+      );
+      expect(screen.getByTestId("watch-party-runtime")).toHaveTextContent(
+        "2h 28m"
+      );
+    });
+
+    it("displays poster image when available", () => {
+      render(
+        <WatchPartyCard
+          watchParty={watchPartyWithMedia}
+          onClick={mockOnClick}
+          showMediaInfo={true}
+        />
+      );
+
+      const poster = screen.getByTestId("watch-party-poster");
+      expect(poster).toBeInTheDocument();
+      expect(poster).toHaveAttribute(
+        "src",
+        "https://image.tmdb.org/t/p/w342/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg"
+      );
+      expect(poster).toHaveAttribute("alt", "Inception poster");
+    });
+
+    it("displays fallback placeholder when poster is not available", () => {
+      const watchPartyNoPoster = {
+        ...watchPartyWithMedia,
+        poster_path: undefined,
+      };
+
+      render(
+        <WatchPartyCard
+          watchParty={watchPartyNoPoster}
+          onClick={mockOnClick}
+          showMediaInfo={true}
+        />
+      );
+
+      expect(
+        screen.getByTestId("watch-party-poster-fallback")
+      ).toBeInTheDocument();
+    });
+
+    it("displays TV show media type correctly", () => {
+      const tvWatchParty = {
+        ...watchPartyWithMedia,
+        media_type: "tv" as const,
+        media_title: "Breaking Bad",
+      };
+
+      render(
+        <WatchPartyCard
+          watchParty={tvWatchParty}
+          onClick={mockOnClick}
+          showMediaInfo={true}
+        />
+      );
+
+      expect(screen.getByTestId("watch-party-media-type")).toHaveTextContent(
+        "TV Show"
+      );
+    });
+
+    it("does not display media information when showMediaInfo is false", () => {
+      render(
+        <WatchPartyCard
+          watchParty={watchPartyWithMedia}
+          onClick={mockOnClick}
+          showMediaInfo={false}
+        />
+      );
+
+      expect(
+        screen.queryByTestId("watch-party-media-title")
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("watch-party-poster")
+      ).not.toBeInTheDocument();
+    });
+
+    it("does not display media information when no media exists", () => {
+      render(
+        <WatchPartyCard
+          watchParty={baseWatchParty}
+          onClick={mockOnClick}
+          showMediaInfo={true}
+        />
+      );
+
+      expect(
+        screen.queryByTestId("watch-party-media-title")
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("watch-party-poster")
+      ).not.toBeInTheDocument();
+    });
+
+    it("handles runtime display correctly for different durations", () => {
+      const shortRuntimeParty = {
+        ...watchPartyWithMedia,
+        runtime: 45, // 45 minutes
+      };
+
+      render(
+        <WatchPartyCard
+          watchParty={shortRuntimeParty}
+          onClick={mockOnClick}
+          showMediaInfo={true}
+        />
+      );
+
+      expect(screen.getByTestId("watch-party-runtime")).toHaveTextContent(
+        "45m"
+      );
+    });
+
+    it("does not display runtime when not available", () => {
+      const noRuntimeParty = {
+        ...watchPartyWithMedia,
+        runtime: undefined,
+      };
+
+      render(
+        <WatchPartyCard
+          watchParty={noRuntimeParty}
+          onClick={mockOnClick}
+          showMediaInfo={true}
+        />
+      );
+
+      expect(
+        screen.queryByTestId("watch-party-runtime")
+      ).not.toBeInTheDocument();
+    });
   });
 
-  it("displays ended status for past watch parties", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard watchParty={mockEndedWatchParty} onClick={mockOnClick} />
-    );
+  describe("Responsive Design", () => {
+    it("applies custom className", () => {
+      render(
+        <WatchPartyCard
+          watchParty={baseWatchParty}
+          onClick={mockOnClick}
+          className="custom-class"
+        />
+      );
 
-    const status = screen.getByTestId("watch-party-status");
-    expect(status).toHaveTextContent("Ended");
-    expect(status).toHaveClass("text-muted-foreground");
+      const card = screen.getByTestId("watch-party-card");
+      expect(card).toHaveClass("custom-class");
+    });
+
+    it("maintains responsive classes for mobile and desktop", () => {
+      render(
+        <WatchPartyCard
+          watchParty={watchPartyWithMedia}
+          onClick={mockOnClick}
+          showMediaInfo={true}
+        />
+      );
+
+      const poster = screen.getByTestId("watch-party-poster");
+      expect(poster).toHaveClass("w-16", "h-24", "sm:w-20", "sm:h-30");
+    });
   });
 
-  it("calls onClick when card is clicked", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard watchParty={mockWatchParty} onClick={mockOnClick} />
-    );
+  describe("Error Handling", () => {
+    it("handles image load errors gracefully", () => {
+      render(
+        <WatchPartyCard
+          watchParty={watchPartyWithMedia}
+          onClick={mockOnClick}
+          showMediaInfo={true}
+        />
+      );
 
-    const card = screen.getByTestId("watch-party-card");
-    fireEvent.click(card);
+      const poster = screen.getByTestId("watch-party-poster");
 
-    expect(mockOnClick).toHaveBeenCalledTimes(1);
+      // Simulate image load error
+      fireEvent.error(poster);
+
+      // The fallback should become visible
+      expect(screen.getByTestId("watch-party-poster-fallback")).not.toHaveClass(
+        "hidden"
+      );
+    });
   });
 
-  it("shows 'Join party →' when user hasn't joined", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard watchParty={mockWatchParty} onClick={mockOnClick} />
-    );
+  describe("Accessibility", () => {
+    it("has proper alt text for poster images", () => {
+      render(
+        <WatchPartyCard
+          watchParty={watchPartyWithMedia}
+          onClick={mockOnClick}
+          showMediaInfo={true}
+        />
+      );
 
-    const action = screen.getByTestId("watch-party-action");
-    expect(action).toHaveTextContent("Join party →");
-  });
+      const poster = screen.getByTestId("watch-party-poster");
+      expect(poster).toHaveAttribute("alt", "Inception poster");
+    });
 
-  it("shows 'Joined →' when user has joined", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard watchParty={mockJoinedWatchParty} onClick={mockOnClick} />
-    );
+    it("maintains keyboard accessibility", () => {
+      render(
+        <WatchPartyCard watchParty={baseWatchParty} onClick={mockOnClick} />
+      );
 
-    const action = screen.getByTestId("watch-party-action");
-    expect(action).toHaveTextContent("Joined →");
-  });
-
-  it("displays formatted date and time", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard watchParty={mockWatchParty} onClick={mockOnClick} />
-    );
-
-    const date = screen.getByTestId("watch-party-date");
-    const time = screen.getByTestId("watch-party-time");
-
-    expect(date).toBeInTheDocument();
-    expect(time).toBeInTheDocument();
-
-    // The exact format may vary by locale, but should contain date/time info
-    expect(date.textContent).toBeTruthy();
-    expect(time.textContent).toBeTruthy();
-  });
-
-  it("displays participant count", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard watchParty={mockWatchParty} onClick={mockOnClick} />
-    );
-
-    const participants = screen.getByTestId("watch-party-participants");
-    expect(participants).toHaveTextContent("12 joined");
-  });
-
-  it("renders without description when showDescription is false", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard
-        watchParty={mockWatchParty}
-        onClick={mockOnClick}
-        showDescription={false}
-      />
-    );
-
-    expect(
-      screen.getByText("Blade Runner 2049 Watch Party")
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(
-        "Join us for a viewing of Denis Villeneuve's masterpiece sequel"
-      )
-    ).not.toBeInTheDocument();
-  });
-
-  it("renders without description when description is null", () => {
-    const watchPartyWithoutDescription = {
-      ...mockWatchParty,
-      description: null,
-    };
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard
-        watchParty={watchPartyWithoutDescription}
-        onClick={mockOnClick}
-      />
-    );
-
-    expect(
-      screen.getByText("Blade Runner 2049 Watch Party")
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(
-        "Join us for a viewing of Denis Villeneuve's masterpiece sequel"
-      )
-    ).not.toBeInTheDocument();
-  });
-
-  it("applies custom className", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard
-        watchParty={mockWatchParty}
-        onClick={mockOnClick}
-        className="custom-watch-party-class"
-      />
-    );
-
-    const card = screen.getByTestId("watch-party-card");
-    expect(card).toHaveClass("custom-watch-party-class");
-  });
-
-  it("displays zero participants correctly", () => {
-    const watchPartyWithNoParticipants = {
-      ...mockWatchParty,
-      participant_count: 0,
-    };
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard
-        watchParty={watchPartyWithNoParticipants}
-        onClick={mockOnClick}
-      />
-    );
-
-    const participants = screen.getByTestId("watch-party-participants");
-    expect(participants).toHaveTextContent("0 joined");
-  });
-
-  it("has proper hover and transition classes", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard watchParty={mockWatchParty} onClick={mockOnClick} />
-    );
-
-    const card = screen.getByTestId("watch-party-card");
-    expect(card).toHaveClass(
-      "hover:bg-muted/50",
-      "cursor-pointer",
-      "transition-colors",
-      "group"
-    );
-  });
-
-  it("handles multiple clicks correctly", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard watchParty={mockWatchParty} onClick={mockOnClick} />
-    );
-
-    const card = screen.getByTestId("watch-party-card");
-
-    fireEvent.click(card);
-    fireEvent.click(card);
-    fireEvent.click(card);
-
-    expect(mockOnClick).toHaveBeenCalledTimes(3);
-  });
-
-  it("renders with all required CSS classes", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard watchParty={mockWatchParty} onClick={mockOnClick} />
-    );
-
-    const card = screen.getByTestId("watch-party-card");
-    expect(card).toHaveClass("p-4", "border", "border-border", "rounded-lg");
-  });
-
-  it("renders title with proper styling and hover effect", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard watchParty={mockWatchParty} onClick={mockOnClick} />
-    );
-
-    const title = screen.getByText("Blade Runner 2049 Watch Party");
-    expect(title.tagName).toBe("H4");
-    expect(title).toHaveClass(
-      "font-medium",
-      "text-foreground",
-      "group-hover:text-primary",
-      "transition-colors"
-    );
-  });
-
-  it("renders description with proper styling when shown", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard watchParty={mockWatchParty} onClick={mockOnClick} />
-    );
-
-    const description = screen.getByText(
-      "Join us for a viewing of Denis Villeneuve's masterpiece sequel"
-    );
-    expect(description.tagName).toBe("P");
-    expect(description).toHaveClass(
-      "text-sm",
-      "text-muted-foreground",
-      "mb-2",
-      "line-clamp-2"
-    );
-  });
-
-  it("renders footer with proper styling", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard watchParty={mockWatchParty} onClick={mockOnClick} />
-    );
-
-    const participants = screen.getByTestId("watch-party-participants");
-    const footer = participants.closest(".flex.items-center.justify-between");
-    expect(footer).toHaveClass("text-xs", "text-muted-foreground");
-  });
-
-  it("renders action text with accent color", () => {
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard watchParty={mockWatchParty} onClick={mockOnClick} />
-    );
-
-    const action = screen.getByTestId("watch-party-action");
-    expect(action).toHaveClass("text-accent");
-  });
-
-  it("handles edge case: exactly 30 minutes before scheduled time", () => {
-    const exactlyThirtyMinutesBefore = {
-      ...mockWatchParty,
-      scheduled_time: "2024-01-15T15:30:00Z", // Exactly 30 minutes after mock current time
-    };
-
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard
-        watchParty={exactlyThirtyMinutesBefore}
-        onClick={mockOnClick}
-      />
-    );
-
-    const status = screen.getByTestId("watch-party-status");
-    expect(status).toHaveTextContent("Live");
-  });
-
-  it("handles large participant count", () => {
-    const watchPartyWithManyParticipants = {
-      ...mockWatchParty,
-      participant_count: 1234,
-    };
-    const mockOnClick = vi.fn();
-    render(
-      <WatchPartyCard
-        watchParty={watchPartyWithManyParticipants}
-        onClick={mockOnClick}
-      />
-    );
-
-    const participants = screen.getByTestId("watch-party-participants");
-    expect(participants).toHaveTextContent("1234 joined");
+      const card = screen.getByTestId("watch-party-card");
+      expect(card).toHaveClass("cursor-pointer");
+    });
   });
 });
