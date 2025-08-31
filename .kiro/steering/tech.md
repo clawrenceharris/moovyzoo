@@ -1,3 +1,7 @@
+---
+inclusion: manual
+---
+
 # Tech Steering – Zoovie
 
 ## Stack

@@ -252,6 +252,38 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --color-outline: var(--outline);
   --color-primary-surface: var(--primary-surface);
+  --color-brand-red-45: var(--brand-red-45);
+  --color-brand-red-40: var(--brand-red-40);
+  --color-brand-red-55: var(--brand-red-55);
+  --color-brand-red-60: var(--brand-red-60);
+  --color-brand-red-70: var(--brand-red-70);
+  --color-brand-red-80: var(--brand-red-80);
+  --color-brand-red-90: var(--brand-red-90);
+  --color-brand-red-95: var(--brand-red-95);
+  --color-brand-blue-30: var(--brand-blue-30);
+  --color-brand-blue-45: var(--brand-blue-45);
+  --color-brand-blue-55: var(--brand-blue-55);
+  --color-brand-blue-60: var(--brand-blue-60);
+  --color-brand-blue-70: var(--brand-blue-70);
+  --color-brand-blue-80: var(--brand-blue-80);
+  --color-brand-blue-90: var(--brand-blue-90);
+  --color-brand-blue-95: var(--brand-blue-95);
+  --color-brand-black-06: var(--brand-black-06);
+  --color-brand-black-08: var(--brand-black-08);
+  --color-brand-black-10: var(--brand-black-10);
+  --color-brand-black-12: var(--brand-black-12);
+  --color-brand-black-15: var(--brand-black-15);
+  --color-brand-black-20: var(--brand-black-20);
+  --color-brand-black-25: var(--brand-black-25);
+  --color-brand-black-30: var(--brand-black-30);
+  --color-brand-grey-60: var(--brand-grey-60);
+  --color-brand-grey-65: var(--brand-grey-65);
+  --color-brand-grey-70: var(--brand-grey-70);
+  --color-brand-grey-75: var(--brand-grey-75);
+  --color-brand-grey-90: var(--brand-grey-90);
+  --color-brand-grey-95: var(--brand-grey-95);
+  --color-brand-grey-97: var(--brand-grey-97);
+  --color-brand-grey-99: var(--brand-grey-99);
 }
 
 :root {
@@ -330,6 +362,7 @@
   --brand-grey-95: #f1f1f3;
   --brand-grey-97: #f7f7f8;
   --brand-grey-99: #fcfcfd;
+
 }
 
 .dark {

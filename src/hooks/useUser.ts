@@ -1,4 +1,4 @@
-import { User } from "@/features/auth/domain/auth.types";
+import { User } from "@supabase/supabase-js";
 import { createContext, useContext } from "react";
 
 export const UserContext = createContext<{

@@ -2,7 +2,6 @@ import { User } from "@supabase/supabase-js";
 import { signupSchema } from "./auth.schema";
 import z from "zod";
 
-// Re-export User type for convenience
 export type { User };
 
 // Type inference
