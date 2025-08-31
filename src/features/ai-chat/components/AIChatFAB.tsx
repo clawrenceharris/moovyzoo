@@ -22,8 +22,8 @@ export function AIChatFAB({ isOpen, onClick, className }: AIChatFABProps) {
         'transition-all duration-300 ease-in-out',
         'focus:outline-none focus:ring-2 focus:ring-offset-2',
         
-        // Brand colors
-        'bg-brand-red-45 hover:bg-brand-red-40',
+        // Brand colors with gradient
+        'bg-gradient-to-br from-brand-red-45 to-brand-red-55 hover:from-brand-red-40 hover:to-brand-red-50',
         'text-white',
         'focus:ring-brand-red-55',
         
@@ -58,7 +58,7 @@ export function AIChatFAB({ isOpen, onClick, className }: AIChatFABProps) {
       
       {/* Pulse animation when closed */}
       {!isOpen && (
-        <div className="absolute inset-0 rounded-full bg-brand-red-45 animate-ping opacity-20" />
+        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-brand-red-45 to-brand-red-55 animate-ping opacity-20" />
       )}
     </button>
   );

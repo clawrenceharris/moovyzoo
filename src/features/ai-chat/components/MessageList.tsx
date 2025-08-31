@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Message } from '../types/chat';
 import { MessageBubble } from './MessageBubble';
 import { TypingIndicator } from './TypingIndicator';
+import Image from 'next/image';
 
 interface MessageListProps {
   messages: Message[];
@@ -44,26 +45,40 @@ export function MessageList({ messages, isLoading, className }: MessageListProps
       {messages.length === 0 && !isLoading ? (
         // Empty state
         <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-          <div className="w-16 h-16 rounded-full bg-brand-blue-45 flex items-center justify-center mb-4">
-            <span className="text-white font-bold text-xl">AI</span>
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-red-45 to-brand-blue-45 flex items-center justify-center mb-4 shadow-lg">
+            <Image
+              src="/icons/ai-icon.svg"
+              alt="AI"
+              width={32}
+              height={32}
+              className="w-8 h-8"
+            />
           </div>
           <h3 className="text-lg font-semibold text-white mb-2">
             Welcome to Zoovie AI!
           </h3>
-          <p className="text-brand-grey-70 text-sm max-w-xs">
+          <p className="text-brand-grey-70 text-sm max-w-xs leading-relaxed">
             I&apos;m here to help you discover amazing movies and TV shows. Ask me anything about cinema!
           </p>
         </div>
       ) : (
         // Messages
         <div className="min-h-full">
-          {messages.map((message) => (
-            <MessageBubble
-              key={message.id}
-              message={message}
-              isUser={message.role === 'user'}
-            />
-          ))}
+          {messages
+            .filter((message) => {
+              // Hide empty AI messages when loading to prevent duplicate AI icons
+              if (isLoading && message.role === 'assistant' && !message.content.trim()) {
+                return false;
+              }
+              return true;
+            })
+            .map((message) => (
+              <MessageBubble
+                key={message.id}
+                message={message}
+                isUser={message.role === 'user'}
+              />
+            ))}
           
           {/* Typing indicator */}
           {isLoading && <TypingIndicator />}

@@ -23,7 +23,6 @@ export interface StarterPrompt {
     category: 'creative' | 'analytical' | 'educational' | 'casual';
     title: string;
     prompt: string;
-    icon: string;
 }
 
 export interface ImageAttachment {

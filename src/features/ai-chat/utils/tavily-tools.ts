@@ -61,7 +61,6 @@ export const tavilySearchTool = tool(async (input) => {
 
         formattedResults += results;
 
-        console.log(`---------------------------------------------------------\n${formattedResults}`)
         return formattedResults;
     } catch (error) {
         console.error('Tavily search error:', error);
@@ -114,7 +113,6 @@ export const tavilyExtractTool = tool(async (input) => {
             }
         });
 
-        console.log(`---------------------------------------------------------\n${formattedContent}`)
         return formattedContent;
     } catch (error) {
         console.error('Tavily extract error:', error);

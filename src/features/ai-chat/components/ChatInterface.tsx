@@ -76,18 +76,21 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
         disabled={isLoading}
       />
 
-      {/* Debug info in development */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="p-2 text-xs text-brand-grey-70 border-t border-brand-black-15">
-          Messages: {messages.length} | Loading: {isLoading.toString()} | Error: {error || 'none'}
-          {messages.length > 0 && (
-            <button
-              onClick={clearMessages}
-              className="ml-4 text-brand-red-45 hover:underline"
-            >
-              Clear
-            </button>
-          )}
+      {/* New Chat Button */}
+      {messages.length > 0 && (
+        <div className="p-4 border-t border-brand-black-15">
+          <button
+            onClick={clearMessages}
+            className={cn(
+              'w-full px-4 py-2 rounded-lg text-sm font-medium',
+              'bg-brand-black-12 hover:bg-brand-black-15 border border-brand-black-20',
+              'text-brand-grey-70 hover:text-white',
+              'transition-all duration-200',
+              'focus:outline-none focus:ring-2 focus:ring-brand-red-55'
+            )}
+          >
+            New Chat
+          </button>
         </div>
       )}
     </div>
