@@ -3,12 +3,13 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Button, Input } from "@/components/ui";
-import type { MessageWithProfile } from "../domain/habitats.types";
+import type { Discussion, MessageWithProfile } from "../domain/habitats.types";
 import { formatDistanceToNow } from "date-fns";
 
 interface ChatInterfaceProps {
   messages: MessageWithProfile[];
   currentUserId: string;
+  discussion: Discussion | undefined;
   loading?: boolean;
   sending?: boolean;
   error?: string | null;
@@ -146,6 +147,7 @@ export function ChatInterface({
   error,
   onSendMessage,
   onLoadMore,
+  discussion,
   hasMore = false,
   loadingMore = false,
   className = "",

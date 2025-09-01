@@ -1,6 +1,6 @@
 "use client";
-import { useProfile } from "@/features/profile/hooks/useProfile";
-import { useUser } from "@/hooks";
+import { useProfile } from "@/features/profile/hooks/use-profile";
+import { useUser } from "@/hooks/use-user";
 
 export default function Home() {
   const { user } = useUser();

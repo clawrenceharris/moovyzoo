@@ -3,7 +3,6 @@
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ChatInterface } from "@/features/habitats/components";
-import { useUser } from "@/hooks/useUser";
 import {
   useDiscussionMessages,
   useDiscussionRealtimeChat,
@@ -14,6 +13,7 @@ import type {
 } from "@/features/habitats/domain/habitats.types";
 import { habitatsService } from "@/features/habitats/domain/habitats.service";
 import { normalizeError } from "@/utils/normalize-error";
+import { useUser } from "@/hooks/use-user";
 
 export default function DiscussionRoomPage() {
   const params = useParams();
@@ -305,8 +305,6 @@ export default function DiscussionRoomPage() {
         hasMore={hasMore}
         loadingMore={loadingMore}
         discussion={discussionData.discussion || undefined}
-        habitatName={discussionData.habitat?.name}
-        onBackToHabitat={() => router.push(`/habitats/${habitatId}`)}
         className="h-full"
       />
     </div>

@@ -48,15 +48,15 @@ function FormLayout<T extends FieldValues>({
   isOpen = true,
   description,
   descriptionStyle,
+  resolver,
   defaultValues,
   enableBeforeUnloadProtection = false,
-  resolver,
   ...formProps
 }: FormLayoutProps<T>) {
   const form = useForm<T>({
     ...formProps,
     mode,
-    resolver: resolver,
+    resolver,
     defaultValues,
   });
 

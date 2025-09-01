@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { SignupData } from "../domain/auth.types";
 import {
@@ -21,10 +21,13 @@ export default function SignUpForm({ onSwitchToLogin }: SignupFormProps) {
   const {
     register,
     control,
+    watch,
     formState: { errors, disabled },
   } = useFormContext<SignupData>();
   const [showPassword, setShowPassword] = useState(false);
+  const watched = watch("email");
 
+  console.log(watched);
   return (
     <>
       {/* Email */}
@@ -32,7 +35,6 @@ export default function SignUpForm({ onSwitchToLogin }: SignupFormProps) {
         control={control}
         name="email"
         defaultValue=""
-        rules={{ required: "Email is required" }}
         render={({ field }) => (
           <FormItem>
             <FormLabel className="sr-only" htmlFor="signup-email">
@@ -52,40 +54,41 @@ export default function SignUpForm({ onSwitchToLogin }: SignupFormProps) {
       />
 
       {/* Password */}
-      <div>
-        <FormField
-          defaultValue=""
-          control={control}
-          name="password"
-          render={() => (
-            <FormItem>
-              <FormLabel className="sr-only" htmlFor="signup-password">
-                Password
-              </FormLabel>
+      <FormField
+        control={control}
+        name="password"
+        defaultValue=""
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="sr-only" htmlFor="signup-password">
+              Password
+            </FormLabel>
+            <FormControl>
               <Input
                 id="signup-password"
                 type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 placeholder="Password"
+                {...field}
               />
-              <Button
-                type="button"
-                variant={"default"}
-                size={"icon"}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                onClick={() => setShowPassword((s) => !s)}
-                className="absolute-center  flex  text-gray-400 hover:text-gray-600 left-[95%]"
-                disabled={disabled}
-              >
-                {showPassword ? <EyeOff /> : <Eye />}
-              </Button>
-              {errors.password && (
-                <FormMessage>{errors.password.message}</FormMessage>
-              )}
-            </FormItem>
-          )}
-        />
-      </div>
+            </FormControl>
+            <Button
+              type="button"
+              variant={"default"}
+              size={"icon"}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              onClick={() => setShowPassword((s) => !s)}
+              className="absolute-center  flex  text-gray-400 hover:text-gray-600 left-[95%]"
+              disabled={disabled}
+            >
+              {showPassword ? <EyeOff /> : <Eye />}
+            </Button>
+            {errors.password && (
+              <FormMessage>{errors.password.message}</FormMessage>
+            )}
+          </FormItem>
+        )}
+      />
 
       {/* Switch to login */}
       {onSwitchToLogin && (

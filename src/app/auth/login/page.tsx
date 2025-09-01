@@ -1,8 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
 
-import { useAuth } from "@/features/auth/hooks/useAuth";
-import { FormLayout } from "@/components";
+import { useAuth } from "@/features/auth/hooks/use-auth";
+import FormLayout from "@/components/FormLayout";
 import { LoginData } from "@/features/auth/domain/auth.types";
 import { LoginForm } from "@/features/auth/components";
 import { loginSchema } from "@/features/auth/domain/auth.schema";
