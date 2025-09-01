@@ -7,7 +7,7 @@ import {
   HabitatCreationModal,
 } from "@/features/habitats/components";
 import { useUserHabitats } from "@/features/habitats/hooks";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks/use-user";
 
 export default function HabitatsPage() {
   const router = useRouter();

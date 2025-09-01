@@ -13,6 +13,8 @@ import { useAuth } from "../../auth/hooks";
 import { OnboardingProvider, useOnboarding } from "../OnboardingContext";
 import { SignUpForm } from "@/features/auth/components";
 import { useProfileActions } from "@/features/profile/hooks/useProfileActions";
+import { useEffect } from "react";
+import { useProfile } from "@/features/profile/hooks/use-profile";
 import { User } from "@supabase/supabase-js";
 import { zodResolver } from "@hookform/resolvers/zod";
 

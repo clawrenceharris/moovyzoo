@@ -2,9 +2,9 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode, useState } from "react";
-import { UserContext } from "@/hooks";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { User } from "@supabase/supabase-js";
+import { UserContext } from "@/hooks/use-user";
 export function QueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
   return (

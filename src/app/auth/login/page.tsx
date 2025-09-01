@@ -1,8 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
 
-import { useAuth } from "@/features/auth/hooks/useAuth";
-import { FormLayout } from "@/components";
+import { useAuth } from "@/features/auth/hooks/use-auth";
+import FormLayout from "@/components/FormLayout";
 import { LoginData } from "@/features/auth/domain/auth.types";
 import { LoginForm } from "@/features/auth/components";
 import { loginSchema } from "@/features/auth/domain/auth.schema";
@@ -18,7 +18,7 @@ export default function LoginPage() {
   return (
     <div className="bg-secondary-background">
       <div className="text-center my-8">
-        <h1 className="text-2xl font-semibold">Sign Up</h1>
+        <h1 className="text-2xl font-semibold">Sign In</h1>
       </div>
       <FormLayout<LoginData>
         defaultValues={{ email: "", password: "" }}

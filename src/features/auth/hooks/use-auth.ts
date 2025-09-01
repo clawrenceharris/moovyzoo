@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { User } from "@supabase/supabase-js";
-import type { AuthState, SignupData, LoginData } from "..//domain/auth.types";
+import type { AuthState, SignupData, LoginData } from "../domain/auth.types";
 import { authServices } from "../domain/auth.service";
 import { useRouter } from "next/navigation";
 import { getFriendlyErrorMessage } from "@/utils/normalize-error";

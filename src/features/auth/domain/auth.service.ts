@@ -1,7 +1,6 @@
 import type { SignupData, LoginData } from "../domain/auth.types";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { Genre } from "@/types/movie";
-import { validationUtils } from "../utils";
 import { normalizeError } from "@/utils/normalize-error";
 import { AppErrorCode } from "@/types/error";
 import { supabase } from "@/utils/supabase/client";
@@ -31,10 +30,6 @@ export const authServices = {
   },
 
   async login(data: LoginData): Promise<SupabaseUser> {
-    // Validate email format
-    if (!validationUtils.isValidEmail(data.email)) {
-      throw new Error(AppErrorCode.VALIDATION_INVALID_EMAIL);
-    }
     try {
       const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
@@ -70,10 +65,6 @@ export const authServices = {
 
   // Send password reset email with rate limiting
   async resetPassword(email: string): Promise<void> {
-    // Validate email format
-    if (!validationUtils.isValidEmail(email)) {
-      throw new Error(AppErrorCode.VALIDATION_INVALID_EMAIL);
-    }
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/reset-password`,
@@ -95,10 +86,6 @@ export const authServices = {
 
     if (!user) {
       throw new Error(AppErrorCode.AUTH_USER_NOT_FOUND);
-    }
-
-    if (!validationUtils.isValidPassword(newPassword)) {
-      throw new Error(AppErrorCode.VALIDATION_INVALID_PASSWORD);
     }
 
     try {

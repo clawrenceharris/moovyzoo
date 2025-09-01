@@ -3,7 +3,7 @@
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { HabitatDashboard } from "@/features/habitats/components";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks/use-user";
 import { errorMap } from "@/utils/error-map";
 import { AppErrorCode } from "@/types/error";
 

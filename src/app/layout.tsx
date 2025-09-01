@@ -6,7 +6,7 @@ export const metadata = {
   description: "Watch, chat, and play with your movie crew",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="dark">
       <body>{children}</body>
