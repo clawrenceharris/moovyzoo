@@ -18,7 +18,7 @@ export default function LoginPage() {
   return (
     <div className="bg-secondary-background">
       <div className="text-center my-8">
-        <h1 className="text-2xl font-semibold">Sign Up</h1>
+        <h1 className="text-2xl font-semibold">Sign In</h1>
       </div>
       <FormLayout<LoginData>
         defaultValues={{ email: "", password: "" }}

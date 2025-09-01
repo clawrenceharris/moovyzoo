@@ -4,7 +4,12 @@ import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { LoginData } from "../domain/auth.types";
 import { Button, Input } from "@/components/ui";
-import { FormField, FormItem, FormLabel } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -38,12 +43,15 @@ export default function LoginForm({
             <FormLabel className="sr-only" htmlFor="signup-email">
               Email Address
             </FormLabel>
-            <Input
-              id="signup-email"
-              type="email"
-              disabled={field.disabled}
-              placeholder="Enter your email"
-            />
+            <FormControl>
+              <Input
+                id="signup-email"
+                type="email"
+                disabled={field.disabled}
+                placeholder="Enter your email"
+                {...field}
+              />
+            </FormControl>
             {errors.email && <p>{errors.email.message}</p>}
           </FormItem>
         )}
@@ -60,13 +68,16 @@ export default function LoginForm({
               <FormLabel htmlFor="signup-email">Password</FormLabel>
 
               <div className="relative">
-                <Input
-                  id="login-password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  disabled={field.disabled}
-                  placeholder="Enter your password"
-                />
+                <FormControl>
+                  <Input
+                    id="login-password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    disabled={field.disabled}
+                    placeholder="Enter your password"
+                    {...field}
+                  />
+                </FormControl>
                 <Button
                   type="button"
                   aria-label={showPassword ? "Hide password" : "Show password"}
