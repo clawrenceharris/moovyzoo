@@ -16,23 +16,17 @@ export default function RootLayout({
   if (!user) return null;
 
   return (
-    <html lang="en">
-      <body className="bg-gray-50 text-gray-900">
+    <QueryProvider>
+      <UserProvider user={user}>
         <div className="flex min-h-screen flex-col">
           <Header />
 
           {/* Page Content */}
-          <main className="flex-1">
-            <QueryProvider>
-              <UserProvider user={user}>
-                <Header />
-                <main className="flex-1">{children}</main>
-              </UserProvider>
-            </QueryProvider>
-          </main>
-          <AIChatProvider />
+
+          <main className="flex-1">{children}</main>
         </div>
-      </body>
-    </html>
+        <AIChatProvider />
+      </UserProvider>
+    </QueryProvider>
   );
 }
