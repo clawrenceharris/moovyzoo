@@ -1,6 +1,12 @@
-// Client-side TMDB API integration using our own API routes
+// TMDB API Configuration - Server-side only
+const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
 
-// Types for TMDB API responses (re-exported for compatibility)
+if (!TMDB_API_KEY) {
+  throw new Error('TMDB_API_KEY is required. Please set it in your environment variables.');
+}
+
+// Types for TMDB API responses
 export interface TMDBMovie {
   id: number;
   title: string;
@@ -238,107 +244,122 @@ export interface TMDBEpisode {
   };
 }
 
-// Helper function to make API calls to our own endpoints
-async function apiCall<T>(endpoint: string): Promise<T> {
-  try {
-    // Ensure we have an absolute URL for client-side requests
-    let url: string;
-    if (endpoint.startsWith('/')) {
-      // This is a relative URL, make it absolute
-      if (typeof window !== 'undefined') {
-        // Client-side: use window.location.origin
-        url = `${window.location.origin}${endpoint}`;
-      } else {
-        // Server-side or Node.js environment: construct absolute URL
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
-                       process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
-                       'http://localhost:3000';
-        url = `${baseUrl}${endpoint}`;
-      }
-    } else {
-      // Already an absolute URL
-      url = endpoint;
+// Helper function to make API calls
+async function tmdbFetch<T>(endpoint: string, params: Record<string, string | number | boolean> = {}): Promise<T> {
+  const url = new URL(`${TMDB_BASE_URL}${endpoint}`);
+
+  // Add query parameters
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      url.searchParams.append(key, String(value));
     }
-    
-    console.log('API call URL:', url); // Debug log
-    const response = await fetch(url);
+  });
+
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization: `Bearer ${TMDB_API_KEY}`
+    }
+  };
+
+  try {
+    const response = await fetch(url.toString(), options);
     
     if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`);
+      throw new Error(`TMDB API error: ${response.status} ${response.statusText}`);
     }
     
     return await response.json();
   } catch (error) {
-    console.error('API call error:', error);
+    console.error('TMDB API fetch error:', error);
     throw error;
   }
 }
 
 /**
  * Search for movies by title
- * Uses our /api/tmdb/search/movies endpoint
+ * Uses /search/movie endpoint
  */
 export async function searchMovie(title: string): Promise<TMDBMovie[]> {
   if (!title.trim()) {
     throw new Error('Movie title is required');
   }
 
-  const params = new URLSearchParams({ title: title.trim() });
-  const response = await apiCall<{ movies: TMDBMovie[] }>(`/api/tmdb/search/movies?${params}`);
-  console.log("⚙️ searchMovie called");
-  return response.movies;
+  const response = await tmdbFetch<TMDBSearchResponse>('/search/movie', {
+    query: title.trim(),
+    include_adult: false,
+    language: 'en-US',
+    page: 1
+  });
+
+  return response.results;
 }
 
 /**
  * Search for TV shows by title
- * Uses our /api/tmdb/search/tv endpoint
+ * Uses /search/tv endpoint
  */
 export async function searchTVShow(title: string, year?: number): Promise<TMDBTVShow[]> {
   if (!title.trim()) {
     throw new Error('TV show title is required');
   }
 
-  const params = new URLSearchParams({ title: title.trim() });
-  if (year) {
-    params.append('year', year.toString());
-  }
-  console.log("⚙️ searchTVShow called");
+  const params: Record<string, string | number | boolean> = {
+    query: title.trim(),
+    include_adult: false,
+    language: 'en-US',
+    page: 1
+  };
 
-  const response = await apiCall<{ tvShows: TMDBTVShow[] }>(`/api/tmdb/search/tv?${params}`);
-  return response.tvShows;
+  // Add optional year filter if provided
+  if (year && year > 1950 && year <= new Date().getFullYear() + 5) {
+    params.first_air_date_year = year;
+  }
+
+  const response = await tmdbFetch<TMDBTVSearchResponse>('/search/tv', params);
+
+  return response.results;
 }
 
 /**
  * Get detailed movie information by ID
- * Uses our /api/tmdb/movie/[id] endpoint
+ * Uses /movie/{movie_id}?append_to_response=credits,videos
  */
 export async function getMovieDetails(movieId: number): Promise<TMDBMovieDetails> {
   if (!movieId || movieId <= 0) {
     throw new Error('Valid movie ID is required');
   }
 
-  console.log("⚙️ getMovieDetails called");
-  const response = await apiCall<{ movieDetails: TMDBMovieDetails }>(`/api/tmdb/movie/${movieId}`);
-  return response.movieDetails;
+  const movieDetails = await tmdbFetch<TMDBMovieDetails>(`/movie/${movieId}`, {
+    append_to_response: 'credits,videos',
+    language: 'en-US'
+  });
+
+  return movieDetails;
 }
 
 /**
  * Get detailed TV show information by ID
- * Uses our /api/tmdb/tv/[id] endpoint
+ * Uses /tv/{tv_id}?append_to_response=credits,videos,content_ratings,external_ids
  */
 export async function getTVShowDetails(tvId: number): Promise<TMDBTVShowDetails> {
   if (!tvId || tvId <= 0) {
     throw new Error('Valid TV show ID is required');
   }
 
-  console.log("⚙️ getTVShowDetails called");
-  const response = await apiCall<{ tvShowDetails: TMDBTVShowDetails }>(`/api/tmdb/tv/${tvId}`);
-  return response.tvShowDetails;
+  const tvShowDetails = await tmdbFetch<TMDBTVShowDetails>(`/tv/${tvId}`, {
+    append_to_response: 'credits,videos,content_ratings,external_ids',
+    language: 'en-US'
+  });
+
+  return tvShowDetails;
 }
 
 /**
  * Get season or episode details for a TV show
- * Uses our /api/tmdb/tv/[id]/season/[season] endpoint
+ * Uses /tv/{tv_id}/season/{season_number} or /tv/{tv_id}/season/{season_number}/episode/{episode_number}
+ * If episode_number is provided, returns episode details; otherwise returns season details
  */
 export async function getSeasonOrEpisode(
   tvId: number,
@@ -357,22 +378,30 @@ export async function getSeasonOrEpisode(
     throw new Error('Valid episode number is required');
   }
 
-  const params = episodeNumber !== undefined ? new URLSearchParams({ episode: episodeNumber.toString() }) : new URLSearchParams();
-  const url = `/api/tmdb/tv/${tvId}/season/${seasonNumber}${params.toString() ? `?${params}` : ''}`;
-  console.log("⚙️ getSeasonOrEpisode called");
+  // Determine endpoint based on whether episode number is provided
+  const endpoint = episodeNumber !== undefined
+    ? `/tv/${tvId}/season/${seasonNumber}/episode/${episodeNumber}`
+    : `/tv/${tvId}/season/${seasonNumber}`;
 
+  const params: Record<string, string | number | boolean> = {
+    language: 'en-US'
+  };
+
+  // Add videos to episode requests
   if (episodeNumber !== undefined) {
-    const response = await apiCall<{ episode: TMDBEpisode }>(url);
-    return response.episode;
-  } else {
-    const response = await apiCall<{ season: TMDBSeason }>(url);
-    return response.season;
+    params.append_to_response = 'videos';
   }
+
+  const result = episodeNumber !== undefined
+    ? await tmdbFetch<TMDBEpisode>(endpoint, params)
+    : await tmdbFetch<TMDBSeason>(endpoint, params);
+
+  return result;
 }
 
 /**
  * Get TV shows similar to a specific TV show or get recommendations
- * Uses our /api/tmdb/tv/[id]/similar endpoint
+ * Uses /tv/{tv_id}/similar or /tv/{tv_id}/recommendations
  */
 export async function getSimilarOrRecommendationsTV(
   tvId: number,
@@ -385,69 +414,114 @@ export async function getSimilarOrRecommendationsTV(
   if (!['similar', 'recommendations'].includes(type)) {
     throw new Error('Type must be either "similar" or "recommendations"');
   }
-  console.log("⚙️ getSimilarOrRecommendationsTV called");
 
-  const params = new URLSearchParams({ type });
-  const response = await apiCall<{ tvShows: TMDBTVShow[] }>(`/api/tmdb/tv/${tvId}/similar?${params}`);
-  return response.tvShows;
+  const endpoint = `/tv/${tvId}/${type}`;
+
+  const response = await tmdbFetch<TMDBTVSearchResponse>(endpoint, {
+    language: 'en-US',
+    page: 1
+  });
+
+  return response.results;
 }
 
 /**
  * Get movies similar to a specific movie
- * Uses our /api/tmdb/movie/[id]/similar endpoint
+ * Uses /movie/{movie_id}/similar
  */
 export async function getSimilarMovies(movieId: number): Promise<TMDBMovie[]> {
   if (!movieId || movieId <= 0) {
     throw new Error('Valid movie ID is required');
   }
 
-  const response = await apiCall<{ similarMovies: TMDBMovie[] }>(`/api/tmdb/movie/${movieId}/similar`);
-  console.log("⚙️ getSimilarMovies called");
-  return response.similarMovies;
+  const response = await tmdbFetch<TMDBSearchResponse>(`/movie/${movieId}/similar`, {
+    language: 'en-US',
+    page: 1
+  });
+
+  return response.results;
 }
 
 /**
  * Get trending, now playing, or upcoming movies
- * Uses our /api/tmdb/trending/movies endpoint
+ * Uses different endpoints based on type
  */
 export async function getTrendingNowOrUpcoming(
   type: 'trending' | 'now_playing' | 'upcoming'
 ): Promise<TMDBMovie[]> {
-  if (!['trending', 'now_playing', 'upcoming'].includes(type)) {
-    throw new Error('Invalid type. Must be "trending", "now_playing", or "upcoming"');
+  let endpoint: string;
+
+  switch (type) {
+    case 'trending':
+      endpoint = '/trending/movie/day';
+      break;
+    case 'now_playing':
+      endpoint = '/movie/now_playing';
+      break;
+    case 'upcoming':
+      endpoint = '/movie/upcoming';
+      break;
+    default:
+      throw new Error('Invalid type. Must be "trending", "now_playing", or "upcoming"');
   }
 
-  const params = new URLSearchParams({ type });
-  const response = await apiCall<{ movies: TMDBMovie[] }>(`/api/tmdb/trending/movies?${params}`);
-  console.log("⚙️ getTrendingNowOrUpcoming called");
-  return response.movies;
+  const response = await tmdbFetch<TMDBSearchResponse>(endpoint, {
+    language: 'en-US',
+    page: 1,
+    region: 'US'
+  });
+
+  return response.results;
 }
 
 /**
  * Get trending, on air, airing today, popular, or top-rated TV shows
- * Uses our /api/tmdb/trending/tv endpoint
+ * Uses different endpoints based on kind parameter
  */
 export async function getTrendingOrAiringTV(
   kind: 'trending' | 'on_the_air' | 'airing_today' | 'popular' | 'top_rated',
   region?: string
 ): Promise<TMDBTVShow[]> {
-  if (!['trending', 'on_the_air', 'airing_today', 'popular', 'top_rated'].includes(kind)) {
-    throw new Error('Invalid kind. Must be "trending", "on_the_air", "airing_today", "popular", or "top_rated"');
+  let endpoint: string;
+
+  switch (kind) {
+    case 'trending':
+      endpoint = '/trending/tv/day';
+      break;
+    case 'on_the_air':
+      endpoint = '/tv/on_the_air';
+      break;
+    case 'airing_today':
+      endpoint = '/tv/airing_today';
+      break;
+    case 'popular':
+      endpoint = '/tv/popular';
+      break;
+    case 'top_rated':
+      endpoint = '/tv/top_rated';
+      break;
+    default:
+      throw new Error('Invalid kind. Must be "trending", "on_the_air", "airing_today", "popular", or "top_rated"');
   }
 
-  const params = new URLSearchParams({ kind });
-  if (region) {
-    params.append('region', region);
+  const params: Record<string, string | number | boolean> = {
+    language: 'en-US',
+    page: 1
+  };
+
+  // Add region parameter if provided (for regional content like airing today)
+  if (region && region.length === 2) {
+    params.region = region.toUpperCase();
   }
-  console.log("⚙️ getTrendingOrAiringTV called");
-  
-  const response = await apiCall<{ tvShows: TMDBTVShow[] }>(`/api/tmdb/trending/tv?${params}`);
-  return response.tvShows;
+
+  const response = await tmdbFetch<TMDBTVSearchResponse>(endpoint, params);
+
+  return response.results;
 }
 
 /**
  * Discover movies by genre with optional filters
- * Uses our /api/tmdb/discover endpoint
+ * Uses /discover/movie endpoint
  */
 export async function discoverByGenre(
   genreIds: string,
@@ -458,27 +532,32 @@ export async function discoverByGenre(
     throw new Error('Genre IDs are required');
   }
 
-  const params = new URLSearchParams({ 
-    genreIds: genreIds.trim(),
-    sortBy
-  });
-  
-  if (year) {
-    params.append('year', year.toString());
+  const params: Record<string, string | number | boolean> = {
+    with_genres: genreIds.trim(),
+    sort_by: sortBy,
+    include_adult: false,
+    language: 'en-US',
+    page: 1
+  };
+
+  if (year && year > 1900 && year <= new Date().getFullYear() + 5) {
+    params.year = year;
   }
 
-  console.log("⚙️ discoverByGenre called");
+  const response = await tmdbFetch<TMDBSearchResponse>('/discover/movie', params);
 
-  const response = await apiCall<{ movies: TMDBMovie[] }>(`/api/tmdb/discover?${params}`);
-  return response.movies;
+  return response.results;
 }
 
 /**
  * Get movie genres list for reference
- * Uses our /api/tmdb/genres endpoint
+ * Uses /genre/movie/list endpoint
  */
 export async function getMovieGenres(): Promise<Array<{ id: number; name: string }>> {
-  const response = await apiCall<{ genres: Array<{ id: number; name: string }> }>('/api/tmdb/genres');
+  const response = await tmdbFetch<{ genres: Array<{ id: number; name: string }> }>('/genre/movie/list', {
+    language: 'en-US'
+  });
+
   return response.genres;
 }
 
@@ -502,8 +581,6 @@ export function formatMovieForDisplay(movie: TMDBMovie | TMDBMovieDetails): stri
     const genres = movie.genres.map(g => g.name).join(', ');
     result += `Genres: ${genres}\n`;
   }
-
-  console.log("⚙️ formatMovieForDisplay called");
   
   return result;
 }
@@ -539,8 +616,5 @@ export function formatTVShowForDisplay(tvShow: TMDBTVShow | TMDBTVShowDetails): 
 // Helper function to get image URLs
 export function getImageUrl(path: string | null | undefined, size: 'w185' | 'w300' | 'w500' | 'original' = 'w300'): string | null {
   if (!path) return null;
-
-  console.log("⚙️ getImageUrl called");
   return `https://image.tmdb.org/t/p/${size}${path}`;
-
 }
