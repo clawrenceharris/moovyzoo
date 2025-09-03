@@ -5,11 +5,10 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { HabitatHero } from "./HabitatHero";
-import { PopularInHabitat } from "./PopularInHabitat";
+import { HabitatDiscussions } from "./HabitatDiscussions";
 import { WatchParties } from "./WatchParties";
 import { WatchPartiesCarousel } from "./WatchPartiesCarousel";
 import { HabitatInfo } from "./HabitatInfo";
-import { DiscussionCreationModal } from "./DiscussionCreationModal";
 import { PollCreationModal } from "./PollCreationModal";
 import { WatchPartyCreationModal } from "./WatchPartyCreationModal";
 import { LoadingState, ErrorState } from "@/components";
@@ -103,15 +102,6 @@ export function HabitatDashboard({
   const closeModal = (modalType: keyof ModalState) => {
     setModals((prev) => ({ ...prev, [modalType]: false }));
   };
-
-  // Creation handlers
-  const handleDiscussionCreated = useCallback(
-    (discussion: Discussion) => {
-      // Navigate to the new discussion room
-      router.push(`/habitats/${habitatId}/discussions/${discussion.id}`);
-    },
-    [habitatId, router]
-  );
 
   const handlePollCreated = useCallback(
     (poll: Poll) => {
@@ -218,37 +208,15 @@ export function HabitatDashboard({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Main Content Area */}
               <div className="lg:col-span-2 space-y-8">
-                {/* Create Discussion Button */}
-                <div className="flex justify-between items-center">
-                  <h2 className="text-xl font-semibold">
-                    Popular in this habitat
-                  </h2>
-                  <Button
-                    variant="outline"
-                    onClick={() => openModal("discussionModal")}
-                    className="flex items-center gap-2"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Create Discussion
-                  </Button>
-                </div>
                 {/* Popular in Habitat Section */}
-                <PopularInHabitat
+                <HabitatDiscussions
+                  loading={state.loading}
+                  habitatId={habitatId}
                   discussions={state.dashboardData.discussions}
-                  polls={state.dashboardData.polls}
-                  watchParties={state.dashboardData.watchParties}
                   onDiscussionClick={(discussionId) => {
                     router.push(
                       `/habitats/${state.dashboardData?.habitat.id}/discussions/${discussionId}`
                     );
-                  }}
-                  onPollClick={(pollId) => {
-                    // TODO: Navigate to poll or open poll modal
-                    console.log("Poll clicked:", pollId);
-                  }}
-                  onWatchPartyClick={(watchPartyId) => {
-                    // TODO: Navigate to watch party or open join modal
-                    console.log("Watch party clicked:", watchPartyId);
                   }}
                 />
               </div>
@@ -268,15 +236,6 @@ export function HabitatDashboard({
             </div>
           </div>
         </div>
-
-        {/* Creation Modals */}
-        <DiscussionCreationModal
-          isOpen={modals.discussionModal}
-          onClose={() => closeModal("discussionModal")}
-          habitatId={habitatId}
-          userId={userId}
-          onSuccess={handleDiscussionCreated}
-        />
 
         <PollCreationModal
           isOpen={modals.pollModal}

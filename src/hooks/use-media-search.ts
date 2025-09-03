@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { tmdbService, TMDBSearchResult } from "@/utils/tmdb/service";
-import { useDebouncedSearch } from "./useDebounce";
+import { useDebouncedSearch } from "./use-debounce";
 
 export interface UseMediaSearchResult {
   results: TMDBSearchResult[];

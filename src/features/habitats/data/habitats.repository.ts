@@ -676,6 +676,7 @@ export class HabitatsRepository {
 
       return this.mapDatabaseToDiscussion(discussion);
     } catch (error) {
+      console.log(error);
       throw error;
     }
   }

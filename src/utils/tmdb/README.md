@@ -175,7 +175,7 @@ The service provides specific error codes for different failure scenarios:
 ### Environment Variables
 
 ```bash
-NEXT_PUBLIC_TMBD_API_KEY=your_tmdb_api_key_here
+TMBD_API_KEY=your_tmdb_api_key_here
 ```
 
 ### Image Sizes

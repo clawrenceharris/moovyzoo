@@ -66,10 +66,7 @@ export function WatchPartiesCarousel({
       <div className={`bg-card/30 border-b border-border ${className}`}>
         <div className="px-6 py-8">
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Calendar className="w-6 h-6 text-primary" />
-              <h2 className="text-2xl font-bold">Watch Parties</h2>
-            </div>
+            <h2 className="text-2xl font-bold">Watch Parties</h2>
           </div>
           <LoadingState variant="grid" count={3} />
         </div>
@@ -77,17 +74,24 @@ export function WatchPartiesCarousel({
     );
   }
 
-  if (!hasParties) {
-    return (
-      <div className={`bg-card/30 border-b border-border ${className}`}>
-        <div className="px-6 py-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Calendar className="w-6 h-6 text-primary" />
+  return (
+    <div className={`bg-card/30 border-b border-border ${className}`}>
+      <div className="px-6 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div>
               <h2 className="text-2xl font-bold">Watch Parties</h2>
+              <p className="text-sm text-muted-foreground">
+                {sortedParties.length}{" "}
+                {sortedParties.length === 1 ? "party" : "parties"} scheduled
+              </p>
             </div>
+          </div>
+          <div className="flex items-center gap-3">
             {onCreateParty && (
               <Button
+                variant={"secondary"}
                 onClick={onCreateParty}
                 className="flex items-center gap-2"
               >
@@ -96,8 +100,46 @@ export function WatchPartiesCarousel({
               </Button>
             )}
           </div>
+        </div>
+
+        {/* Carousel */}
+        {hasParties ? (
+          <Carousel
+            opts={{
+              align: "start",
+              loop: false,
+              skipSnaps: false,
+              dragFree: false,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {sortedParties.map((watchParty) => (
+                <CarouselItem
+                  key={watchParty.id}
+                  className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+                >
+                  <WatchPartyCard
+                    watchParty={watchParty}
+                    onClick={() => onEnterParty(watchParty.id)}
+                    showDescription={true}
+                    className="h-full"
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+
+            {/* Navigation arrows - only show if there are enough items to scroll */}
+            {sortedParties.length > 4 && (
+              <>
+                <CarouselPrevious className="left-0 bg-background/80 backdrop-blur-sm border-border hover:bg-background" />
+                <CarouselNext className="right-0 bg-background/80 backdrop-blur-sm border-border hover:bg-background" />
+              </>
+            )}
+          </Carousel>
+        ) : (
           <EmptyState
-            title="No watch parties scheduled"
+            title="Schedule a Watch Party to start the fun!"
             description="Be the first to schedule a watch party and bring the community together!"
             onAction={() =>
               onCreateParty ? (
@@ -110,95 +152,9 @@ export function WatchPartiesCarousel({
                 </Button>
               ) : undefined
             }
-            icon={<Calendar className="w-12 h-12 text-muted-foreground" />}
             variant="minimal"
           />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`bg-card/30 border-b border-border ${className}`}>
-      <div className="px-6 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Calendar className="w-6 h-6 text-primary" />
-            <div>
-              <h2 className="text-2xl font-bold">Watch Parties</h2>
-              <p className="text-sm text-muted-foreground">
-                {sortedParties.length}{" "}
-                {sortedParties.length === 1 ? "party" : "parties"} scheduled
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" className="text-muted-foreground">
-              View All
-            </Button>
-            {onCreateParty && (
-              <Button
-                onClick={onCreateParty}
-                className="flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Schedule Party
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Carousel */}
-        <Carousel
-          opts={{
-            align: "start",
-            loop: false,
-            skipSnaps: false,
-            dragFree: false,
-          }}
-          className="w-full"
-        >
-          <CarouselContent className="-ml-2 md:-ml-4">
-            {sortedParties.map((watchParty) => (
-              <CarouselItem
-                key={watchParty.id}
-                className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
-              >
-                <WatchPartyCard
-                  watchParty={watchParty}
-                  onClick={() => onEnterParty(watchParty.id)}
-                  showDescription={true}
-                  className="h-full"
-                />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-
-          {/* Navigation arrows - only show if there are enough items to scroll */}
-          {sortedParties.length > 4 && (
-            <>
-              <CarouselPrevious className="left-0 bg-background/80 backdrop-blur-sm border-border hover:bg-background" />
-              <CarouselNext className="right-0 bg-background/80 backdrop-blur-sm border-border hover:bg-background" />
-            </>
-          )}
-        </Carousel>
-
-        {/* Status indicator */}
-        <div className="flex items-center justify-center mt-6 gap-6 text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-            <span>Live</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-            <span>Upcoming</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>
-            <span>Ended</span>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

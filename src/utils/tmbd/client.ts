@@ -1,3 +1,3 @@
 import { MovieDb } from "moviedb-promise";
 
-export const moviedb = new MovieDb(process.env.NEXT_PUBLIC_TMBD_API_KEY!);
+export const moviedb = new MovieDb(process.env.TMBD_API_KEY!);

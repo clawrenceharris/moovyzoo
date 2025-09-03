@@ -7,14 +7,7 @@ export const errorMap: Record<AppErrorCode, AppError> = {
     message:
       "An account with this email already exists. Try logging in instead.",
   },
-  [AppErrorCode.AUTH_INVALID_EMAIL]: {
-    title: "Invalid Email",
-    message: "Please enter a valid email address.",
-  },
-  [AppErrorCode.AUTH_WEAK_PASSWORD]: {
-    title: "Weak Password",
-    message: "Password should be at least 8 characters.",
-  },
+
   [AppErrorCode.AUTH_USER_NOT_FOUND]: {
     title: "Account Not Found",
     message: "No account found with this email. Check your email or sign up.",
@@ -66,10 +59,7 @@ export const errorMap: Record<AppErrorCode, AppError> = {
     title: "Profile Creation Failed",
     message: "Could not create your profile. Please try again.",
   },
-  [AppErrorCode.PROFILE_INVALID_DATA]: {
-    title: "Invalid Profile Data",
-    message: "Some profile information is invalid. Please check and try again.",
-  },
+
   [AppErrorCode.PROFILE_UNAUTHORIZED]: {
     title: "Access Denied",
     message: "You do not have permission to access this profile.",
@@ -81,43 +71,6 @@ export const errorMap: Record<AppErrorCode, AppError> = {
   [AppErrorCode.PROFILE_DISPLAY_NAME_TAKEN]: {
     title: "Name Unavailable",
     message: "This display name is already taken. Please choose another.",
-  },
-
-  // Privacy errors
-  [AppErrorCode.PRIVACY_UPDATE_FAILED]: {
-    title: "Privacy Update Failed",
-    message: "Could not update your privacy settings. Please try again.",
-  },
-  [AppErrorCode.PRIVACY_INVALID_SETTINGS]: {
-    title: "Invalid Privacy Settings",
-    message: "The privacy settings are invalid. Please check and try again.",
-  },
-
-  // Validation errors
-  [AppErrorCode.VALIDATION_INVALID_EMAIL]: {
-    title: "Invalid Email",
-    message: "Please enter a valid email address.",
-  },
-  [AppErrorCode.VALIDATION_INVALID_PASSWORD]: {
-    title: "Invalid Password",
-    message: "Password must be at least 8 characters.",
-  },
-  [AppErrorCode.VALIDATION_INVALID_DISPLAY_NAME]: {
-    title: "Invalid Display Name",
-    message:
-      "Display name must be 2-50 characters with letters, numbers, and spaces.",
-  },
-  [AppErrorCode.VALIDATION_INVALID_AVATAR_URL]: {
-    title: "Invalid Avatar URL",
-    message: "Please enter a valid image URL.",
-  },
-  [AppErrorCode.VALIDATION_INVALID_GENRES]: {
-    title: "Invalid Genres",
-    message: "Please select 1-10 favorite genres.",
-  },
-  [AppErrorCode.VALIDATION_REQUIRED_FIELD]: {
-    title: "Required Field",
-    message: "This field is required. Please fill it out.",
   },
 
   // Database errors
@@ -154,14 +107,6 @@ export const errorMap: Record<AppErrorCode, AppError> = {
   [AppErrorCode.PROFILE_DELETE_FAILED]: {
     title: "Too Many Requests",
     message: "You are making requests too quickly. Please slow down.",
-  },
-  [AppErrorCode.PROFILE_INVALID_DISPLAY_NAME]: {
-    title: "Too Many Requests",
-    message: "You are making requests too quickly. Please slow down.",
-  },
-  [AppErrorCode.AUTH_EMAIL_NOT_VERIFIED]: {
-    title: "Unverified Email",
-    message: "You have to verify your email",
   },
 
   // Habitat errors
@@ -201,32 +146,13 @@ export const errorMap: Record<AppErrorCode, AppError> = {
     title: "Not a Member",
     message: "You need to join this habitat first.",
   },
-  [AppErrorCode.HABITAT_INVALID_DATA]: {
-    title: "Invalid Data",
-    message: "Some habitat information is invalid. Please check and try again.",
-  },
-  [AppErrorCode.HABITAT_INVALID_NAME]: {
-    title: "Invalid Name",
-    message: "Habitat name must be 3-100 characters long.",
-  },
-  [AppErrorCode.HABITAT_INVALID_DESCRIPTION]: {
-    title: "Invalid Description",
-    message: "Description must be 10-500 characters long.",
-  },
-  [AppErrorCode.HABITAT_INVALID_TAGS]: {
-    title: "Invalid Tags",
-    message: "Please add 1-5 unique tags, each up to 30 characters.",
-  },
 
   // Message errors
   [AppErrorCode.MESSAGE_NOT_FOUND]: {
     title: "Message Not Found",
     message: "This message no longer exists.",
   },
-  [AppErrorCode.MESSAGE_TOO_LONG]: {
-    title: "Message Too Long",
-    message: "Messages must be 1000 characters or less.",
-  },
+
   [AppErrorCode.MESSAGE_SEND_FAILED]: {
     title: "Send Failed",
     message: "Could not send your message. Please try again.",
@@ -235,10 +161,7 @@ export const errorMap: Record<AppErrorCode, AppError> = {
     title: "Delete Failed",
     message: "Could not delete the message. Please try again.",
   },
-  [AppErrorCode.MESSAGE_INVALID_CONTENT]: {
-    title: "Invalid Message",
-    message: "Message content is invalid or empty.",
-  },
+
   [AppErrorCode.MESSAGE_UNAUTHORIZED]: {
     title: "Unauthorized",
     message: "You can only delete your own messages.",
@@ -275,14 +198,7 @@ export const errorMap: Record<AppErrorCode, AppError> = {
     title: "Delete Failed",
     message: "Could not delete the discussion. Please try again.",
   },
-  [AppErrorCode.DISCUSSION_INVALID_NAME]: {
-    title: "Invalid Name",
-    message: "Discussion name must be 3-100 characters long.",
-  },
-  [AppErrorCode.DISCUSSION_INVALID_DESCRIPTION]: {
-    title: "Invalid Description",
-    message: "Description must be 500 characters or less.",
-  },
+
   [AppErrorCode.DISCUSSION_UNAUTHORIZED]: {
     title: "Unauthorized",
     message: "You don't have permission to modify this discussion.",
@@ -305,14 +221,7 @@ export const errorMap: Record<AppErrorCode, AppError> = {
     title: "Delete Failed",
     message: "Could not delete the poll. Please try again.",
   },
-  [AppErrorCode.POLL_INVALID_TITLE]: {
-    title: "Invalid Title",
-    message: "Poll title must be 5-200 characters long.",
-  },
-  [AppErrorCode.POLL_INVALID_OPTIONS]: {
-    title: "Invalid Options",
-    message: "Polls need 2-6 options, each 1-100 characters long.",
-  },
+
   [AppErrorCode.POLL_VOTE_FAILED]: {
     title: "Vote Failed",
     message: "Could not record your vote. Please try again.",
@@ -339,18 +248,7 @@ export const errorMap: Record<AppErrorCode, AppError> = {
     title: "Delete Failed",
     message: "Could not delete the watch party. Please try again.",
   },
-  [AppErrorCode.WATCH_PARTY_INVALID_TITLE]: {
-    title: "Invalid Title",
-    message: "Watch party title must be 5-200 characters long.",
-  },
-  [AppErrorCode.WATCH_PARTY_INVALID_DESCRIPTION]: {
-    title: "Invalid Description",
-    message: "Description must be 500 characters or less.",
-  },
-  [AppErrorCode.WATCH_PARTY_INVALID_TIME]: {
-    title: "Invalid Time",
-    message: "Please schedule the party for a future date and time.",
-  },
+
   [AppErrorCode.WATCH_PARTY_JOIN_FAILED]: {
     title: "Join Failed",
     message: "Could not join the watch party. Please try again.",
@@ -366,5 +264,12 @@ export const errorMap: Record<AppErrorCode, AppError> = {
   [AppErrorCode.WATCH_PARTY_UNAUTHORIZED]: {
     title: "Unauthorized",
     message: "You don't have permission to modify this watch party.",
+  },
+
+  //Tmbd
+
+  [AppErrorCode.TMBD_SEARCH_FAILED]: {
+    title: "Search failed",
+    message: "We could not complete your search. Please try again.",
   },
 };

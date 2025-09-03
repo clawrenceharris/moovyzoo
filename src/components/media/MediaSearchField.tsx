@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Search, X, Film, Tv, AlertCircle, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/button";
-import { useMediaSearch } from "@/hooks/useMediaSearch";
+import { useMediaSearch } from "@/hooks/use-media-search";
 import { TMDBSearchResult, SelectedMedia } from "@/utils/tmdb/service";
 import { cn } from "@/lib/utils";
 
