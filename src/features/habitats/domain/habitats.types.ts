@@ -56,6 +56,7 @@ export interface Poll {
 export interface WatchParty {
   id: string;
   habitat_id: string;
+  title: string;
   description?: string;
   scheduled_time: string;
   participant_count: number;
@@ -131,11 +132,13 @@ export interface PollUpdate {
 
 export interface WatchPartyInsert {
   habitat_id: string;
+  title: string;
   description?: string;
   scheduled_time: string;
   participant_count?: number;
   max_participants?: number;
   created_by: string;
+  // Media integration fields
   tmdb_id?: number;
   media_type?: "movie" | "tv";
   media_title?: string;
@@ -264,6 +267,7 @@ export interface SelectedMedia {
 }
 
 export interface CreateWatchPartyData {
+  title: string;
   description?: string;
   scheduledTime: string;
   maxParticipants?: number;
@@ -272,6 +276,7 @@ export interface CreateWatchPartyData {
 
 // Form-specific interface for watch party creation
 export interface CreateWatchPartyFormData {
+  title: string;
   description?: string;
   scheduledDate: string;
   scheduledTime: string;

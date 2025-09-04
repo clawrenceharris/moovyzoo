@@ -496,6 +496,13 @@ export class HabitatsService {
     userId: string
   ): Promise<Discussion> {
     try {
+      if (!habitatId || !userId) {
+        throw new Error("Habitat ID and User ID are required");
+      }
+
+      // Validate access to habitat - user must be a member to create discussions
+      await this.validateHabitatAccess(habitatId, userId);
+
       // Create the discussion
       const discussion = await habitatsRepository.createDiscussion({
         habitat_id: habitatId,
@@ -584,6 +591,7 @@ export class HabitatsService {
       // Create the watch party
       const watchParty = await habitatsRepository.createWatchParty({
         habitat_id: habitatId,
+        title: data.media.media_title,
         description: data.description,
         scheduled_time: data.scheduledTime,
         participant_count: 1, // Creator is automatically a participant

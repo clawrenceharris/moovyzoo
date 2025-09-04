@@ -4,24 +4,28 @@ import { AppError, AppErrorCode } from "@/types/error";
 import { errorMap } from "./error-map";
 
 export function getFriendlyErrorMessage(error: unknown): string {
-  const normalizedError = normalizeError(error);
-  return normalizedError.message;
+  return (
+    (error as AppError)?.message ?? errorMap[AppErrorCode.UNKNOWN_ERROR].message
+  );
 }
 
 /**
  * Normalize various error types to AppErrorCode
  * Always use errorMap from auth/utils/error-map.ts for user messages
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function normalizeError(error: any): AppError {
-  if (isTmdbError(error)) {
-    return errorMap[normalizeTmbdError(error)];
+  // Handle Zod validation errors
+  if (error instanceof ZodError) {
+    return errorMap[normalizeZodError(error)];
   }
 
-  if (isSupabaseError(error) || isAuthApiError(error)) {
-    return errorMap[
-      normalizeSupabaseError(error) || normalizeStandardError(error)
-    ];
+  // Handle Supabase errors
+  if (isAuthApiError(error) || isSupabaseError(error)) {
+    return errorMap[normalizeSupabaseError(error)];
   }
+
+  // Handle standard errors
   if (error instanceof Error) {
     return errorMap[normalizeStandardError(error)];
   }
@@ -31,7 +35,6 @@ export function normalizeError(error: any): AppError {
 function isAuthApiError(error: unknown): error is AuthApiError {
   return error instanceof AuthApiError;
 }
-
 function isSupabaseError(
   error: unknown
 ): error is { code: string; message: string } {
@@ -40,21 +43,42 @@ function isSupabaseError(
     error !== null &&
     "code" in error &&
     "message" in error &&
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     typeof (error as any).code === "string" &&
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     typeof (error as any).message === "string"
   );
 }
 
-function normalizeTmbdError(error: any): AppErrorCode {
-  if (error.message.includes("401")) {
-    return AppErrorCode.TMDB_UNAUTHORIZED;
-  }
-  if (error.message.includes("network") || error.message.includes("fetch")) {
-    return AppErrorCode.NETWORK_ERROR;
-  }
-  return AppErrorCode.TMDB_SEARCH_FAILED;
-}
+/**
+ * Normalize Zod validation errors
+ */
+function normalizeZodError(error: ZodError): AppErrorCode {
+  const firstError = error.issues[0];
+  if (!firstError) return AppErrorCode.VALIDATION_REQUIRED_FIELD;
 
+  const path = firstError.path.join(".");
+
+  switch (path) {
+    case "displayName":
+      return AppErrorCode.VALIDATION_INVALID_DISPLAY_NAME;
+    case "avatarUrl":
+      return AppErrorCode.VALIDATION_INVALID_AVATAR_URL;
+    case "favoriteGenres":
+      return AppErrorCode.VALIDATION_INVALID_GENRES;
+
+    case "userId":
+      return AppErrorCode.VALIDATION_REQUIRED_FIELD;
+    default:
+      if (
+        firstError.code === "invalid_type" &&
+        firstError.input === "undefined"
+      ) {
+        return AppErrorCode.VALIDATION_REQUIRED_FIELD;
+      }
+      return AppErrorCode.PROFILE_INVALID_DATA;
+  }
+}
 /**
  * Normalize Supabase Auth + Database errors into internal AppErrorCode.
  * This function should be called anywhere you receive a Supabase `error` object.
@@ -62,11 +86,17 @@ function normalizeTmbdError(error: any): AppErrorCode {
 export function normalizeSupabaseError(error: {
   code?: string;
   message?: string;
-}): AppErrorCode | null {
+}): AppErrorCode {
   const code = error.code?.toLowerCase() || "";
   const message = error.message?.toLowerCase() || "";
 
-  // ---------- AUTH ERRORS ---------
+  // ---------- AUTH ERRORS ----------
+  if (code === "email_address_invalid") {
+    return AppErrorCode.AUTH_INVALID_EMAIL;
+  }
+  if (code === "email_not_confirmed") {
+    return AppErrorCode.AUTH_EMAIL_NOT_VERIFIED;
+  }
   if (
     code === "email_address_already_registered" ||
     message.includes("already registered") ||
@@ -74,7 +104,9 @@ export function normalizeSupabaseError(error: {
   ) {
     return AppErrorCode.AUTH_EMAIL_ALREADY_EXISTS;
   }
-
+  if (code === "weak_password" || message.includes("weak password")) {
+    return AppErrorCode.AUTH_WEAK_PASSWORD;
+  }
   if (code === "invalid_credentials" || message.includes("invalid login")) {
     return AppErrorCode.AUTH_INVALID_CREDENTIAL;
   }
@@ -129,6 +161,23 @@ export function normalizeSupabaseError(error: {
     return AppErrorCode.DATABASE_UNAVAILABLE;
   }
 
+  // ---------- VALIDATION ERRORS ----------
+  if (message.includes("required")) {
+    return AppErrorCode.VALIDATION_REQUIRED_FIELD;
+  }
+  if (message.includes("invalid") && message.includes("password")) {
+    return AppErrorCode.VALIDATION_INVALID_PASSWORD;
+  }
+  if (message.includes("invalid") && message.includes("display name")) {
+    return AppErrorCode.VALIDATION_INVALID_DISPLAY_NAME;
+  }
+  if (message.includes("invalid") && message.includes("avatar")) {
+    return AppErrorCode.VALIDATION_INVALID_AVATAR_URL;
+  }
+  if (message.includes("invalid") && message.includes("genre")) {
+    return AppErrorCode.VALIDATION_INVALID_GENRES;
+  }
+
   // ---------- HABITAT-SPECIFIC ERRORS ----------
   if (message.includes("habitat") && message.includes("access denied")) {
     return AppErrorCode.HABITAT_ACCESS_DENIED;
@@ -154,12 +203,64 @@ export function normalizeSupabaseError(error: {
   if (message.includes("owners cannot leave")) {
     return AppErrorCode.HABITAT_ACCESS_DENIED;
   }
-
+  if (message.includes("message") && message.includes("too long")) {
+    return AppErrorCode.MESSAGE_TOO_LONG;
+  }
+  if (message.includes("message is too long")) {
+    return AppErrorCode.MESSAGE_TOO_LONG;
+  }
+  if (message.includes("message") && message.includes("invalid")) {
+    return AppErrorCode.MESSAGE_INVALID_CONTENT;
+  }
+  if (message.includes("message content is invalid")) {
+    return AppErrorCode.MESSAGE_INVALID_CONTENT;
+  }
+  if (message.includes("message content is required")) {
+    return AppErrorCode.MESSAGE_INVALID_CONTENT;
+  }
+  if (message.includes("message content cannot be empty")) {
+    return AppErrorCode.MESSAGE_INVALID_CONTENT;
+  }
   if (message.includes("unauthorized to delete")) {
     return AppErrorCode.MESSAGE_UNAUTHORIZED;
   }
   if (message.includes("realtime") || message.includes("websocket")) {
     return AppErrorCode.REALTIME_CONNECTION_FAILED;
+  }
+
+  // ---------- HABITAT CREATION ERRORS ----------
+  if (message.includes("habitat name") && message.includes("required")) {
+    return AppErrorCode.HABITAT_INVALID_NAME;
+  }
+  if (message.includes("habitat name") && message.includes("invalid")) {
+    return AppErrorCode.HABITAT_INVALID_NAME;
+  }
+  if (
+    message.includes("habitat name") &&
+    (message.includes("too long") || message.includes("too short"))
+  ) {
+    return AppErrorCode.HABITAT_INVALID_NAME;
+  }
+  if (message.includes("habitat description") && message.includes("required")) {
+    return AppErrorCode.HABITAT_INVALID_DESCRIPTION;
+  }
+  if (message.includes("habitat description") && message.includes("invalid")) {
+    return AppErrorCode.HABITAT_INVALID_DESCRIPTION;
+  }
+  if (
+    message.includes("habitat description") &&
+    (message.includes("too long") || message.includes("too short"))
+  ) {
+    return AppErrorCode.HABITAT_INVALID_DESCRIPTION;
+  }
+  if (
+    message.includes("tags") &&
+    (message.includes("required") || message.includes("invalid"))
+  ) {
+    return AppErrorCode.HABITAT_INVALID_TAGS;
+  }
+  if (message.includes("maximum") && message.includes("tags")) {
+    return AppErrorCode.HABITAT_INVALID_TAGS;
   }
 
   // ---------- FALLBACKS ----------
@@ -170,7 +271,7 @@ export function normalizeSupabaseError(error: {
     return AppErrorCode.RATE_LIMIT_EXCEEDED;
   }
 
-  return null;
+  return AppErrorCode.UNKNOWN_ERROR;
 }
 /**
  * Normalize standard JavaScript errors
@@ -205,13 +306,63 @@ function normalizeStandardError(
   if (message.includes("owners cannot leave")) {
     return AppErrorCode.HABITAT_ACCESS_DENIED;
   }
-
+  if (message.includes("message") && message.includes("too long")) {
+    return AppErrorCode.MESSAGE_TOO_LONG;
+  }
+  if (message.includes("message is too long")) {
+    return AppErrorCode.MESSAGE_TOO_LONG;
+  }
+  if (message.includes("message content is invalid")) {
+    return AppErrorCode.MESSAGE_INVALID_CONTENT;
+  }
+  if (message.includes("message content is required")) {
+    return AppErrorCode.MESSAGE_INVALID_CONTENT;
+  }
+  if (message.includes("message content cannot be empty")) {
+    return AppErrorCode.MESSAGE_INVALID_CONTENT;
+  }
   if (message.includes("unauthorized to delete")) {
     return AppErrorCode.MESSAGE_UNAUTHORIZED;
   }
   if (message.includes("realtime") && message.includes("connection")) {
     return AppErrorCode.REALTIME_CONNECTION_FAILED;
   }
+
+  // Habitat creation errors
+  if (message.includes("habitat name") && message.includes("required")) {
+    return AppErrorCode.HABITAT_INVALID_NAME;
+  }
+  if (message.includes("habitat name") && message.includes("invalid")) {
+    return AppErrorCode.HABITAT_INVALID_NAME;
+  }
+  if (
+    message.includes("habitat name") &&
+    (message.includes("too long") || message.includes("too short"))
+  ) {
+    return AppErrorCode.HABITAT_INVALID_NAME;
+  }
+  if (message.includes("habitat description") && message.includes("required")) {
+    return AppErrorCode.HABITAT_INVALID_DESCRIPTION;
+  }
+  if (message.includes("habitat description") && message.includes("invalid")) {
+    return AppErrorCode.HABITAT_INVALID_DESCRIPTION;
+  }
+  if (
+    message.includes("habitat description") &&
+    (message.includes("too long") || message.includes("too short"))
+  ) {
+    return AppErrorCode.HABITAT_INVALID_DESCRIPTION;
+  }
+  if (
+    message.includes("tags") &&
+    (message.includes("required") || message.includes("invalid"))
+  ) {
+    return AppErrorCode.HABITAT_INVALID_TAGS;
+  }
+  if (message.includes("maximum") && message.includes("tags")) {
+    return AppErrorCode.HABITAT_INVALID_TAGS;
+  }
+
   // Profile errors
   if (message.includes("profile not found")) {
     return AppErrorCode.PROFILE_NOT_FOUND;
@@ -230,9 +381,4 @@ function normalizeStandardError(
   }
 
   return AppErrorCode.UNKNOWN_ERROR;
-}
-function isTmdbError(error: any) {
-  if (error instanceof Error) {
-    return error.message.includes("TMDB");
-  }
 }

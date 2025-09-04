@@ -1,2 +1,2 @@
-export * from "./use-debounce";
-export * from "./use-media-search";
+export * from "./useDebounce";
+export * from "./useMediaSearch";

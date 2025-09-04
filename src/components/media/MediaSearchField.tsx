@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Search, X, Film, Tv, AlertCircle, Loader2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/button";
-import { useMediaSearch } from "@/hooks/use-media-search";
+import { useMediaSearch } from "@/hooks/useMediaSearch";
+import { TMDBSearchResult, SelectedMedia } from "@/utils/tmdb/service";
 import { cn } from "@/lib/utils";
-import { TMDBSearchResult } from "@/features/ai-chat/data/tmdb.repository";
-import { SelectedMedia } from "@/features/habitats/domain";
 
 export interface MediaSearchFieldProps {
   onMediaSelect: (media: SelectedMedia | null) => void;
@@ -82,6 +81,37 @@ export function MediaSearchField({
     inputRef.current?.focus();
   }, [onMediaSelect, clearResults]);
 
+  // Handle keyboard navigation
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (!isOpen || results.length === 0) return;
+
+      switch (e.key) {
+        case "ArrowDown":
+          e.preventDefault();
+          setFocusedIndex((prev) => (prev < results.length - 1 ? prev + 1 : 0));
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          setFocusedIndex((prev) => (prev > 0 ? prev - 1 : results.length - 1));
+          break;
+        case "Enter":
+          e.preventDefault();
+          if (focusedIndex >= 0 && focusedIndex < results.length) {
+            handleMediaSelect(results[focusedIndex]);
+          }
+          break;
+        case "Escape":
+          e.preventDefault();
+          setIsOpen(false);
+          setFocusedIndex(-1);
+          inputRef.current?.blur();
+          break;
+      }
+    },
+    [isOpen, results, focusedIndex, handleMediaSelect]
+  );
+
   // Focus management for keyboard navigation
   useEffect(() => {
     if (focusedIndex >= 0 && resultRefs.current[focusedIndex]) {
@@ -136,6 +166,7 @@ export function MediaSearchField({
           type="text"
           value={query}
           onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
           onFocus={() => {
             if (results.length > 0 || error) {
               setIsOpen(true);
