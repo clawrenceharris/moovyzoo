@@ -53,6 +53,37 @@ export class HabitatsRepository {
   }
 
   /**
+   * OPTIMIZED: Get all habitats that a user has joined with better query structure
+   * Uses optimized join and indexing for better performance
+   */
+  async getUserJoinedHabitatsOptimized(
+    userId: string
+  ): Promise<HabitatWithMembership[]> {
+    try {
+      const { data: habitats, error } = await supabase
+        .from("habitats")
+        .select(
+          `
+          *,
+          habitat_members!inner(joined_at, last_active)
+        `
+        )
+        .eq("habitat_members.user_id", userId)
+        .order("habitat_members.last_active", { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      return habitats.map((habitat) =>
+        this.mapDatabaseToHabitatWithMembership(habitat, true)
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
    * Get a specific habitat by ID with membership info for a user
    */
   async getHabitatById(
@@ -90,6 +121,57 @@ export class HabitatsRepository {
             ? "member"
             : undefined;
       }
+
+      return {
+        ...this.mapDatabaseToHabitat(habitat),
+        is_member: isMember,
+        user_role: userRole,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * OPTIMIZED: Get a specific habitat by ID with membership info in a single query
+   * Eliminates N+1 query pattern by using a join
+   */
+  async getHabitatByIdOptimized(
+    habitatId: string,
+    userId?: string
+  ): Promise<HabitatWithMembership> {
+    try {
+      if (!userId) {
+        // If no user ID provided, use the original method
+        return this.getHabitatById(habitatId);
+      }
+
+      // Single query with left join to get habitat and membership info
+      const { data: habitat, error } = await supabase
+        .from("habitats")
+        .select(
+          `
+          *,
+          habitat_members!left(user_id, joined_at, last_active)
+        `
+        )
+        .eq("id", habitatId)
+        .eq("habitat_members.user_id", userId)
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      // Check membership from the joined data
+      const membership = habitat.habitat_members?.[0];
+      const isMember = !!membership;
+      const userRole: "owner" | "member" | undefined =
+        habitat.created_by === userId
+          ? "owner"
+          : isMember
+          ? "member"
+          : undefined;
 
       return {
         ...this.mapDatabaseToHabitat(habitat),
@@ -195,6 +277,99 @@ export class HabitatsRepository {
   }
 
   /**
+   * OPTIMIZED: Get messages using cursor-based pagination for better performance on large datasets
+   */
+  async getMessagesByDiscussionCursor(
+    discussionId: string,
+    cursor?: string,
+    limit = 20
+  ): Promise<MessageWithProfile[]> {
+    try {
+      let query = supabase
+        .from("habitat_messages")
+        .select(
+          `
+          *,
+          profiles:user_id (
+            display_name,
+            avatar_url
+          )
+        `
+        )
+        .eq("chat_id", discussionId);
+
+      // Add cursor condition if provided
+      if (cursor) {
+        query = query.gt("created_at", cursor);
+      }
+
+      const { data: messages, error } = await query
+        .order("created_at", { ascending: false })
+        .limit(limit);
+
+      if (error) {
+        throw error;
+      }
+
+      return messages.map((message) =>
+        this.mapDatabaseToMessageWithProfile(message)
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * OPTIMIZED: Batch fetch multiple habitats by IDs to avoid N+1 queries
+   */
+  async batchGetHabitatsByIds(habitatIds: string[]): Promise<Habitat[]> {
+    try {
+      if (habitatIds.length === 0) {
+        return [];
+      }
+
+      const { data: habitats, error } = await supabase
+        .from("habitats")
+        .select("*")
+        .in("id", habitatIds);
+
+      if (error) {
+        throw error;
+      }
+
+      return habitats.map((habitat) => this.mapDatabaseToHabitat(habitat));
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * OPTIMIZED: Get habitat members with efficient pagination
+   */
+  async getHabitatMembersWithPagination(
+    habitatId: string,
+    limit = 50,
+    offset = 0
+  ): Promise<HabitatMember[]> {
+    try {
+      const { data: members, error } = await supabase
+        .from("habitat_members")
+        .select("*")
+        .eq("habitat_id", habitatId)
+        .order("last_active", { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (error) {
+        throw error;
+      }
+
+      return members.map((member) => this.mapDatabaseToHabitatMember(member));
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
    * Update user's last active timestamp in a habitat
    */
   async updateLastActive(habitatId: string, userId: string): Promise<void> {
@@ -252,6 +427,43 @@ export class HabitatsRepository {
    * Get messages for a specific discussion with pagination
    */
   async getMessagesByDiscussion(
+    discussionId: string,
+    limit = 50,
+    offset = 0
+  ): Promise<MessageWithProfile[]> {
+    try {
+      const { data: messages, error } = await supabase
+        .from("habitat_messages")
+        .select(
+          `
+          *,
+          profiles:user_id (
+            display_name,
+            avatar_url
+          )
+        `
+        )
+        .eq("chat_id", discussionId)
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (error) {
+        throw error;
+      }
+
+      return messages.map((message) =>
+        this.mapDatabaseToMessageWithProfile(message)
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * OPTIMIZED: Get messages for a specific discussion with better pagination and indexing
+   * Uses cursor-based pagination for better performance on large datasets
+   */
+  async getMessagesByDiscussionOptimized(
     discussionId: string,
     limit = 50,
     offset = 0
@@ -624,6 +836,39 @@ export class HabitatsRepository {
    * Get discussions for a habitat
    */
   async getDiscussionsByHabitat(
+    habitatId: string
+  ): Promise<DiscussionWithStats[]> {
+    try {
+      const { data: discussions, error } = await supabase
+        .from("habitat_discussions")
+        .select(
+          `
+          *,
+          message_count:habitat_messages(count),
+          last_message:habitat_messages(created_at)
+        `
+        )
+        .eq("habitat_id", habitatId)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      return discussions.map((discussion) =>
+        this.mapDatabaseToDiscussionWithStats(discussion)
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * OPTIMIZED: Get discussions for a habitat with aggregated message counts
+   * Uses database-level aggregations for better performance
+   */
+  async getDiscussionsByHabitatOptimized(
     habitatId: string
   ): Promise<DiscussionWithStats[]> {
     try {

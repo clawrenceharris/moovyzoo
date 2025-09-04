@@ -1,279 +1,246 @@
-import { AppError, AppErrorCode } from "@/types/error";
+/**
+ * Error message mapping for user-friendly error display
+ * Maps AppErrorCode to user-facing messages with Zoovie's brand voice
+ */
 
-export const errorMap: Record<AppErrorCode, AppError> = {
-  // Authentication errors
-  [AppErrorCode.AUTH_EMAIL_ALREADY_EXISTS]: {
-    title: "Email Already Registered",
-    message:
-      "An account with this email already exists. Try logging in instead.",
-  },
+import { AppErrorCode } from "./error-codes";
 
-  [AppErrorCode.AUTH_USER_NOT_FOUND]: {
-    title: "Account Not Found",
-    message: "No account found with this email. Check your email or sign up.",
-  },
-  [AppErrorCode.AUTH_WRONG_PASSWORD]: {
-    title: "Incorrect Password",
-    message: "The password you entered is incorrect. Please try again.",
-  },
-  [AppErrorCode.AUTH_TOO_MANY_REQUESTS]: {
-    title: "Too Many Attempts",
-    message:
-      "Too many failed attempts. Please wait a few minutes and try again.",
-  },
-  [AppErrorCode.AUTH_NETWORK_ERROR]: {
-    title: "Connection Issue",
-    message: "Network error. Please check your connection and try again.",
-  },
-  [AppErrorCode.AUTH_REQUIRES_RECENT_LOGIN]: {
-    title: "Login Required",
-    message: "Please log in again to complete this action for security.",
-  },
-  [AppErrorCode.AUTH_INVALID_CREDENTIAL]: {
-    title: "Invalid Credentials",
-    message: "The email or password you entered is incorrect.",
-  },
-  [AppErrorCode.AUTH_USER_DISABLED]: {
-    title: "Account Disabled",
-    message: "This account has been disabled. Contact support for help.",
-  },
-  [AppErrorCode.AUTH_OPERATION_NOT_ALLOWED]: {
-    title: "Sign-up Disabled",
-    message: "Email/password accounts are currently disabled.",
-  },
+export interface ErrorMessage {
+  title: string;
+  message: string;
+}
 
-  // Profile errors
-  [AppErrorCode.PROFILE_NOT_FOUND]: {
-    title: "Profile Not Found",
-    message: "Your profile could not be found. Please try refreshing the page.",
+/**
+ * User-friendly error messages with Zoovie's witty but compassionate tone
+ * All messages are ≤140 characters and action-oriented
+ */
+export const errorMap: Record<AppErrorCode, ErrorMessage> = {
+  // Authentication & Authorization
+  [AppErrorCode.UNAUTHORIZED]: {
+    title: "Access Required",
+    message: "Please sign in to join the conversation and explore habitats.",
   },
-  [AppErrorCode.PROFILE_ALREADY_EXISTS]: {
-    title: "Profile Exists",
-    message: "A profile already exists for this account.",
-  },
-  [AppErrorCode.PROFILE_UPDATE_FAILED]: {
-    title: "Update Failed",
-    message: "Could not save your profile changes. Please try again.",
-  },
-  [AppErrorCode.PROFILE_CREATION_FAILED]: {
-    title: "Profile Creation Failed",
-    message: "Could not create your profile. Please try again.",
-  },
-
-  [AppErrorCode.PROFILE_UNAUTHORIZED]: {
+  [AppErrorCode.ACCESS_DENIED]: {
     title: "Access Denied",
-    message: "You do not have permission to access this profile.",
+    message:
+      "You don't have permission to access this habitat. Try joining first!",
   },
-  [AppErrorCode.PROFILE_AVATAR_INVALID]: {
-    title: "Invalid Avatar",
-    message: "The avatar URL is not valid. Please use a different image.",
+  [AppErrorCode.INVALID_CREDENTIALS]: {
+    title: "Invalid Credentials",
+    message:
+      "Those credentials look off. Double-check your email and password.",
   },
-  [AppErrorCode.PROFILE_DISPLAY_NAME_TAKEN]: {
-    title: "Name Unavailable",
-    message: "This display name is already taken. Please choose another.",
-  },
-
-  // Database errors
-  [AppErrorCode.DATABASE_CONNECTION_ERROR]: {
-    title: "Connection Error",
-    message: "Could not connect to the database. Please try again.",
-  },
-  [AppErrorCode.DATABASE_PERMISSION_DENIED]: {
-    title: "Permission Denied",
-    message: "You do not have permission to perform this action.",
-  },
-  [AppErrorCode.DATABASE_QUOTA_EXCEEDED]: {
-    title: "Service Limit Reached",
-    message: "Service temporarily unavailable. Please try again later.",
-  },
-  [AppErrorCode.DATABASE_UNAVAILABLE]: {
-    title: "Service Unavailable",
-    message: "Database service is temporarily unavailable. Please try again.",
+  [AppErrorCode.SESSION_EXPIRED]: {
+    title: "Session Expired",
+    message: "Your session has expired. Please sign in again to continue.",
   },
 
-  // Generic errors
-  [AppErrorCode.UNKNOWN_ERROR]: {
-    title: "Something Went Wrong",
-    message: "An unexpected error occurred. Please try again.",
+  // Validation Errors
+  [AppErrorCode.VALIDATION_ERROR]: {
+    title: "Invalid Input",
+    message: "Some information needs fixing. Check the highlighted fields.",
   },
-  [AppErrorCode.NETWORK_ERROR]: {
-    title: "Network Error",
-    message: "Please check your internet connection and try again.",
+  [AppErrorCode.INVALID_INPUT]: {
+    title: "Invalid Input",
+    message: "That input looks a bit off. Please check and try again.",
   },
-  [AppErrorCode.RATE_LIMIT_EXCEEDED]: {
-    title: "Too Many Requests",
-    message: "You are making requests too quickly. Please slow down.",
+  [AppErrorCode.MISSING_REQUIRED_FIELD]: {
+    title: "Missing Information",
+    message: "Please fill in all required fields to continue.",
   },
-  [AppErrorCode.PROFILE_DELETE_FAILED]: {
-    title: "Too Many Requests",
-    message: "You are making requests too quickly. Please slow down.",
+  [AppErrorCode.INVALID_UUID]: {
+    title: "Invalid ID",
+    message: "That ID format is invalid. Please check the link and try again.",
+  },
+  [AppErrorCode.INVALID_EMAIL]: {
+    title: "Invalid Email",
+    message: "Please enter a valid email address.",
   },
 
-  // Habitat errors
+  // Resource Errors
+  [AppErrorCode.NOT_FOUND]: {
+    title: "Not Found",
+    message:
+      "We couldn't find what you're looking for. It might have been moved or deleted.",
+  },
   [AppErrorCode.HABITAT_NOT_FOUND]: {
     title: "Habitat Not Found",
-    message: "This habitat doesn't exist or has been removed.",
+    message:
+      "This habitat doesn't exist or has been removed. Try exploring other habitats!",
   },
-  [AppErrorCode.HABITAT_ACCESS_DENIED]: {
-    title: "Access Denied",
-    message: "You don't have permission to access this habitat.",
-  },
-  [AppErrorCode.HABITAT_CREATION_FAILED]: {
-    title: "Creation Failed",
-    message: "Could not create the habitat. Please try again.",
-  },
-  [AppErrorCode.HABITAT_UPDATE_FAILED]: {
-    title: "Update Failed",
-    message: "Could not update the habitat. Please try again.",
-  },
-  [AppErrorCode.HABITAT_DELETE_FAILED]: {
-    title: "Delete Failed",
-    message: "Could not delete the habitat. Please try again.",
-  },
-  [AppErrorCode.HABITAT_JOIN_FAILED]: {
-    title: "Join Failed",
-    message: "Could not join the habitat. Please try again.",
-  },
-  [AppErrorCode.HABITAT_LEAVE_FAILED]: {
-    title: "Leave Failed",
-    message: "Could not leave the habitat. Please try again.",
-  },
-  [AppErrorCode.HABITAT_ALREADY_MEMBER]: {
-    title: "Already a Member",
-    message: "You're already a member of this habitat.",
-  },
-  [AppErrorCode.HABITAT_NOT_MEMBER]: {
-    title: "Not a Member",
-    message: "You need to join this habitat first.",
-  },
-
-  // Message errors
-  [AppErrorCode.MESSAGE_NOT_FOUND]: {
-    title: "Message Not Found",
-    message: "This message no longer exists.",
-  },
-
-  [AppErrorCode.MESSAGE_SEND_FAILED]: {
-    title: "Send Failed",
-    message: "Could not send your message. Please try again.",
-  },
-  [AppErrorCode.MESSAGE_DELETE_FAILED]: {
-    title: "Delete Failed",
-    message: "Could not delete the message. Please try again.",
-  },
-
-  [AppErrorCode.MESSAGE_UNAUTHORIZED]: {
-    title: "Unauthorized",
-    message: "You can only delete your own messages.",
-  },
-
-  // Real-time connection errors
-  [AppErrorCode.REALTIME_CONNECTION_FAILED]: {
-    title: "Connection Failed",
-    message: "Could not connect to chat. Please refresh and try again.",
-  },
-  [AppErrorCode.REALTIME_CHANNEL_ERROR]: {
-    title: "Chat Error",
-    message: "Chat connection interrupted. Messages may be delayed.",
-  },
-  [AppErrorCode.REALTIME_SUBSCRIPTION_FAILED]: {
-    title: "Subscription Failed",
-    message: "Could not subscribe to chat updates. Please refresh.",
-  },
-
-  // Discussion errors
   [AppErrorCode.DISCUSSION_NOT_FOUND]: {
     title: "Discussion Not Found",
     message: "This discussion doesn't exist or has been removed.",
   },
-  [AppErrorCode.DISCUSSION_CREATION_FAILED]: {
+  [AppErrorCode.MESSAGE_NOT_FOUND]: {
+    title: "Message Not Found",
+    message: "This message doesn't exist or has been removed.",
+  },
+  [AppErrorCode.USER_NOT_FOUND]: {
+    title: "User Not Found",
+    message: "This user doesn't exist or their profile is private.",
+  },
+
+  // Database Errors
+  [AppErrorCode.DATABASE_ERROR]: {
+    title: "Database Error",
+    message: "Something went wrong on our end. Please try again in a moment.",
+  },
+  [AppErrorCode.DUPLICATE_ENTRY]: {
+    title: "Already Exists",
+    message:
+      "This already exists. Try a different name or check existing items.",
+  },
+  [AppErrorCode.FOREIGN_KEY_VIOLATION]: {
+    title: "Reference Error",
+    message: "This item is referenced elsewhere and cannot be modified.",
+  },
+  [AppErrorCode.CONSTRAINT_VIOLATION]: {
+    title: "Constraint Error",
+    message:
+      "This action violates a system constraint. Please check your input.",
+  },
+  [AppErrorCode.TRANSACTION_FAILED]: {
+    title: "Operation Failed",
+    message: "The operation failed. Please try again.",
+  },
+
+  // Business Logic Errors
+  [AppErrorCode.HABITAT_ALREADY_EXISTS]: {
+    title: "Habitat Exists",
+    message: "A habitat with this name already exists. Try a different name!",
+  },
+  [AppErrorCode.HABITAT_CREATION_FAILED]: {
     title: "Creation Failed",
-    message: "Could not create the discussion. Please try again.",
+    message: "Failed to create habitat. Please try again.",
   },
-  [AppErrorCode.DISCUSSION_UPDATE_FAILED]: {
-    title: "Update Failed",
-    message: "Could not update the discussion. Please try again.",
+  [AppErrorCode.ALREADY_MEMBER]: {
+    title: "Already a Member",
+    message: "You're already part of this habitat! Welcome back.",
   },
-  [AppErrorCode.DISCUSSION_DELETE_FAILED]: {
-    title: "Delete Failed",
-    message: "Could not delete the discussion. Please try again.",
+  [AppErrorCode.NOT_MEMBER]: {
+    title: "Not a Member",
+    message: "You need to join this habitat first to participate.",
   },
-
-  [AppErrorCode.DISCUSSION_UNAUTHORIZED]: {
-    title: "Unauthorized",
-    message: "You don't have permission to modify this discussion.",
+  [AppErrorCode.INSUFFICIENT_PERMISSIONS]: {
+    title: "Insufficient Permissions",
+    message: "You don't have permission to perform this action.",
   },
-
-  // Poll errors
-  [AppErrorCode.POLL_NOT_FOUND]: {
-    title: "Poll Not Found",
-    message: "This poll doesn't exist or has been removed.",
+  [AppErrorCode.CANNOT_LEAVE_OWN_HABITAT]: {
+    title: "Cannot Leave",
+    message: "You can't leave your own habitat. Transfer ownership first!",
   },
-  [AppErrorCode.POLL_CREATION_FAILED]: {
-    title: "Creation Failed",
-    message: "Could not create the poll. Please try again.",
-  },
-  [AppErrorCode.POLL_UPDATE_FAILED]: {
-    title: "Update Failed",
-    message: "Could not update the poll. Please try again.",
-  },
-  [AppErrorCode.POLL_DELETE_FAILED]: {
-    title: "Delete Failed",
-    message: "Could not delete the poll. Please try again.",
+  [AppErrorCode.HABITAT_FULL]: {
+    title: "Habitat Full",
+    message: "This habitat is at capacity. Try joining another one!",
   },
 
-  [AppErrorCode.POLL_VOTE_FAILED]: {
-    title: "Vote Failed",
-    message: "Could not record your vote. Please try again.",
+  // Content Errors
+  [AppErrorCode.MESSAGE_TOO_LONG]: {
+    title: "Message Too Long",
+    message: "Your message is too long. Keep it under 1000 characters.",
   },
-  [AppErrorCode.POLL_UNAUTHORIZED]: {
-    title: "Unauthorized",
-    message: "You don't have permission to modify this poll.",
+  [AppErrorCode.MESSAGE_EMPTY]: {
+    title: "Empty Message",
+    message: "Your message is empty. Share your thoughts!",
   },
-
-  // Watch Party errors
-  [AppErrorCode.WATCH_PARTY_NOT_FOUND]: {
-    title: "Watch Party Not Found",
-    message: "This watch party doesn't exist or has been removed.",
+  [AppErrorCode.INAPPROPRIATE_CONTENT]: {
+    title: "Inappropriate Content",
+    message: "This content violates our community guidelines. Please revise.",
   },
-  [AppErrorCode.WATCH_PARTY_CREATION_FAILED]: {
-    title: "Creation Failed",
-    message: "Could not create the watch party. Please try again.",
-  },
-  [AppErrorCode.WATCH_PARTY_UPDATE_FAILED]: {
-    title: "Update Failed",
-    message: "Could not update the watch party. Please try again.",
-  },
-  [AppErrorCode.WATCH_PARTY_DELETE_FAILED]: {
-    title: "Delete Failed",
-    message: "Could not delete the watch party. Please try again.",
+  [AppErrorCode.SPAM_DETECTED]: {
+    title: "Spam Detected",
+    message: "This looks like spam. Please wait before posting again.",
   },
 
-  [AppErrorCode.WATCH_PARTY_JOIN_FAILED]: {
-    title: "Join Failed",
-    message: "Could not join the watch party. Please try again.",
+  // Network & System Errors
+  [AppErrorCode.NETWORK_ERROR]: {
+    title: "Connection Issue",
+    message: "Network connection failed. Check your internet and try again.",
   },
-  [AppErrorCode.WATCH_PARTY_LEAVE_FAILED]: {
-    title: "Leave Failed",
-    message: "Could not leave the watch party. Please try again.",
+  [AppErrorCode.TIMEOUT_ERROR]: {
+    title: "Request Timeout",
+    message: "The request timed out. Please try again.",
   },
-  [AppErrorCode.WATCH_PARTY_FULL]: {
-    title: "Party Full",
-    message: "This watch party has reached its maximum capacity.",
+  [AppErrorCode.SERVER_ERROR]: {
+    title: "Server Error",
+    message: "Our servers are having issues. Please try again in a moment.",
   },
-  [AppErrorCode.WATCH_PARTY_UNAUTHORIZED]: {
-    title: "Unauthorized",
-    message: "You don't have permission to modify this watch party.",
+  [AppErrorCode.SERVICE_UNAVAILABLE]: {
+    title: "Service Unavailable",
+    message: "This service is temporarily unavailable. Please try again later.",
+  },
+  [AppErrorCode.RATE_LIMIT_EXCEEDED]: {
+    title: "Too Many Requests",
+    message: "You're doing that too often. Please wait a moment and try again.",
   },
 
-  //TMDB
-
-  [AppErrorCode.TMDB_UNAUTHORIZED]: {
-    title: "Unauthorized",
-    message: "You do not have permission to perform this operation",
+  // File & Media Errors
+  [AppErrorCode.FILE_TOO_LARGE]: {
+    title: "File Too Large",
+    message: "This file is too large. Please choose a smaller file.",
   },
-  [AppErrorCode.TMDB_SEARCH_FAILED]: {
-    title: "Search Failed",
-    message: "We were unable to complete your search",
+  [AppErrorCode.INVALID_FILE_TYPE]: {
+    title: "Invalid File Type",
+    message: "This file type is not supported. Please choose a different file.",
+  },
+  [AppErrorCode.UPLOAD_FAILED]: {
+    title: "Upload Failed",
+    message: "File upload failed. Please try again.",
+  },
+
+  // Real-time Errors
+  [AppErrorCode.CONNECTION_FAILED]: {
+    title: "Connection Failed",
+    message: "Real-time connection failed. Messages may be delayed.",
+  },
+  [AppErrorCode.SUBSCRIPTION_FAILED]: {
+    title: "Subscription Failed",
+    message: "Failed to subscribe to updates. Please refresh the page.",
+  },
+  [AppErrorCode.REALTIME_ERROR]: {
+    title: "Real-time Error",
+    message: "Real-time updates are experiencing issues. Please refresh.",
+  },
+
+  // Generic Errors
+  [AppErrorCode.UNKNOWN_ERROR]: {
+    title: "Unknown Error",
+    message: "Something unexpected happened. Please try again.",
+  },
+  [AppErrorCode.INTERNAL_ERROR]: {
+    title: "Internal Error",
+    message: "An internal error occurred. Our team has been notified.",
+  },
+  [AppErrorCode.OPERATION_FAILED]: {
+    title: "Operation Failed",
+    message: "The operation failed. Please try again.",
   },
 };
+
+/**
+ * Get user-friendly error message for an error code
+ * @param code - The application error code
+ * @returns User-friendly error message
+ */
+export function getErrorMessage(code: AppErrorCode): ErrorMessage {
+  return errorMap[code] || errorMap[AppErrorCode.UNKNOWN_ERROR];
+}
+
+/**
+ * Get error message title only
+ * @param code - The application error code
+ * @returns Error title
+ */
+export function getErrorTitle(code: AppErrorCode): string {
+  return getErrorMessage(code).title;
+}
+
+/**
+ * Get error message text only
+ * @param code - The application error code
+ * @returns Error message text
+ */
+export function getErrorText(code: AppErrorCode): string {
+  return getErrorMessage(code).message;
+}
