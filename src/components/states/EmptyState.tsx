@@ -29,6 +29,8 @@ export interface EmptyStateProps {
   onSecondaryAction?: () => void;
   /** Additional CSS classes to apply */
   className?: string;
+  /** Whether to show the empty state icon */
+  showIcon?: boolean;
 }
 
 /**
@@ -80,7 +82,25 @@ export function EmptyState({
   secondaryActionLabel,
   onSecondaryAction,
   className,
+  showIcon = true,
 }: EmptyStateProps) {
+  const defaultIcon = (
+    <svg
+      className="w-12 h-12 text-muted-foreground"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+      />
+    </svg>
+  );
+
   const renderActions = () => {
     if (!onAction && !onSecondaryAction) return null;
 
@@ -106,8 +126,22 @@ export function EmptyState({
       data-testid="empty-state"
     >
       <div className="flex items-center gap-2 text-muted-foreground">
-        {icon && icon}
-
+        {showIcon &&
+          (icon || (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7"
+              />
+            </svg>
+          ))}
         <span className="text-sm">{title}</span>
         {onAction && actionLabel && (
           <Button
@@ -129,7 +163,22 @@ export function EmptyState({
       data-testid="empty-state"
     >
       <div className="flex items-center gap-3 p-4 bg-muted/30 border border-border rounded-lg">
-        {icon && icon}
+        {showIcon &&
+          (icon || (
+            <svg
+              className="w-6 h-6 text-muted-foreground flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7"
+              />
+            </svg>
+          ))}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-foreground">{title}</p>
           {description && (
@@ -156,7 +205,9 @@ export function EmptyState({
       data-testid="empty-state"
     >
       <div className="p-6 bg-card border border-border rounded-lg text-center">
-        {icon && <div className="flex justify-center mb-4">{icon}</div>}
+        {showIcon && (
+          <div className="flex justify-center mb-4">{icon || defaultIcon}</div>
+        )}
         <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
         {description && (
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">
@@ -174,7 +225,7 @@ export function EmptyState({
       data-testid="empty-state"
     >
       <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-        {icon && <div className="mb-4">{icon}</div>}
+        {showIcon && <div className="mb-4">{icon || defaultIcon}</div>}
         <h3 className="text-xl font-semibold text-foreground mb-2">{title}</h3>
         {description && (
           <p className="text-muted-foreground mb-6 max-w-md">{description}</p>

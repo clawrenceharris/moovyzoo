@@ -5,15 +5,19 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { HabitatHero } from "./HabitatHero";
-import { HabitatDiscussions } from "./HabitatDiscussions";
-import { HabitatWatchParties } from "./HabitatWatchParties";
+import { PopularInHabitat } from "./PopularInHabitat";
+import { WatchParties } from "./WatchParties";
+import { WatchPartiesCarousel } from "./WatchPartiesCarousel";
 import { HabitatInfo } from "./HabitatInfo";
+import { DiscussionCreationModal } from "./DiscussionCreationModal";
 import { PollCreationModal } from "./PollCreationModal";
 import { WatchPartyCreationModal } from "./WatchPartyCreationModal";
 import { LoadingState, ErrorState } from "@/components";
 import { habitatsService } from "../domain/habitats.service";
 import type {
+  HabitatWithMembership,
   HabitatDashboardData,
+  Discussion,
   Poll,
   WatchParty,
 } from "../domain/habitats.types";
@@ -100,6 +104,15 @@ export function HabitatDashboard({
     setModals((prev) => ({ ...prev, [modalType]: false }));
   };
 
+  // Creation handlers
+  const handleDiscussionCreated = useCallback(
+    (discussion: Discussion) => {
+      // Navigate to the new discussion room
+      router.push(`/habitats/${habitatId}/discussions/${discussion.id}`);
+    },
+    [habitatId, router]
+  );
+
   const handlePollCreated = useCallback(
     (poll: Poll) => {
       // Refresh dashboard data to show new poll
@@ -144,7 +157,7 @@ export function HabitatDashboard({
     return (
       <div className={`flex flex-col h-full bg-background ${className}`}>
         {/* Breadcrumb Navigation */}
-        <div className="border-b border-border  px-6 py-3 backdrop-blur-md">
+        <div className="border-b border-border bg-card/30 px-6 py-3">
           <nav className="flex items-center gap-2 text-sm">
             <button
               onClick={() => router.push("/habitats")}
@@ -183,7 +196,7 @@ export function HabitatDashboard({
           </div>
 
           {/* Watch Parties Carousel - Prominent Feature */}
-          <HabitatWatchParties
+          <WatchPartiesCarousel
             watchParties={state.dashboardData.watchParties}
             onJoinParty={(watchPartyId) => {
               // TODO: Implement join watch party
@@ -205,15 +218,37 @@ export function HabitatDashboard({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Main Content Area */}
               <div className="lg:col-span-2 space-y-8">
+                {/* Create Discussion Button */}
+                <div className="flex justify-between items-center">
+                  <h2 className="text-xl font-semibold">
+                    Popular in this habitat
+                  </h2>
+                  <Button
+                    variant="outline"
+                    onClick={() => openModal("discussionModal")}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Create Discussion
+                  </Button>
+                </div>
                 {/* Popular in Habitat Section */}
-                <HabitatDiscussions
-                  loading={state.loading}
-                  habitatId={habitatId}
+                <PopularInHabitat
                   discussions={state.dashboardData.discussions}
+                  polls={state.dashboardData.polls}
+                  watchParties={state.dashboardData.watchParties}
                   onDiscussionClick={(discussionId) => {
                     router.push(
                       `/habitats/${state.dashboardData?.habitat.id}/discussions/${discussionId}`
                     );
+                  }}
+                  onPollClick={(pollId) => {
+                    // TODO: Navigate to poll or open poll modal
+                    console.log("Poll clicked:", pollId);
+                  }}
+                  onWatchPartyClick={(watchPartyId) => {
+                    // TODO: Navigate to watch party or open join modal
+                    console.log("Watch party clicked:", watchPartyId);
                   }}
                 />
               </div>
@@ -233,6 +268,15 @@ export function HabitatDashboard({
             </div>
           </div>
         </div>
+
+        {/* Creation Modals */}
+        <DiscussionCreationModal
+          isOpen={modals.discussionModal}
+          onClose={() => closeModal("discussionModal")}
+          habitatId={habitatId}
+          userId={userId}
+          onSuccess={handleDiscussionCreated}
+        />
 
         <PollCreationModal
           isOpen={modals.pollModal}

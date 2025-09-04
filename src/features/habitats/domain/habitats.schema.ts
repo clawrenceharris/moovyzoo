@@ -31,8 +31,12 @@ export const discussionNameSchema = z
 export const discussionDescriptionSchema = z
   .string()
   .trim()
-
+  .min(10, "Discussion description must be at least 10 characters")
   .max(500, "Discussion description is too long (max 500 characters)")
+  .refine(
+    (description) => description.replace(/\s+/g, " ").length >= 10,
+    "Discussion description is invalid"
+  )
   .optional();
 
 // Poll title validation schema
@@ -56,6 +60,17 @@ export const pollOptionsSchema = z
   .refine(
     (options) => Object.keys(options).length <= 10,
     "Poll cannot have more than 10 options"
+  );
+
+// Watch party title validation schema
+export const watchPartyTitleSchema = z
+  .string()
+  .trim()
+  .min(5, "Watch party title must be at least 5 characters")
+  .max(200, "Watch party title is too long (max 200 characters)")
+  .refine(
+    (title) => title.replace(/\s+/g, " ").length >= 5,
+    "Watch party title is invalid"
   );
 
 // Watch party description validation schema
@@ -83,8 +98,44 @@ export const scheduledTimeSchema = z.string().refine((time) => {
   return !isNaN(date.getTime()) && date > new Date();
 }, "Scheduled time must be a valid future date");
 
+// User ID validation schema
+export const userIdSchema = z
+  .string()
+  .uuid("Invalid user ID format")
+  .min(1, "User ID is required");
+
+// Habitat ID validation schema
+export const habitatIdSchema = z
+  .string()
+  .uuid("Invalid habitat ID format")
+  .min(1, "Habitat ID is required");
+
+// Message ID validation schema
+export const messageIdSchema = z
+  .string()
+  .uuid("Invalid message ID format")
+  .min(1, "Message ID is required");
+
+// Discussion ID validation schema
+export const discussionIdSchema = z
+  .string()
+  .uuid("Invalid discussion ID format")
+  .min(1, "Discussion ID is required");
+
+// Poll ID validation schema
+export const pollIdSchema = z
+  .string()
+  .uuid("Invalid poll ID format")
+  .min(1, "Poll ID is required");
+
+// Watch party ID validation schema
+export const watchPartyIdSchema = z
+  .string()
+  .uuid("Invalid watch party ID format")
+  .min(1, "Watch party ID is required");
+
 // Timestamp validation schema
-export const timestampSchema = z.date("Invalid timestamp format");
+export const timestampSchema = z.string().datetime("Invalid timestamp format");
 
 // Pagination parameters schema
 export const paginationSchema = z.object({
@@ -92,8 +143,50 @@ export const paginationSchema = z.object({
   offset: z.number().int().min(0).default(0),
 });
 
+// Service method input schemas
+export const getUserJoinedHabitatsSchema = z.object({
+  userId: userIdSchema,
+});
+
+export const getHabitatByIdSchema = z.object({
+  habitatId: habitatIdSchema,
+  userId: userIdSchema.optional(),
+});
+
+export const joinHabitatSchema = z.object({
+  habitatId: habitatIdSchema,
+  userId: userIdSchema,
+});
+
+export const leaveHabitatSchema = z.object({
+  habitatId: habitatIdSchema,
+  userId: userIdSchema,
+});
+
+export const getHabitatMessagesSchema = z.object({
+  habitatId: habitatIdSchema,
+  userId: userIdSchema,
+  limit: z.number().int().min(1).max(100).default(50),
+  offset: z.number().int().min(0).default(0),
+});
+
 export const sendMessageSchema = z.object({
+  habitatId: habitatIdSchema,
+  chatId: discussionIdSchema,
+  userId: userIdSchema,
   content: messageContentSchema,
+});
+
+export const deleteMessageSchema = z.object({
+  messageId: messageIdSchema,
+  userId: userIdSchema,
+  habitatId: habitatIdSchema,
+});
+
+export const getMessagesAfterSchema = z.object({
+  habitatId: habitatIdSchema,
+  userId: userIdSchema,
+  timestamp: timestampSchema,
 });
 
 // Habitat creation validation schemas
@@ -110,7 +203,12 @@ export const habitatNameSchema = z
 export const habitatDescriptionSchema = z
   .string()
   .trim()
-  .max(500, "Habitat description is too long (max 500 characters)");
+  .min(10, "Habitat description must be at least 10 characters")
+  .max(500, "Habitat description is too long (max 500 characters)")
+  .refine(
+    (description) => description.replace(/\s+/g, " ").length >= 10,
+    "Habitat description is invalid"
+  );
 
 export const habitatTagsSchema = z
   .array(z.string().trim().min(1).max(30))
@@ -128,6 +226,7 @@ export const createHabitatSchema = z.object({
   description: habitatDescriptionSchema,
   tags: habitatTagsSchema.optional(),
   isPublic: z.boolean().default(true),
+  userId: userIdSchema,
 });
 
 // Form schema without tags validation (handled separately in component)
@@ -135,28 +234,49 @@ export const createHabitatFormSchema = z.object({
   name: habitatNameSchema,
   description: habitatDescriptionSchema,
   isPublic: z.boolean(),
+  userId: userIdSchema,
 });
 
 export type CreateHabitatFormInput = z.infer<typeof createHabitatFormSchema>;
 
 // Discussion validation schemas
 export const createDiscussionSchema = z.object({
+  habitatId: habitatIdSchema,
   name: discussionNameSchema,
   description: discussionDescriptionSchema,
+  userId: userIdSchema,
 });
 
 export const getDiscussionsByHabitatSchema = z.object({
+  habitatId: habitatIdSchema,
+  userId: userIdSchema,
   limit: z.number().int().min(1).max(100).default(20),
   offset: z.number().int().min(0).default(0),
 });
 
+export const getDiscussionByIdSchema = z.object({
+  discussionId: discussionIdSchema,
+  userId: userIdSchema,
+});
+
 // Poll validation schemas
 export const createPollSchema = z.object({
+  habitatId: habitatIdSchema,
   title: pollTitleSchema,
   options: pollOptionsSchema,
+  userId: userIdSchema,
+});
+
+export const getPollsByHabitatSchema = z.object({
+  habitatId: habitatIdSchema,
+  userId: userIdSchema,
+  limit: z.number().int().min(1).max(100).default(20),
+  offset: z.number().int().min(0).default(0),
 });
 
 export const votePollSchema = z.object({
+  pollId: pollIdSchema,
+  userId: userIdSchema,
   option: z.string().min(1, "Vote option is required"),
 });
 
@@ -174,15 +294,37 @@ export const watchPartyMediaSchema = z.object({
 
 // Watch party validation schemas
 export const createWatchPartySchema = z.object({
+  habitatId: habitatIdSchema,
+  title: watchPartyTitleSchema,
   description: watchPartyDescriptionSchema,
   scheduledTime: scheduledTimeSchema,
   maxParticipants: maxParticipantsSchema,
-
+  userId: userIdSchema,
   media: watchPartyMediaSchema,
+});
+
+export const getWatchPartiesByHabitatSchema = z.object({
+  habitatId: habitatIdSchema,
+  userId: userIdSchema,
+  limit: z.number().int().min(1).max(100).default(20),
+  offset: z.number().int().min(0).default(0),
+});
+
+export const joinWatchPartySchema = z.object({
+  watchPartyId: watchPartyIdSchema,
+  userId: userIdSchema,
+});
+
+export const leaveWatchPartySchema = z.object({
+  watchPartyId: watchPartyIdSchema,
+  userId: userIdSchema,
 });
 
 // Type exports for use in service layer
 export type MessageContent = z.infer<typeof messageContentSchema>;
+export type UserId = z.infer<typeof userIdSchema>;
+export type HabitatId = z.infer<typeof habitatIdSchema>;
+export type MessageId = z.infer<typeof messageIdSchema>;
 export type Timestamp = z.infer<typeof timestampSchema>;
 export type PaginationParams = z.infer<typeof paginationSchema>;
 
@@ -191,23 +333,43 @@ export type HabitatDescription = z.infer<typeof habitatDescriptionSchema>;
 export type HabitatTags = z.infer<typeof habitatTagsSchema>;
 export type CreateHabitatInput = z.infer<typeof createHabitatSchema>;
 
+export type GetUserJoinedHabitatsInput = z.infer<
+  typeof getUserJoinedHabitatsSchema
+>;
+export type GetHabitatByIdInput = z.infer<typeof getHabitatByIdSchema>;
+export type JoinHabitatInput = z.infer<typeof joinHabitatSchema>;
+export type LeaveHabitatInput = z.infer<typeof leaveHabitatSchema>;
+export type GetHabitatMessagesInput = z.infer<typeof getHabitatMessagesSchema>;
 export type SendMessageInput = z.infer<typeof sendMessageSchema>;
+export type DeleteMessageInput = z.infer<typeof deleteMessageSchema>;
+export type GetMessagesAfterInput = z.infer<typeof getMessagesAfterSchema>;
 
 // Dashboard model type exports
 export type DiscussionName = z.infer<typeof discussionNameSchema>;
 export type DiscussionDescription = z.infer<typeof discussionDescriptionSchema>;
 export type PollTitle = z.infer<typeof pollTitleSchema>;
 export type PollOptions = z.infer<typeof pollOptionsSchema>;
+export type WatchPartyTitle = z.infer<typeof watchPartyTitleSchema>;
 export type ScheduledTime = z.infer<typeof scheduledTimeSchema>;
 
+export type DiscussionId = z.infer<typeof discussionIdSchema>;
+export type PollId = z.infer<typeof pollIdSchema>;
+export type WatchPartyId = z.infer<typeof watchPartyIdSchema>;
+
 export type CreateDiscussionInput = z.infer<typeof createDiscussionSchema>;
+export type GetDiscussionsByHabitatInput = z.infer<
+  typeof getDiscussionsByHabitatSchema
+>;
+export type GetDiscussionByIdInput = z.infer<typeof getDiscussionByIdSchema>;
 
 export type CreatePollInput = z.infer<typeof createPollSchema>;
+export type GetPollsByHabitatInput = z.infer<typeof getPollsByHabitatSchema>;
 export type VotePollInput = z.infer<typeof votePollSchema>;
 
 // Watch party form validation schema (for UI components)
 export const createWatchPartyFormSchema = z
   .object({
+    title: watchPartyTitleSchema,
     description: watchPartyDescriptionSchema.optional(),
     scheduledDate: z.string().min(1, "Scheduled date is required"),
     scheduledTime: z.string().min(1, "Scheduled time is required"),
@@ -220,7 +382,6 @@ export const createWatchPartyFormSchema = z
       const scheduledDateTime = new Date(
         `${data.scheduledDate}T${data.scheduledTime}`
       );
-
       return scheduledDateTime > new Date();
     },
     {
@@ -233,6 +394,11 @@ export type CreateWatchPartyInput = z.infer<typeof createWatchPartySchema>;
 export type CreateWatchPartyFormInput = z.infer<
   typeof createWatchPartyFormSchema
 >;
+export type GetWatchPartiesByHabitatInput = z.infer<
+  typeof getWatchPartiesByHabitatSchema
+>;
+export type JoinWatchPartyInput = z.infer<typeof joinWatchPartySchema>;
+export type LeaveWatchPartyInput = z.infer<typeof leaveWatchPartySchema>;
 
 // Additional validation type exports
 export type WatchPartyDescription = z.infer<typeof watchPartyDescriptionSchema>;

@@ -7,26 +7,26 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { WatchPartyCreationForm } from "./WatchPartyCreationForm";
-import type { WatchParty } from "../domain/habitats.types";
+import { DiscussionCreationForm } from "./DiscussionCreationForm";
+import type { Discussion } from "../domain/habitats.types";
 
-interface WatchPartyCreationModalProps {
+interface DiscussionCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
   habitatId: string;
   userId: string;
-  onSuccess: (watchParty: WatchParty) => void;
+  onSuccess: (discussion: Discussion) => void;
 }
 
-export function WatchPartyCreationModal({
+export function DiscussionCreationModal({
   isOpen,
   onClose,
   habitatId,
   userId,
   onSuccess,
-}: WatchPartyCreationModalProps) {
-  const handleSuccess = (watchParty: WatchParty) => {
-    onSuccess(watchParty);
+}: DiscussionCreationModalProps) {
+  const handleSuccess = (discussion: Discussion) => {
+    onSuccess(discussion);
     onClose();
   };
 
@@ -34,10 +34,10 @@ export function WatchPartyCreationModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create Watch Party</DialogTitle>
+          <DialogTitle>Create Discussion</DialogTitle>
         </DialogHeader>
 
-        <WatchPartyCreationForm
+        <DiscussionCreationForm
           habitatId={habitatId}
           userId={userId}
           onSuccess={handleSuccess}
