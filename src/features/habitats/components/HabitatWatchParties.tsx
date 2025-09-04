@@ -10,7 +10,13 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { WatchPartyCard, LoadingState, EmptyState } from "@/components";
+import {
+  WatchPartyCard,
+  LoadingState,
+  EmptyState,
+  Card,
+  CardHeader,
+} from "@/components";
 import type { WatchPartyWithParticipants } from "../domain/habitats.types";
 
 interface WatchPartiesCarouselProps {
@@ -30,7 +36,7 @@ interface WatchPartiesCarouselProps {
  * the core watch party feature. It sorts parties by scheduled time and provides smooth
  * horizontal scrolling with snap behavior.
  */
-export function WatchPartiesCarousel({
+export function HabitatWatchParties({
   watchParties,
   onJoinParty,
   onLeaveParty,
@@ -75,10 +81,10 @@ export function WatchPartiesCarousel({
   }
 
   return (
-    <div className={`bg-card/30 border-b border-border ${className}`}>
+    <Card className="bg-primary-surface">
       <div className="px-6 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <CardHeader className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div>
               <h2 className="text-2xl font-bold">Watch Parties</h2>
@@ -100,7 +106,7 @@ export function WatchPartiesCarousel({
               </Button>
             )}
           </div>
-        </div>
+        </CardHeader>
 
         {/* Carousel */}
         {hasParties ? (
@@ -156,6 +162,6 @@ export function WatchPartiesCarousel({
           />
         )}
       </div>
-    </div>
+    </Card>
   );
 }

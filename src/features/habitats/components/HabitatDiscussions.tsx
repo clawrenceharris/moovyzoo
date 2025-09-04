@@ -64,7 +64,7 @@ export function HabitatDiscussions({
       {modal}
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Discussions</span>
+          <h3>Discussions</h3>
           <Button
             variant="secondary"
             onClick={openModal}

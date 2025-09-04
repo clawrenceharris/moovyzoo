@@ -5,8 +5,7 @@ export { HabitatDashboard } from "./HabitatDashboard";
 export { HabitatHero } from "./HabitatHero";
 export { HabitatDiscussions as PopularInHabitat } from "./HabitatDiscussions";
 
-export { WatchParties } from "./WatchParties";
-export { WatchPartiesCarousel } from "./WatchPartiesCarousel";
+export { HabitatWatchParties as WatchPartiesCarousel } from "./HabitatWatchParties";
 export { HabitatInfo } from "./HabitatInfo";
 export { HabitatCreationForm } from "./HabitatCreationForm";
 export { HabitatCreationModal } from "./HabitatCreationModal";

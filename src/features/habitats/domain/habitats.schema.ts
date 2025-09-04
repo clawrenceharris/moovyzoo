@@ -58,17 +58,6 @@ export const pollOptionsSchema = z
     "Poll cannot have more than 10 options"
   );
 
-// Watch party title validation schema
-export const watchPartyTitleSchema = z
-  .string()
-  .trim()
-  .min(5, "Watch party title must be at least 5 characters")
-  .max(200, "Watch party title is too long (max 200 characters)")
-  .refine(
-    (title) => title.replace(/\s+/g, " ").length >= 5,
-    "Watch party title is invalid"
-  );
-
 // Watch party description validation schema
 export const watchPartyDescriptionSchema = z
   .string()
@@ -185,7 +174,6 @@ export const watchPartyMediaSchema = z.object({
 
 // Watch party validation schemas
 export const createWatchPartySchema = z.object({
-  title: watchPartyTitleSchema,
   description: watchPartyDescriptionSchema,
   scheduledTime: scheduledTimeSchema,
   maxParticipants: maxParticipantsSchema,
@@ -210,7 +198,6 @@ export type DiscussionName = z.infer<typeof discussionNameSchema>;
 export type DiscussionDescription = z.infer<typeof discussionDescriptionSchema>;
 export type PollTitle = z.infer<typeof pollTitleSchema>;
 export type PollOptions = z.infer<typeof pollOptionsSchema>;
-export type WatchPartyTitle = z.infer<typeof watchPartyTitleSchema>;
 export type ScheduledTime = z.infer<typeof scheduledTimeSchema>;
 
 export type CreateDiscussionInput = z.infer<typeof createDiscussionSchema>;
@@ -221,7 +208,6 @@ export type VotePollInput = z.infer<typeof votePollSchema>;
 // Watch party form validation schema (for UI components)
 export const createWatchPartyFormSchema = z
   .object({
-    title: watchPartyTitleSchema,
     description: watchPartyDescriptionSchema.optional(),
     scheduledDate: z.string().min(1, "Scheduled date is required"),
     scheduledTime: z.string().min(1, "Scheduled time is required"),
@@ -234,6 +220,7 @@ export const createWatchPartyFormSchema = z
       const scheduledDateTime = new Date(
         `${data.scheduledDate}T${data.scheduledTime}`
       );
+
       return scheduledDateTime > new Date();
     },
     {

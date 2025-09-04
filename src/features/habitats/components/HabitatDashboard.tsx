@@ -6,17 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { HabitatHero } from "./HabitatHero";
 import { HabitatDiscussions } from "./HabitatDiscussions";
-import { WatchParties } from "./WatchParties";
-import { WatchPartiesCarousel } from "./WatchPartiesCarousel";
+import { HabitatWatchParties } from "./HabitatWatchParties";
 import { HabitatInfo } from "./HabitatInfo";
 import { PollCreationModal } from "./PollCreationModal";
 import { WatchPartyCreationModal } from "./WatchPartyCreationModal";
 import { LoadingState, ErrorState } from "@/components";
 import { habitatsService } from "../domain/habitats.service";
 import type {
-  HabitatWithMembership,
   HabitatDashboardData,
-  Discussion,
   Poll,
   WatchParty,
 } from "../domain/habitats.types";
@@ -147,7 +144,7 @@ export function HabitatDashboard({
     return (
       <div className={`flex flex-col h-full bg-background ${className}`}>
         {/* Breadcrumb Navigation */}
-        <div className="border-b border-border bg-card/30 px-6 py-3">
+        <div className="border-b border-border  px-6 py-3 backdrop-blur-md">
           <nav className="flex items-center gap-2 text-sm">
             <button
               onClick={() => router.push("/habitats")}
@@ -186,7 +183,7 @@ export function HabitatDashboard({
           </div>
 
           {/* Watch Parties Carousel - Prominent Feature */}
-          <WatchPartiesCarousel
+          <HabitatWatchParties
             watchParties={state.dashboardData.watchParties}
             onJoinParty={(watchPartyId) => {
               // TODO: Implement join watch party

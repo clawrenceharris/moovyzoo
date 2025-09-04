@@ -4,10 +4,8 @@ import { AppError, AppErrorCode } from "@/types/error";
 import { errorMap } from "./error-map";
 
 export function getFriendlyErrorMessage(error: unknown): string {
-  if ((error as Error)?.message) return (error as Error).message;
-  if ((error as AppError)?.message) return (error as AppError).message;
-
-  return errorMap[AppErrorCode.UNKNOWN_ERROR].message;
+  const normalizedError = normalizeError(error);
+  return normalizedError.message;
 }
 
 /**
@@ -15,40 +13,25 @@ export function getFriendlyErrorMessage(error: unknown): string {
  * Always use errorMap from auth/utils/error-map.ts for user messages
  */
 export function normalizeError(error: any): AppError {
-  if (
-    error instanceof Error ||
-    isSupabaseError(error) ||
-    isAuthApiError(error)
-  ) {
-    return errorMap[
-      normalizeSupabaseError(error) ?? normalizeStandardError(error)
-    ];
-  }
-
-  if (isTmbdError(error)) {
+  if (isTmdbError(error)) {
     return errorMap[normalizeTmbdError(error)];
   }
 
-  // Handle standard errors
-
+  if (isSupabaseError(error) || isAuthApiError(error)) {
+    return errorMap[
+      normalizeSupabaseError(error) || normalizeStandardError(error)
+    ];
+  }
+  if (error instanceof Error) {
+    return errorMap[normalizeStandardError(error)];
+  }
   return errorMap[AppErrorCode.UNKNOWN_ERROR];
 }
 
 function isAuthApiError(error: unknown): error is AuthApiError {
   return error instanceof AuthApiError;
 }
-function isTmbdError(error: unknown) {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    "message" in error &&
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    typeof (error as any).message === "string" &&
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    typeof (error as any).message.toLowerCase().includes("TMBD")
-  );
-}
+
 function isSupabaseError(
   error: unknown
 ): error is { code: string; message: string } {
@@ -57,15 +40,19 @@ function isSupabaseError(
     error !== null &&
     "code" in error &&
     "message" in error &&
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     typeof (error as any).code === "string" &&
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     typeof (error as any).message === "string"
   );
 }
 
-function normalizeTmbdError(error: Error): AppErrorCode {
-  return AppErrorCode.TMBD_SEARCH_FAILED;
+function normalizeTmbdError(error: any): AppErrorCode {
+  if (error.message.includes("401")) {
+    return AppErrorCode.TMDB_UNAUTHORIZED;
+  }
+  if (error.message.includes("network") || error.message.includes("fetch")) {
+    return AppErrorCode.NETWORK_ERROR;
+  }
+  return AppErrorCode.TMDB_SEARCH_FAILED;
 }
 
 /**
@@ -243,4 +230,9 @@ function normalizeStandardError(
   }
 
   return AppErrorCode.UNKNOWN_ERROR;
+}
+function isTmdbError(error: any) {
+  if (error instanceof Error) {
+    return error.message.includes("TMDB");
+  }
 }

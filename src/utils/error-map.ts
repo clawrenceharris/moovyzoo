@@ -266,10 +266,14 @@ export const errorMap: Record<AppErrorCode, AppError> = {
     message: "You don't have permission to modify this watch party.",
   },
 
-  //Tmbd
+  //TMDB
 
-  [AppErrorCode.TMBD_SEARCH_FAILED]: {
-    title: "Search failed",
-    message: "We could not complete your search. Please try again.",
+  [AppErrorCode.TMDB_UNAUTHORIZED]: {
+    title: "Unauthorized",
+    message: "You do not have permission to perform this operation",
+  },
+  [AppErrorCode.TMDB_SEARCH_FAILED]: {
+    title: "Search Failed",
+    message: "We were unable to complete your search",
   },
 };

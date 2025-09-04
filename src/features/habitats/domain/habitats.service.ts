@@ -584,7 +584,6 @@ export class HabitatsService {
       // Create the watch party
       const watchParty = await habitatsRepository.createWatchParty({
         habitat_id: habitatId,
-        title: data.media.media_title,
         description: data.description,
         scheduled_time: data.scheduledTime,
         participant_count: 1, // Creator is automatically a participant

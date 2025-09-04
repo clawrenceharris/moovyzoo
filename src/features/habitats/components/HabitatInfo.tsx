@@ -80,7 +80,7 @@ export function HabitatInfo({
   return (
     <div className="space-y-6">
       {/* Habitat Metadata */}
-      <Card className="bg-primary-surface border-border/50 backdrop-blur-sm">
+      <Card className="bg-primary-surface border backdrop-blur-sm">
         <CardContent className="p-6">
           {/* Created Date */}
           <div className="mb-6">

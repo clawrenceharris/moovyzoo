@@ -790,7 +790,6 @@ export class HabitatsRepository {
 
       const insertData: Record<string, any> = {
         habitat_id: watchPartyData.habitat_id,
-        title: watchPartyData.title.trim(),
         description: watchPartyData.description?.trim(),
         scheduled_time: watchPartyData.scheduled_time,
         participant_count: watchPartyData.participant_count || 0,
@@ -1263,7 +1262,6 @@ export class HabitatsRepository {
     return {
       id: dbWatchParty.id,
       habitat_id: dbWatchParty.habitat_id,
-      title: dbWatchParty.title,
       description: dbWatchParty.description || undefined,
       scheduled_time: dbWatchParty.scheduled_time,
       participant_count: dbWatchParty.participant_count,
