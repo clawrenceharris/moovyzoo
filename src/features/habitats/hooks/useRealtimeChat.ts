@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useCallback, useState } from "react";
-import {
-  RealtimeChannel,
-  RealtimePostgresChangesPayload,
-} from "@supabase/supabase-js";
+import { useCallback, useMemo } from "react";
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import { supabase } from "@/utils/supabase/client";
 import type { MessageWithProfile } from "../domain/habitats.types";
-import { normalizeError } from "@/utils/normalize-error";
+import {
+  useBaseRealtime,
+  type UseBaseRealtimeOptions,
+} from "@/hooks/base/use-base-realtime";
 
 // Type for message payload from Supabase realtime
 type MessagePayload = {
@@ -19,12 +19,6 @@ type MessagePayload = {
   created_at: string;
 };
 
-interface UseRealtimeChatState {
-  connected: boolean;
-  connecting: boolean;
-  error: string | null;
-}
-
 interface UseRealtimeChatCallbacks {
   onMessageInsert?: (message: MessageWithProfile) => void;
   onMessageUpdate?: (message: MessageWithProfile) => void;
@@ -33,15 +27,12 @@ interface UseRealtimeChatCallbacks {
   onError?: (error: string) => void;
 }
 
-interface UseRealtimeChatOptions {
-  autoReconnect?: boolean;
-  reconnectDelay?: number;
-  maxReconnectAttempts?: number;
-}
+interface UseRealtimeChatOptions extends UseBaseRealtimeOptions {}
 
 /**
  * Hook for managing real-time chat functionality with Supabase
  * Handles connection management, message subscriptions, and error recovery
+ * Built on top of useBaseRealtime for shared functionality
  */
 export function useRealtimeChat(
   habitatId: string | null,
@@ -49,35 +40,6 @@ export function useRealtimeChat(
   callbacks: UseRealtimeChatCallbacks = {},
   options: UseRealtimeChatOptions = {}
 ) {
-  const {
-    autoReconnect = true,
-    reconnectDelay = 3000,
-    maxReconnectAttempts = 5,
-  } = options;
-
-  const [state, setState] = useState<UseRealtimeChatState>({
-    connected: false,
-    connecting: false,
-    error: null,
-  });
-
-  const channelRef = useRef<RealtimeChannel | null>(null);
-  const reconnectAttemptsRef = useRef(0);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isUnmountedRef = useRef(false);
-
-  // Store latest callbacks in refs to avoid dependency issues
-  const callbacksRef = useRef(callbacks);
-  callbacksRef.current = callbacks;
-
-  // Clear any existing reconnect timeout
-  const clearReconnectTimeout = useCallback(() => {
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-      reconnectTimeoutRef.current = null;
-    }
-  }, []);
-
   // Process message payload and extract profile information
   const processMessagePayload = useCallback(
     async (
@@ -119,204 +81,51 @@ export function useRealtimeChat(
     []
   );
 
-  // Connect to real-time channel
-  const connect = useCallback(async () => {
-    if (!habitatId || !userId || isUnmountedRef.current) {
-      return;
-    }
-
-    // Don't connect if already connected
-    if (channelRef.current) {
-      return;
-    }
-
-    setState((prev) => ({ ...prev, connecting: true, error: null }));
-
-    try {
-      // Create channel for this specific habitat
-      const channelName = `habitat:${habitatId}`;
-      const channel = supabase.channel(channelName);
-
-      // Subscribe to message changes for this habitat
-      channel
-        .on(
-          "postgres_changes",
-          {
-            event: "INSERT",
-            schema: "public",
-            table: "habitat_messages",
-            filter: `habitat_id=eq.${habitatId}`,
-          },
-          async (payload: RealtimePostgresChangesPayload<MessagePayload>) => {
-            const message = await processMessagePayload(payload);
-            if (message && callbacksRef.current.onMessageInsert) {
-              callbacksRef.current.onMessageInsert(message);
-            }
-          }
-        )
-        .on(
-          "postgres_changes",
-          {
-            event: "UPDATE",
-            schema: "public",
-            table: "habitat_messages",
-            filter: `habitat_id=eq.${habitatId}`,
-          },
-          async (payload: RealtimePostgresChangesPayload<MessagePayload>) => {
-            const message = await processMessagePayload(payload);
-            if (message && callbacksRef.current.onMessageUpdate) {
-              callbacksRef.current.onMessageUpdate(message);
-            }
-          }
-        )
-        .on(
-          "postgres_changes",
-          {
-            event: "DELETE",
-            schema: "public",
-            table: "habitat_messages",
-            filter: `habitat_id=eq.${habitatId}`,
-          },
-          (payload: RealtimePostgresChangesPayload<MessagePayload>) => {
-            const messageId = (payload.old as MessagePayload)?.id as string;
-            if (messageId && callbacksRef.current.onMessageDelete) {
-              callbacksRef.current.onMessageDelete(messageId);
-            }
-          }
-        );
-
-      // Handle channel status changes
-      channel.subscribe((status, err) => {
-        if (isUnmountedRef.current) return;
-
-        switch (status) {
-          case "SUBSCRIBED":
-            channelRef.current = channel;
-            reconnectAttemptsRef.current = 0;
-            setState((prev) => ({
-              ...prev,
-              connected: true,
-              connecting: false,
-            }));
-            callbacksRef.current.onConnectionChange?.(true);
-            break;
-          case "CHANNEL_ERROR":
-          case "TIMED_OUT":
-          case "CLOSED":
-            channelRef.current = null;
-            setState((prev) => ({
-              ...prev,
-              connected: false,
-              connecting: false,
-            }));
-            callbacksRef.current.onConnectionChange?.(false);
-
-            if (err) {
-              const normalizedError = normalizeError(err);
-              setState((prev) => ({ ...prev, error: normalizedError.message }));
-              callbacksRef.current.onError?.(normalizedError.message);
-            }
-
-            // Attempt reconnection if enabled
-            if (
-              autoReconnect &&
-              reconnectAttemptsRef.current < maxReconnectAttempts
-            ) {
-              clearReconnectTimeout();
-              reconnectTimeoutRef.current = setTimeout(() => {
-                if (!isUnmountedRef.current) {
-                  reconnectAttemptsRef.current += 1;
-                  connect();
-                }
-              }, reconnectDelay);
-            }
-            break;
+  // Create realtime callbacks that process message payloads
+  const realtimeCallbacks = useMemo(
+    () => ({
+      onInsert: async (
+        payload: RealtimePostgresChangesPayload<MessagePayload>
+      ) => {
+        const message = await processMessagePayload(payload);
+        if (message && callbacks.onMessageInsert) {
+          callbacks.onMessageInsert(message);
         }
-      });
-    } catch (error) {
-      if (!isUnmountedRef.current) {
-        const normalizedError = normalizeError(error);
-        setState((prev) => ({
-          ...prev,
-          error: normalizedError.message,
-          connecting: false,
-        }));
-        callbacksRef.current.onError?.(normalizedError.message);
-      }
-    }
-  }, [
-    habitatId,
-    userId,
-    autoReconnect,
-    maxReconnectAttempts,
-    reconnectDelay,
-    processMessagePayload,
-    clearReconnectTimeout,
-  ]);
+      },
+      onUpdate: async (
+        payload: RealtimePostgresChangesPayload<MessagePayload>
+      ) => {
+        const message = await processMessagePayload(payload);
+        if (message && callbacks.onMessageUpdate) {
+          callbacks.onMessageUpdate(message);
+        }
+      },
+      onDelete: (payload: RealtimePostgresChangesPayload<MessagePayload>) => {
+        const messageId = (payload.old as MessagePayload)?.id as string;
+        if (messageId && callbacks.onMessageDelete) {
+          callbacks.onMessageDelete(messageId);
+        }
+      },
+      onConnectionChange: callbacks.onConnectionChange,
+      onError: callbacks.onError,
+    }),
+    [processMessagePayload, callbacks]
+  );
 
-  // Disconnect from real-time channel
-  const disconnect = useCallback(() => {
-    clearReconnectTimeout();
-
-    if (channelRef.current) {
-      supabase.removeChannel(channelRef.current);
-      channelRef.current = null;
-    }
-
-    setState((prev) => ({ ...prev, connected: false, connecting: false }));
-    callbacksRef.current.onConnectionChange?.(false);
-    reconnectAttemptsRef.current = 0;
-  }, [clearReconnectTimeout]);
-
-  // Manually reconnect
-  const reconnect = useCallback(() => {
-    disconnect();
-    reconnectAttemptsRef.current = 0;
-    connect();
-  }, [disconnect, connect]);
-
-  // Clear error state
-  const clearError = useCallback(() => {
-    setState((prev) => ({ ...prev, error: null }));
-  }, []);
-
-  // Connect on mount and when habitatId/userId changes
-  useEffect(() => {
-    if (habitatId && userId) {
-      connect();
-    } else {
-      disconnect();
-    }
-
-    return () => {
-      disconnect();
-    };
-  }, [habitatId, userId, connect, disconnect]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      isUnmountedRef.current = true;
-      disconnect();
-    };
-  }, [disconnect]);
-
-  return {
-    // State
-    connected: state.connected,
-    connecting: state.connecting,
-    error: state.error,
-
-    // Actions
-    connect,
-    disconnect,
-    reconnect,
-    clearError,
-
-    // Status
-    canReconnect: reconnectAttemptsRef.current < maxReconnectAttempts,
-    reconnectAttempts: reconnectAttemptsRef.current,
-  };
+  // Use the base realtime hook with habitat-specific configuration
+  return useBaseRealtime({
+    channelName: `habitat:${habitatId}`,
+    tableName: "habitat_messages",
+    filter: `habitat_id=eq.${habitatId}`,
+    callbacks: realtimeCallbacks,
+    enabled: !!(habitatId && userId),
+    options: {
+      autoReconnect: true,
+      reconnectDelay: 3000,
+      maxReconnectAttempts: 5,
+      ...options,
+    },
+  });
 }
 
 export type UseRealtimeChatReturn = ReturnType<typeof useRealtimeChat>;

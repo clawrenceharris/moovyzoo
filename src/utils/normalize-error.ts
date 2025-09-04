@@ -1,238 +1,274 @@
+/**
+ * Error normalization utilities for consistent error handling
+ * Converts various error types to standardized AppErrorCode format
+ */
+
+import { AppErrorCode } from "./error-codes";
+import { getErrorMessage } from "./error-map";
 import { ZodError } from "zod";
-import { AuthApiError } from "@supabase/supabase-js";
-import { AppError, AppErrorCode } from "@/types/error";
-import { errorMap } from "./error-map";
-
-export function getFriendlyErrorMessage(error: unknown): string {
-  const normalizedError = normalizeError(error);
-  return normalizedError.message;
-}
 
 /**
- * Normalize various error types to AppErrorCode
- * Always use errorMap from auth/utils/error-map.ts for user messages
+ * Supabase error interface
  */
-export function normalizeError(error: any): AppError {
-  if (isTmdbError(error)) {
-    return errorMap[normalizeTmbdError(error)];
-  }
-
-  if (isSupabaseError(error) || isAuthApiError(error)) {
-    return errorMap[
-      normalizeSupabaseError(error) || normalizeStandardError(error)
-    ];
-  }
-  if (error instanceof Error) {
-    return errorMap[normalizeStandardError(error)];
-  }
-  return errorMap[AppErrorCode.UNKNOWN_ERROR];
-}
-
-function isAuthApiError(error: unknown): error is AuthApiError {
-  return error instanceof AuthApiError;
-}
-
-function isSupabaseError(
-  error: unknown
-): error is { code: string; message: string } {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    "message" in error &&
-    typeof (error as any).code === "string" &&
-    typeof (error as any).message === "string"
-  );
-}
-
-function normalizeTmbdError(error: any): AppErrorCode {
-  if (error.message.includes("401")) {
-    return AppErrorCode.TMDB_UNAUTHORIZED;
-  }
-  if (error.message.includes("network") || error.message.includes("fetch")) {
-    return AppErrorCode.NETWORK_ERROR;
-  }
-  return AppErrorCode.TMDB_SEARCH_FAILED;
-}
-
-/**
- * Normalize Supabase Auth + Database errors into internal AppErrorCode.
- * This function should be called anywhere you receive a Supabase `error` object.
- */
-export function normalizeSupabaseError(error: {
+interface SupabaseError {
   code?: string;
-  message?: string;
-}): AppErrorCode | null {
-  const code = error.code?.toLowerCase() || "";
-  const message = error.message?.toLowerCase() || "";
-
-  // ---------- AUTH ERRORS ---------
-  if (
-    code === "email_address_already_registered" ||
-    message.includes("already registered") ||
-    message.includes("user already exists")
-  ) {
-    return AppErrorCode.AUTH_EMAIL_ALREADY_EXISTS;
-  }
-
-  if (code === "invalid_credentials" || message.includes("invalid login")) {
-    return AppErrorCode.AUTH_INVALID_CREDENTIAL;
-  }
-  if (message.includes("user not found")) {
-    return AppErrorCode.AUTH_USER_NOT_FOUND;
-  }
-  if (message.includes("password") && message.includes("incorrect")) {
-    return AppErrorCode.AUTH_WRONG_PASSWORD;
-  }
-  if (message.includes("too many requests") || code === "too_many_requests") {
-    return AppErrorCode.AUTH_TOO_MANY_REQUESTS;
-  }
-  if (message.includes("requires recent login")) {
-    return AppErrorCode.AUTH_REQUIRES_RECENT_LOGIN;
-  }
-  if (message.includes("disabled") && message.includes("account")) {
-    return AppErrorCode.AUTH_USER_DISABLED;
-  }
-  if (message.includes("operation not allowed")) {
-    return AppErrorCode.AUTH_OPERATION_NOT_ALLOWED;
-  }
-
-  // ---------- DATABASE ERRORS ----------
-  if (code === "pgrst116" || message.includes("not found")) {
-    // Check if it's habitat-related
-    if (message.includes("habitat")) {
-      return AppErrorCode.HABITAT_NOT_FOUND;
-    }
-    return AppErrorCode.PROFILE_NOT_FOUND;
-  }
-  if (
-    code === "23505" || // Postgres unique_violation
-    message.includes("duplicate key") ||
-    message.includes("already exists")
-  ) {
-    // Check if it's habitat membership related
-    if (message.includes("habitat_members")) {
-      return AppErrorCode.HABITAT_ALREADY_MEMBER;
-    }
-    return AppErrorCode.PROFILE_ALREADY_EXISTS;
-  }
-  if (code === "42501" || message.includes("permission denied")) {
-    return AppErrorCode.DATABASE_PERMISSION_DENIED;
-  }
-  if (message.includes("connection") || message.includes("timeout")) {
-    return AppErrorCode.DATABASE_CONNECTION_ERROR;
-  }
-  if (message.includes("quota") || message.includes("limit")) {
-    return AppErrorCode.DATABASE_QUOTA_EXCEEDED;
-  }
-  if (message.includes("unavailable") || message.includes("service")) {
-    return AppErrorCode.DATABASE_UNAVAILABLE;
-  }
-
-  // ---------- HABITAT-SPECIFIC ERRORS ----------
-  if (message.includes("habitat") && message.includes("access denied")) {
-    return AppErrorCode.HABITAT_ACCESS_DENIED;
-  }
-  if (message.includes("access denied to habitat")) {
-    return AppErrorCode.HABITAT_ACCESS_DENIED;
-  }
-  if (message.includes("access denied to private habitat")) {
-    return AppErrorCode.HABITAT_ACCESS_DENIED;
-  }
-  if (message.includes("cannot join private habitat")) {
-    return AppErrorCode.HABITAT_ACCESS_DENIED;
-  }
-  if (message.includes("habitat") && message.includes("not member")) {
-    return AppErrorCode.HABITAT_NOT_MEMBER;
-  }
-  if (message.includes("user is not a member")) {
-    return AppErrorCode.HABITAT_NOT_MEMBER;
-  }
-  if (message.includes("already a member")) {
-    return AppErrorCode.HABITAT_ALREADY_MEMBER;
-  }
-  if (message.includes("owners cannot leave")) {
-    return AppErrorCode.HABITAT_ACCESS_DENIED;
-  }
-
-  if (message.includes("unauthorized to delete")) {
-    return AppErrorCode.MESSAGE_UNAUTHORIZED;
-  }
-  if (message.includes("realtime") || message.includes("websocket")) {
-    return AppErrorCode.REALTIME_CONNECTION_FAILED;
-  }
-
-  // ---------- FALLBACKS ----------
-  if (message.includes("network")) {
-    return AppErrorCode.NETWORK_ERROR;
-  }
-  if (message.includes("rate limit")) {
-    return AppErrorCode.RATE_LIMIT_EXCEEDED;
-  }
-
-  return null;
+  message: string;
+  details?: string;
+  hint?: string;
+  status?: number;
 }
+
 /**
- * Normalize standard JavaScript errors
+ * Normalized application error
  */
-function normalizeStandardError(
-  error: Error | { message: string }
-): AppErrorCode {
-  const message = error.message.toLowerCase();
-
-  // Habitat-specific errors
-  if (message.includes("habitat not found")) {
-    return AppErrorCode.HABITAT_NOT_FOUND;
-  }
-  if (message.includes("habitat") && message.includes("access denied")) {
-    return AppErrorCode.HABITAT_ACCESS_DENIED;
-  }
-  if (message.includes("access denied to habitat")) {
-    return AppErrorCode.HABITAT_ACCESS_DENIED;
-  }
-  if (message.includes("access denied to private habitat")) {
-    return AppErrorCode.HABITAT_ACCESS_DENIED;
-  }
-  if (message.includes("cannot join private habitat")) {
-    return AppErrorCode.HABITAT_ACCESS_DENIED;
-  }
-  if (message.includes("user is not a member")) {
-    return AppErrorCode.HABITAT_NOT_MEMBER;
-  }
-  if (message.includes("already a member")) {
-    return AppErrorCode.HABITAT_ALREADY_MEMBER;
-  }
-  if (message.includes("owners cannot leave")) {
-    return AppErrorCode.HABITAT_ACCESS_DENIED;
-  }
-
-  if (message.includes("unauthorized to delete")) {
-    return AppErrorCode.MESSAGE_UNAUTHORIZED;
-  }
-  if (message.includes("realtime") && message.includes("connection")) {
-    return AppErrorCode.REALTIME_CONNECTION_FAILED;
-  }
-  // Profile errors
-  if (message.includes("profile not found")) {
-    return AppErrorCode.PROFILE_NOT_FOUND;
-  }
-  if (message.includes("already exists")) {
-    return AppErrorCode.PROFILE_ALREADY_EXISTS;
-  }
-  if (message.includes("permission") || message.includes("unauthorized")) {
-    return AppErrorCode.DATABASE_PERMISSION_DENIED;
-  }
-  if (message.includes("network") || message.includes("connection")) {
-    return AppErrorCode.NETWORK_ERROR;
-  }
-  if (message.includes("rate limit")) {
-    return AppErrorCode.RATE_LIMIT_EXCEEDED;
-  }
-
-  return AppErrorCode.UNKNOWN_ERROR;
+export interface NormalizedError extends Error {
+  code: AppErrorCode;
+  originalError?: unknown;
+  details?: Record<string, any>;
 }
-function isTmdbError(error: any) {
-  if (error instanceof Error) {
-    return error.message.includes("TMDB");
+
+/**
+ * Creates a normalized error with consistent structure
+ */
+export function createNormalizedError(
+  code: AppErrorCode,
+  originalError?: unknown,
+  details?: Record<string, any>
+): NormalizedError {
+  const errorMessage = getErrorMessage(code);
+  const error = new Error(errorMessage.message) as NormalizedError;
+
+  error.name = "NormalizedError";
+  error.code = code;
+  error.originalError = originalError;
+  error.details = details;
+
+  return error;
+}
+
+/**
+ * Maps Supabase error codes to application error codes
+ */
+const supabaseErrorMap: Record<string, AppErrorCode> = {
+  // Authentication errors
+  "401": AppErrorCode.UNAUTHORIZED,
+  "403": AppErrorCode.ACCESS_DENIED,
+  invalid_credentials: AppErrorCode.INVALID_CREDENTIALS,
+  session_expired: AppErrorCode.SESSION_EXPIRED,
+  user_not_found: AppErrorCode.USER_NOT_FOUND,
+
+  // Database constraint errors
+  "23505": AppErrorCode.DUPLICATE_ENTRY, // unique_violation
+  "23503": AppErrorCode.FOREIGN_KEY_VIOLATION, // foreign_key_violation
+  "23514": AppErrorCode.CONSTRAINT_VIOLATION, // check_violation
+  "23502": AppErrorCode.MISSING_REQUIRED_FIELD, // not_null_violation
+
+  // Permission errors
+  "42501": AppErrorCode.ACCESS_DENIED, // insufficient_privilege
+  permission_denied: AppErrorCode.ACCESS_DENIED,
+
+  // Not found errors
+  "404": AppErrorCode.NOT_FOUND,
+  not_found: AppErrorCode.NOT_FOUND,
+
+  // Rate limiting
+  "429": AppErrorCode.RATE_LIMIT_EXCEEDED,
+  rate_limit_exceeded: AppErrorCode.RATE_LIMIT_EXCEEDED,
+
+  // Server errors
+  "500": AppErrorCode.SERVER_ERROR,
+  "502": AppErrorCode.SERVICE_UNAVAILABLE,
+  "503": AppErrorCode.SERVICE_UNAVAILABLE,
+  "504": AppErrorCode.TIMEOUT_ERROR,
+
+  // Network errors
+  network_error: AppErrorCode.NETWORK_ERROR,
+  timeout: AppErrorCode.TIMEOUT_ERROR,
+  connection_error: AppErrorCode.CONNECTION_FAILED,
+};
+
+/**
+ * Processes Supabase errors and maps them to application error codes
+ */
+export function processSupabaseError(error: SupabaseError): NormalizedError {
+  const code = error.code || error.status?.toString() || "unknown";
+  const appErrorCode = supabaseErrorMap[code] || AppErrorCode.DATABASE_ERROR;
+
+  return createNormalizedError(appErrorCode, error, {
+    supabaseCode: code,
+    supabaseMessage: error.message,
+    details: error.details,
+    hint: error.hint,
+  });
+}
+
+/**
+ * Processes Zod validation errors
+ */
+export function processZodError(error: ZodError): NormalizedError {
+  const details = {
+    validationErrors: error.issues.map((err: any) => ({
+      path: err.path.join("."),
+      message: err.message,
+      code: err.code,
+    })),
+  };
+
+  return createNormalizedError(AppErrorCode.VALIDATION_ERROR, error, details);
+}
+
+/**
+ * Processes network/fetch errors
+ */
+export function processNetworkError(error: any): NormalizedError {
+  if (error.name === "AbortError") {
+    return createNormalizedError(AppErrorCode.TIMEOUT_ERROR, error);
   }
+
+  if (error.name === "TypeError" && error.message.includes("fetch")) {
+    return createNormalizedError(AppErrorCode.NETWORK_ERROR, error);
+  }
+
+  // Check for specific HTTP status codes
+  if (error.status) {
+    const statusCode = error.status.toString();
+    const appErrorCode =
+      supabaseErrorMap[statusCode] || AppErrorCode.SERVER_ERROR;
+    return createNormalizedError(appErrorCode, error);
+  }
+
+  return createNormalizedError(AppErrorCode.NETWORK_ERROR, error);
+}
+
+/**
+ * Main error normalization function
+ * Converts any error to a standardized NormalizedError
+ */
+export function normalizeError(error: unknown): NormalizedError {
+  // Already normalized (check for our specific normalized error structure)
+  if (
+    error &&
+    typeof error === "object" &&
+    "code" in error &&
+    "originalError" in error &&
+    "name" in error &&
+    (error as any).name === "NormalizedError"
+  ) {
+    return error as NormalizedError;
+  }
+
+  // Zod validation error
+  if (error instanceof ZodError) {
+    return processZodError(error);
+  }
+
+  // Supabase error (check for common Supabase error properties)
+  if (
+    error &&
+    typeof error === "object" &&
+    ("code" in error || "status" in error)
+  ) {
+    return processSupabaseError(error as SupabaseError);
+  }
+
+  // Network/fetch error
+  if (error && typeof error === "object" && "name" in error) {
+    const errorName = (error as Error).name;
+    if (["AbortError", "TypeError", "NetworkError"].includes(errorName)) {
+      return processNetworkError(error);
+    }
+  }
+
+  // Standard Error object
+  if (error instanceof Error) {
+    // Check if it's a specific business logic error based on message
+    const message = error.message.toLowerCase();
+
+    if (
+      message.includes("unauthorized") ||
+      message.includes("not authenticated")
+    ) {
+      return createNormalizedError(AppErrorCode.UNAUTHORIZED, error);
+    }
+
+    if (message.includes("forbidden") || message.includes("access denied")) {
+      return createNormalizedError(AppErrorCode.ACCESS_DENIED, error);
+    }
+
+    if (message.includes("not found")) {
+      return createNormalizedError(AppErrorCode.NOT_FOUND, error);
+    }
+
+    if (message.includes("timeout")) {
+      return createNormalizedError(AppErrorCode.TIMEOUT_ERROR, error);
+    }
+
+    if (message.includes("network") || message.includes("connection")) {
+      return createNormalizedError(AppErrorCode.NETWORK_ERROR, error);
+    }
+
+    // Generic error
+    return createNormalizedError(AppErrorCode.UNKNOWN_ERROR, error);
+  }
+
+  // String error
+  if (typeof error === "string") {
+    const stringError = new Error(error);
+    return createNormalizedError(AppErrorCode.UNKNOWN_ERROR, stringError);
+  }
+
+  // Unknown error type
+  const unknownError = new Error("An unknown error occurred");
+  return createNormalizedError(AppErrorCode.UNKNOWN_ERROR, unknownError, {
+    originalError: error,
+  });
+}
+
+/**
+ * Checks if an error is retryable based on its code
+ */
+export function isRetryableError(error: NormalizedError): boolean {
+  const retryableCodes = [
+    AppErrorCode.NETWORK_ERROR,
+    AppErrorCode.TIMEOUT_ERROR,
+    AppErrorCode.SERVER_ERROR,
+    AppErrorCode.SERVICE_UNAVAILABLE,
+    AppErrorCode.DATABASE_ERROR,
+    AppErrorCode.TRANSACTION_FAILED,
+    AppErrorCode.CONNECTION_FAILED,
+    AppErrorCode.SUBSCRIPTION_FAILED,
+    AppErrorCode.REALTIME_ERROR,
+    AppErrorCode.UPLOAD_FAILED,
+    AppErrorCode.OPERATION_FAILED,
+  ];
+
+  return retryableCodes.includes(error.code);
+}
+
+/**
+ * Checks if an error should be shown to the user
+ */
+export function isUserFacingError(error: NormalizedError): boolean {
+  const internalCodes = [
+    AppErrorCode.DATABASE_ERROR,
+    AppErrorCode.FOREIGN_KEY_VIOLATION,
+    AppErrorCode.TRANSACTION_FAILED,
+    AppErrorCode.SERVER_ERROR,
+    AppErrorCode.INTERNAL_ERROR,
+    AppErrorCode.UNKNOWN_ERROR,
+  ];
+
+  return !internalCodes.includes(error.code);
+}
+
+/**
+ * Gets a user-friendly error message from a normalized error
+ */
+export function getUserErrorMessage(error: NormalizedError): string {
+  if (isUserFacingError(error)) {
+    return getErrorMessage(error.code).message;
+  }
+
+  // Return generic message for internal errors
+  return getErrorMessage(AppErrorCode.UNKNOWN_ERROR).message;
 }

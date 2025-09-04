@@ -1,3 +1,7 @@
+---
+inclusion: manual
+---
+
 # Form Standards and Architecture
 
 ## CRITICAL REQUIREMENT: ALL FORMS MUST USE FormLayout

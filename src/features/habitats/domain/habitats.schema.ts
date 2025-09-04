@@ -1,50 +1,27 @@
 import { z } from "zod";
+import {
+  commonSchemas,
+  createPaginationSchema,
+  createTimeBasedSchema,
+  createMediaSchema,
+} from "../../../utils/schema-helpers";
 
 /**
  * Validation schemas for habitat service operations
  * Used to validate input parameters and ensure data integrity
  */
 
-// Message content validation schema
-export const messageContentSchema = z
-  .string()
-  .trim()
-  .min(1, "Message content cannot be empty")
-  .max(1000, "Message is too long (max 1000 characters)")
-  .refine(
-    (content) => content.replace(/\s+/g, " ").length > 0,
-    "Message content is invalid"
-  );
+// Use centralized message content schema
+export const messageContentSchema = commonSchemas.messageContent;
 
-// Discussion name validation schema
-export const discussionNameSchema = z
-  .string()
-  .trim()
-  .min(3, "Discussion name must be at least 3 characters")
-  .max(100, "Discussion name is too long (max 100 characters)")
-  .refine(
-    (name) => name.replace(/\s+/g, " ").length >= 3,
-    "Discussion name is invalid"
-  );
+// Use centralized discussion title schema
+export const discussionNameSchema = commonSchemas.discussionTitle;
 
-// Discussion description validation schema
-export const discussionDescriptionSchema = z
-  .string()
-  .trim()
+// Use centralized description schema
+export const discussionDescriptionSchema = commonSchemas.description;
 
-  .max(500, "Discussion description is too long (max 500 characters)")
-  .optional();
-
-// Poll title validation schema
-export const pollTitleSchema = z
-  .string()
-  .trim()
-  .min(5, "Poll title must be at least 5 characters")
-  .max(200, "Poll title is too long (max 200 characters)")
-  .refine(
-    (title) => title.replace(/\s+/g, " ").length >= 5,
-    "Poll title is invalid"
-  );
+// Use centralized poll title schema
+export const pollTitleSchema = commonSchemas.pollTitle;
 
 // Poll options validation schema
 export const pollOptionsSchema = z
@@ -69,48 +46,34 @@ export const watchPartyDescriptionSchema = z
   )
   .optional();
 
-// Max participants validation schema
-export const maxParticipantsSchema = z
-  .number()
-  .int()
+// Max participants validation schema - use centralized positive int with constraints
+export const maxParticipantsSchema = commonSchemas.positiveInt
   .min(2, "Watch party must allow at least 2 participants")
   .max(100, "Watch party cannot have more than 100 participants")
   .optional();
 
-// Scheduled time validation schema
-export const scheduledTimeSchema = z.string().refine((time) => {
-  const date = new Date(time);
-  return !isNaN(date.getTime()) && date > new Date();
-}, "Scheduled time must be a valid future date");
+// Scheduled time validation schema - use centralized future date schema
+export const scheduledTimeSchema = commonSchemas.futureDate;
 
 // Timestamp validation schema
 export const timestampSchema = z.date("Invalid timestamp format");
 
-// Pagination parameters schema
-export const paginationSchema = z.object({
-  limit: z.number().int().min(1).max(100).default(50),
-  offset: z.number().int().min(0).default(0),
-});
+// Use centralized pagination schema
+export const paginationSchema = createPaginationSchema();
 
 export const sendMessageSchema = z.object({
   content: messageContentSchema,
 });
 
 // Habitat creation validation schemas
-export const habitatNameSchema = z
-  .string()
-  .trim()
-  .min(3, "Habitat name must be at least 3 characters")
-  .max(100, "Habitat name is too long (max 100 characters)")
-  .refine(
-    (name) => name.replace(/\s+/g, " ").length >= 3,
-    "Habitat name is invalid"
-  );
+// Use centralized habitat name schema
+export const habitatNameSchema = commonSchemas.habitatName;
 
-export const habitatDescriptionSchema = z
-  .string()
-  .trim()
-  .max(500, "Habitat description is too long (max 500 characters)");
+// Use centralized description schema (required for habitats)
+export const habitatDescriptionSchema = commonSchemas.description.refine(
+  (desc) => desc !== undefined && desc.length > 0,
+  "Habitat description is required"
+);
 
 export const habitatTagsSchema = z
   .array(z.string().trim().min(1).max(30))
@@ -145,10 +108,12 @@ export const createDiscussionSchema = z.object({
   description: discussionDescriptionSchema,
 });
 
-export const getDiscussionsByHabitatSchema = z.object({
-  limit: z.number().int().min(1).max(100).default(20),
-  offset: z.number().int().min(0).default(0),
-});
+// Use centralized pagination schema for discussions
+export const getDiscussionsByHabitatSchema = createPaginationSchema()
+  .extend({
+    offset: commonSchemas.nonNegativeInt.default(0),
+  })
+  .omit({ page: true }); // Use offset instead of page for this specific case
 
 // Poll validation schemas
 export const createPollSchema = z.object({
@@ -160,17 +125,30 @@ export const votePollSchema = z.object({
   option: z.string().min(1, "Vote option is required"),
 });
 
-// Media validation schemas
-export const mediaTypeSchema = z.enum(["movie", "tv"]);
+// Media validation schemas - use centralized media schema
+const baseMediaSchema = createMediaSchema();
 
-export const watchPartyMediaSchema = z.object({
-  tmdb_id: z.number().int().positive("Enter a movie or show to start watching"),
-  media_type: mediaTypeSchema,
-  media_title: z.string(),
-  poster_path: z.string().optional(),
-  release_date: z.string().optional(),
-  runtime: z.number().int().positive().optional(),
-});
+export const watchPartyMediaSchema = baseMediaSchema
+  .extend({
+    // Rename tmdbId to tmdb_id for API compatibility
+    tmdb_id: baseMediaSchema.shape.tmdbId,
+    media_type: baseMediaSchema.shape.mediaType,
+    media_title: baseMediaSchema.shape.title,
+    poster_path: baseMediaSchema.shape.posterPath,
+    release_date: baseMediaSchema.shape.releaseDate,
+    runtime: commonSchemas.positiveInt.optional(),
+  })
+  .omit({
+    tmdbId: true,
+    mediaType: true,
+    title: true,
+    posterPath: true,
+    releaseDate: true,
+    backdropPath: true,
+    overview: true,
+  });
+
+export const mediaTypeSchema = z.enum(["movie", "tv"]);
 
 // Watch party validation schemas
 export const createWatchPartySchema = z.object({
