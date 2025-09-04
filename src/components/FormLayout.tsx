@@ -11,7 +11,10 @@ import { Button } from "./ui";
 import { Form, FormDescription, FormMessage } from "./ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
-import { normalizeError } from "@/utils/normalize-error";
+import {
+  getFriendlyErrorMessage,
+  normalizeError,
+} from "@/utils/normalize-error";
 
 export interface FormLayoutProps<T extends FieldValues>
   extends UseFormProps<T> {
@@ -37,8 +40,8 @@ export interface FormLayoutProps<T extends FieldValues>
 function FormLayout<T extends FieldValues>({
   children,
   showsSubmitButton = true,
-  showsCancelButton = false,
-  submitText = "Submit",
+  showsCancelButton = true,
+  submitText = "Done",
   cancelText = "Cancel",
   onSubmit,
   onCancel,
@@ -48,23 +51,14 @@ function FormLayout<T extends FieldValues>({
   isOpen = true,
   description,
   descriptionStyle,
-  resolver,
-  defaultValues,
   enableBeforeUnloadProtection = false,
   ...formProps
 }: FormLayoutProps<T>) {
   const form = useForm<T>({
     ...formProps,
     mode,
-    resolver,
-    defaultValues,
   });
 
-  useEffect(() => {
-    if (defaultValues) {
-      form.reset(defaultValues);
-    }
-  }, [defaultValues, form]);
   useEffect(() => {
     if (!enableBeforeUnloadProtection || !isOpen) return;
 
@@ -80,13 +74,15 @@ function FormLayout<T extends FieldValues>({
   }, [enableBeforeUnloadProtection, isOpen, form.formState.isDirty]);
 
   const handleSubmit = async (data: T) => {
-    if (onSubmit) {
-      try {
-        await onSubmit(data);
-      } catch (error) {
-        const normalizedError = normalizeError(error);
-        form.setError("root", { message: normalizedError.message });
-      }
+    try {
+      console.log("submitting");
+
+      await onSubmit?.(data);
+      console.log("submitted");
+    } catch (error) {
+      console.log("first");
+      console.log(getFriendlyErrorMessage(error));
+      form.setError("root", { message: getFriendlyErrorMessage(error) });
     }
   };
 
@@ -100,24 +96,34 @@ function FormLayout<T extends FieldValues>({
         )}
 
         <div className="space-y-6">
-          {typeof children === "function" ? children(form) : children}
-
-          {error && (
-            <div className="flex-1">
-              <FormMessage>{error}</FormMessage>
+          {/* General Error */}
+          {form.formState.errors.root && (
+            <div className="p-3 text-sm text-red-600 bg-red-500/20 border border-red-500 rounded-md">
+              <FormMessage>{form.formState.errors.root.message} </FormMessage>
             </div>
           )}
+          {typeof children === "function" ? children(form) : children}
         </div>
 
         <div>
           {showsCancelButton && (
-            <Button type="button" onClick={onCancel} disabled={isLoading}>
+            <Button
+              variant={"ghost"}
+              type="button"
+              onClick={onCancel}
+              disabled={isLoading}
+            >
               {cancelText}
             </Button>
           )}
 
           {showsSubmitButton && (
-            <Button type="submit" variant={"primary"} size={"lg"}>
+            <Button
+              onClick={() => console.log("onsubmit")}
+              type="submit"
+              variant={"primary"}
+              size={"lg"}
+            >
               <span className="flex items-center gap-2">
                 {isLoading && (
                   <svg

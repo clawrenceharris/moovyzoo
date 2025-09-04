@@ -12,12 +12,8 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body>
-        <main className="mx-auto justify-center max-w-xl flex-col">
-          <QueryProvider>{children}</QueryProvider>
-        </main>
-      </body>
-    </html>
+    <main className="mx-auto justify-center max-w-xl flex-col">
+      <QueryProvider>{children}</QueryProvider>
+    </main>
   );
 }

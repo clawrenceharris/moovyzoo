@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { tmdbService, TMDBSearchResult } from "@/utils/tmdb/service";
-import { useDebouncedSearch } from "./useDebounce";
+import { useDebouncedSearch } from "./use-debounce";
+import {
+  searchMulti,
+  TMDBSearchResult,
+} from "@/features/ai-chat/data/tmdb.repository";
+import { getFriendlyErrorMessage } from "@/utils/normalize-error";
 
 export interface UseMediaSearchResult {
   results: TMDBSearchResult[];
@@ -36,36 +40,11 @@ export function useMediaSearch(): UseMediaSearchResult {
     setError(null);
 
     try {
-      const searchResults = await tmdbService.searchMedia(searchTerm);
+      const searchResults = await searchMulti(searchTerm);
       setResults(searchResults);
       setHasSearched(true);
-    } catch (err) {
-      console.error("Media search error:", err);
-
-      let errorMessage = "Failed to search for media. Please try again.";
-
-      if (err instanceof Error) {
-        switch (err.message) {
-          case "TMDB_RATE_LIMIT_EXCEEDED":
-            errorMessage =
-              "Too many requests. Please wait a moment and try again.";
-            break;
-          case "TMDB_UNAUTHORIZED":
-            errorMessage =
-              "Unable to access movie database. Please contact support.";
-            break;
-          case "TMDB_NETWORK_ERROR":
-            errorMessage =
-              "Network error. Please check your connection and try again.";
-            break;
-          case "TMDB_SEARCH_FAILED":
-          default:
-            errorMessage = "Search failed. Please try again.";
-            break;
-        }
-      }
-
-      setError(errorMessage);
+    } catch (error) {
+      setError(getFriendlyErrorMessage(error));
       setResults([]);
       setHasSearched(true);
     } finally {

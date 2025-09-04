@@ -1,4 +1,10 @@
-import { useEffect, type ReactElement, type ReactNode } from "react";
+import {
+  CSSProperties,
+  forwardRef,
+  useEffect,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,57 +14,32 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 
-interface ModalProps {
-  isOpen: boolean;
+export interface ModalProps {
   onClose?: () => void;
-  title: string | ReactElement;
-  children: ReactNode;
-  showsCloseButton?: boolean;
+  headerRight?: ReactNode;
+  children?: ReactNode;
+  contentStyle?: CSSProperties;
+  title?: string;
+  isOpen?: boolean;
   description?: string;
 }
-
-const Modal = ({
-  isOpen,
-  onClose,
-  title,
-  description,
-  children,
-}: ModalProps) => {
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        if (onClose) {
-          onClose();
-        }
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
-      document.body.style.overflow = "hidden";
-    }
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
-  return (
-    <Dialog>
-      <DialogTrigger>Open</DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+const Modal = forwardRef<HTMLDivElement, ModalProps>(
+  ({ contentStyle, title, isOpen, onClose, description, children }, ref) => {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent style={contentStyle} ref={ref} className="sm:max-w-md">
+          <DialogHeader>
+            {title && <DialogTitle>{title}</DialogTitle>}
+            {description && (
+              <DialogDescription>{description}</DialogDescription>
+            )}
+          </DialogHeader>
 
           {children}
-        </DialogHeader>
-      </DialogContent>
-    </Dialog>
-  );
-};
+        </DialogContent>
+      </Dialog>
+    );
+  }
+);
 
 export default Modal;

@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { WatchPartyCreationForm } from "./WatchPartyCreationForm";
+import { WatchPartyCreationForm } from "./";
 import type { WatchParty } from "../domain/habitats.types";
 
 interface WatchPartyCreationModalProps {
