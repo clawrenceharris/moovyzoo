@@ -9,7 +9,7 @@ This design implements TMDB movie/TV show search integration into the watch part
 ### High-Level Flow
 
 1. **User searches** for media in watch party creation form
-2. **TMDB service** queries the moviedb-promise API for results
+2. **TMDB service** queries the tmdb API for results
 3. **User selects** media from search results
 4. **Watch party** is created with associated media metadata
 5. **Watch party cards** display rich media content with posters
@@ -24,30 +24,6 @@ WatchPartyCreationForm
 │   └── SelectedMedia
 ├── ExistingFormFields
 └── FormActions
-```
-
-## Components and Interfaces
-
-### 1. TMDB Service Layer
-
-**File:** `src/utils/tmdb/service.ts`
-
-```typescript
-interface TMDBSearchResult {
-  id: number;
-  title?: string; // For movies
-  name?: string; // For TV shows
-  poster_path?: string;
-  release_date?: string; // For movies
-  first_air_date?: string; // For TV shows
-  media_type: "movie" | "tv";
-  overview?: string;
-}
-
-interface MediaSearchService {
-  searchMedia(query: string): Promise<TMDBSearchResult[]>;
-  getImageUrl(path: string, size?: string): string;
-}
 ```
 
 **Methods:**
