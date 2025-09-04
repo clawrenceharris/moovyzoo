@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "*.tmdb.org",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "*.supabase.com",
         port: "",
         pathname: "/**",
