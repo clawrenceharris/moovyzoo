@@ -102,6 +102,12 @@ export interface TMDBSearchResponse {
   total_pages: number;
   total_results: number;
 }
+export interface TMDBSearchResponse {
+  page: number;
+  results: TMDBMovie[];
+  total_pages: number;
+  total_results: number;
+}
 
 export interface TMDBTVSearchResponse {
   page: number;
@@ -109,7 +115,29 @@ export interface TMDBTVSearchResponse {
   total_pages: number;
   total_results: number;
 }
+export interface TMDBTVSearchResponse {
+  page: number;
+  results: TMDBTVShow[];
+  total_pages: number;
+  total_results: number;
+}
 
+// TV Show Types
+export interface TMDBTVShow {
+  id: number;
+  name: string;
+  overview: string;
+  first_air_date: string;
+  poster_path?: string;
+  backdrop_path?: string;
+  vote_average: number;
+  vote_count: number;
+  genre_ids?: number[];
+  origin_country: string[];
+  original_language: string;
+  original_name: string;
+  popularity: number;
+}
 // TV Show Types
 export interface TMDBTVShow {
   id: number;
@@ -247,7 +275,77 @@ export interface TMDBSeason {
     }>;
   }>;
 }
+export interface TMDBSeason {
+  id: number;
+  name: string;
+  overview: string;
+  poster_path?: string;
+  season_number: number;
+  episode_count: number;
+  air_date: string;
+  episodes: Array<{
+    id: number;
+    name: string;
+    overview: string;
+    episode_number: number;
+    season_number: number;
+    air_date: string;
+    runtime?: number;
+    still_path?: string;
+    vote_average: number;
+    vote_count: number;
+    guest_stars: Array<{
+      id: number;
+      name: string;
+      character: string;
+      profile_path?: string;
+    }>;
+    crew: Array<{
+      id: number;
+      name: string;
+      job: string;
+      department: string;
+      profile_path?: string;
+    }>;
+  }>;
+}
 
+export interface TMDBEpisode {
+  id: number;
+  name: string;
+  overview: string;
+  episode_number: number;
+  season_number: number;
+  air_date: string;
+  runtime?: number;
+  still_path?: string;
+  vote_average: number;
+  vote_count: number;
+  guest_stars: Array<{
+    id: number;
+    name: string;
+    character: string;
+    profile_path?: string;
+  }>;
+  crew: Array<{
+    id: number;
+    name: string;
+    job: string;
+    department: string;
+    profile_path?: string;
+  }>;
+  videos?: {
+    results: Array<{
+      id: string;
+      key: string;
+      name: string;
+      site: string;
+      type: string;
+      official: boolean;
+      published_at: string;
+    }>;
+  };
+}
 export interface TMDBEpisode {
   id: number;
   name: string;
