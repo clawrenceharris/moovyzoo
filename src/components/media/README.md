@@ -130,7 +130,6 @@ Comprehensive test coverage includes:
 ## Related Files
 
 - `src/hooks/useMediaSearch.ts` - Search hook implementation
-- `src/utils/tmdb/service.ts` - TMDB service layer
 - `src/components/media/MediaSearchField.stories.tsx` - Storybook documentation
 - `src/components/media/__tests__/MediaSearchField.test.tsx` - Test suite
 

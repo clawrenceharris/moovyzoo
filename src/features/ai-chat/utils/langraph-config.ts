@@ -1,18 +1,20 @@
-import { ChatOpenAI } from '@langchain/openai';
-import { createReactAgent } from '@langchain/langgraph/prebuilt';
-import { tmdbTools } from './tmdb-tools';
-import { tavilyTools } from './tavily-tools';
+import { ChatOpenAI } from "@langchain/openai";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+import { tmdbTools } from "./tmdb-tools";
+import { tavilyTools } from "./tavily-tools";
 
 // Initialize the OpenAI model
 export const createChatModel = () => {
   const apiKey = process.env.OPENAI_API_KEY;
-  
+
   if (!apiKey) {
-    throw new Error('OpenAI API key is required. Please set OPENAI_API_KEY in your environment variables.');
+    throw new Error(
+      "OpenAI API key is required. Please set OPENAI_API_KEY in your environment variables."
+    );
   }
 
   return new ChatOpenAI({
-    model: 'gpt-4o',
+    model: "gpt-4o",
     apiKey,
     temperature: 0,
     streaming: true,
@@ -20,12 +22,12 @@ export const createChatModel = () => {
 };
 
 // TMDB-powered movie and TV show tools for Zoovie
-// All movie and TV show tools are imported from tmdb-tools.ts 
+// All movie and TV show tools are imported from tmdb-tools.ts
 
 // Create the LangGraph agent with movie and TV show tools
 export const createAIAgent = () => {
   const model = createChatModel();
-  
+
   const agent = createReactAgent({
     llm: model,
     tools: [...tmdbTools, ...tavilyTools],
@@ -85,7 +87,7 @@ Remember: This is the year 2025 and You have real movie and TV data at your fing
 // Configuration for LangSmith tracing (optional)
 export const configureLangSmith = () => {
   if (process.env.LANGCHAIN_API_KEY) {
-    process.env.LANGCHAIN_TRACING_V2 = 'true';
-    process.env.LANGCHAIN_PROJECT = process.env.LANGCHAIN_PROJECT || 'Zoovie';
+    process.env.LANGCHAIN_TRACING_V2 = "true";
+    process.env.LANGCHAIN_PROJECT = process.env.LANGCHAIN_PROJECT || "Zoovie";
   }
 };
