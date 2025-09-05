@@ -19,16 +19,12 @@ Each feature follows a modular, responsibility-based structure:
 │  │  ├─ profile/
 │  │  │  ├─ page.tsx
 │  │  │  └─ edit/page.tsx
-│  │  ├─ games/
-│  │  │  ├─ binge-race/page.tsx
-│  │  │  └─ in-character/page.tsx
-│  │  │  └─ revalidate/route.ts
 │  ├─ globals.css
 │  └─ middleware.ts                      # Auth/role guards (redirects)
 ├─ components/                           # Reusable, app-wide UI components (PascalCase)
 │  ├─ ui/                                # Shadcn UI components (Button, Input, Card, etc.)
-│  │  ├─ Button.tsx
-│  │  ├─ Input.tsx
+│  │  ├─ button.tsx
+│  │  ├─ input.tsx
 │  │  ├─ card.tsx
 │  │  └─ ...
 │  ├─ states/                            # Reusable state components
@@ -44,49 +40,32 @@ Each feature follows a modular, responsibility-based structure:
 │  │  └─ index.ts                       # Barrel exports
 │  └─ index.ts                          # Main barrel export for all shared components
 ├─ features/                             # Feature modules (vertical slices)
-│  ├─ auth/
-│  │  ├─ components/                     # Feature-specific components (PascalCase)
-│  │  │  ├─ LoginForm.tsx
-│  │  │  └─ SignupForm.tsx
-│  │  ├─ domain/                         # Business logic: types, schemas, service
-│  │  │  ├─ auth.types.ts
-│  │  │  ├─ auth.schema.ts
-│  │  │  └─ auth.service.ts              # orchestrates supabase auth calls
-│  │  ├─ data/                           # Data access only (repositories/clients)
-│  │  │  └─ auth.repository.ts
-│  │  ├─ hooks/
-│  │  │  └─ useAuth.ts
-│  │  └─ index.ts
-│  │
 │  ├─ profiles/
 │  │  ├─ components/
 │  │  │  ├─ ProfileForm.tsx
 │  │  │  └─ ProfileCard.tsx
 │  │  ├─ domain/
+│  │  ├─ __tests__/
+│  │  │  ├─ profiles.repository.test.ts
 │  │  │  ├─ profiles.types.ts
 │  │  │  ├─ profiles.schema.ts           #zod schemas only
 │  │  │  └─ profiles.service.ts
 │  │  ├─ data/
 │  │  │  ├─ profiles.repository.ts       # Supabase queries only
-│  │  │  └─ supabase-client.ts           # Supabase singleton (kebab-case)
 │  │  ├─ hooks/
-│  │  │  ├─ useProfile.ts
-│  │  │  └─ usePublicProfiles.ts
+│  │  │  ├─ use-profile.ts
 │  │  └─ index.ts
 ├─ hooks/                                # Global, cross-feature hooks (rare)
-│  ├─ useDebounce.ts
-│  ├─ useMediaQuery.ts
-│
+│  ├─ use-debounce.ts
+│  ├─ use-media-search.ts
 ├─ lib/                                  # Framework/glue code that is not a feature
 │  ├─ cn.ts                               # className util or use 'clsx'
 │  ├─ env.ts                              # zod-validated env loader
-│  ├─ routes.ts                           # centralized route helpers
-│  └─ logger.ts
-│
+│  ├─ routes.ts                           # centralized route helpers│
 ├─ utils/                                # Small, pure helpers (kebab-case)
 │  ├─ error-codes.ts
 │  ├─ normalize-error.ts
-│  ├─ validation.ts
+│  ├─ validators.ts
 │  └─ date-format.ts
 ├─ types/                                # Global shared types (only if truly cross-feature)
 │  └─ global.d.ts
@@ -121,7 +100,6 @@ Each feature follows a modular, responsibility-based structure:
 - **Child components** are pure and focused on presentation
 - **Use barrel exports** (`index.ts`) for clean imports across the application
 - **Avoid subcomponents** declared inside other component files - extract to shared components instead
-- **Consistent prop interfaces** with TypeScript for predictable usage patterns
 
 ## File Organization Rules
 
