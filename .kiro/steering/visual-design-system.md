@@ -1,11 +1,5 @@
 ---
-inclusion: fileMatch
-
-fileMatch: "src/components/**/*.tsx"
-fileMatch: "src/features/**/components/*.tsx"
-fileMatch: "*.css"
-fileMatch: "page.tsx"
-
+inclusion: manual
 
 ---
 

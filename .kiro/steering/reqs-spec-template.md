@@ -1,7 +1,6 @@
 ---
-inclusion: fileMatch
+inclusion: manual
 
-fileMatchPattern: "requirements.md"
 ---
 
 # Reuqirements Spec Template

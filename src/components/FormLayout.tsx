@@ -8,7 +8,7 @@ import {
   Resolver,
 } from "react-hook-form";
 import { Button } from "./ui";
-import { Form, FormDescription, FormMessage } from "./ui/form";
+import { Form, FormDescription, FormMessage } from "./ui/Form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import { normalizeError } from "@/utils/normalize-error";

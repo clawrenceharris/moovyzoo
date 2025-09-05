@@ -20,13 +20,17 @@ export class ProfilesRepository {
       const { data: profile, error } = await supabase
         .from("user_profiles")
         .insert({
-          display_name: data.displayName,
+          user_id: data.userId,
           email: data.email,
-          onboarding_completed: data.onboardingCompleted,
+          display_name: data.displayName,
           username: data.username,
-          quote: data.quote,
           avatar_url: data.avatarUrl || null,
-          favorite_genres: data.favoriteGenres,
+          bio: data.bio,
+          quote: data.quote,
+          favorite_genres: data.favoriteGenres || [],
+          favorite_titles: data.favoriteTitles || [],
+          is_public: data.isPublic ?? true,
+          onboarding_completed: data.onboardingCompleted ?? false,
         })
         .select()
         .single();
@@ -69,18 +73,47 @@ export class ProfilesRepository {
     data: UpdateProfileData
   ): Promise<UserProfile> {
     try {
-      const updateData: Partial<UserProfileDocument> = {
-        updated_at: new Date().toISOString(),
-      };
+      // First check if profile exists
+      const { data: existingProfile, error: checkError } = await supabase
+        .from("user_profiles")
+        .select("id")
+        .eq("user_id", userId)
+        .single();
+
+      console.log("Retrieved data:", data);
+
+      if (checkError || !existingProfile) {
+        throw new Error("Profile not found");
+      }
+
+      const updateData: Partial<UserProfileDocument> = {};
 
       if (data.displayName !== undefined) {
         updateData.display_name = data.displayName;
       }
+      if (data.username !== undefined) {
+        updateData.username = data.username;
+      }
       if (data.avatarUrl !== undefined) {
         updateData.avatar_url = data.avatarUrl;
       }
+      if (data.bio !== undefined) {
+        updateData.bio = data.bio;
+      }
+      if (data.quote !== undefined) {
+        updateData.quote = data.quote;
+      }
       if (data.favoriteGenres !== undefined) {
         updateData.favorite_genres = data.favoriteGenres;
+      }
+      if (data.favoriteTitles !== undefined) {
+        updateData.favorite_titles = data.favoriteTitles;
+      }
+      if (data.isPublic !== undefined) {
+        updateData.is_public = data.isPublic;
+      }
+      if (data.onboardingCompleted !== undefined) {
+        updateData.onboarding_completed = data.onboardingCompleted;
       }
 
       const { data: profile, error } = await supabase
@@ -89,6 +122,8 @@ export class ProfilesRepository {
         .eq("user_id", userId)
         .select()
         .single();
+
+      console.log("Updated data:", data);
 
       if (error) {
         throw error;
@@ -197,17 +232,20 @@ export class ProfilesRepository {
   private mapDatabaseToProfile(dbProfile: UserProfileDocument): UserProfile {
     return {
       id: dbProfile.id,
-      userId: dbProfile.id,
-      username: dbProfile.username,
-      onboardingCompleted: dbProfile.onboarding_completed,
+      userId: dbProfile.user_id,
+      email: dbProfile.email,
       displayName: dbProfile.display_name,
+      username: dbProfile.username,
       avatarUrl: dbProfile.avatar_url,
-      is_public: dbProfile.is_public,
+      bio: dbProfile.bio,
+      quote: dbProfile.quote,
       favoriteGenres: dbProfile.favorite_genres || [],
-
+      favoriteTitles: dbProfile.favorite_titles || [],
+      isPublic: dbProfile.is_public,
+      onboardingCompleted: dbProfile.onboarding_completed,
       createdAt: new Date(dbProfile.created_at),
       updatedAt: new Date(dbProfile.updated_at),
-      lastActiveAt: new Date(dbProfile.last_active_at),
+      lastActiveAt: dbProfile.last_active_at ? new Date(dbProfile.last_active_at) : undefined,
     };
   }
 }

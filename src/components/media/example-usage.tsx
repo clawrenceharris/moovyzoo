@@ -31,7 +31,7 @@ export function MediaSearchExample() {
           <h3 className="font-medium mb-2">Selected Media:</h3>
           <div className="space-y-1 text-sm">
             <p>
-              <strong>Title:</strong> {selectedMedia.title}
+              <strong>Title:</strong> {selectedMedia.media_title}
             </p>
             <p>
               <strong>Type:</strong> {selectedMedia.media_type}

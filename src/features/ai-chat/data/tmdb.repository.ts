@@ -241,27 +241,7 @@ export interface TMDBEpisode {
 // Helper function to make API calls to our own endpoints
 async function apiCall<T>(endpoint: string): Promise<T> {
   try {
-    // Ensure we have an absolute URL for client-side requests
-    let url: string;
-    if (endpoint.startsWith('/')) {
-      // This is a relative URL, make it absolute
-      if (typeof window !== 'undefined') {
-        // Client-side: use window.location.origin
-        url = `${window.location.origin}${endpoint}`;
-      } else {
-        // Server-side or Node.js environment: construct absolute URL
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
-                       process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
-                       'http://localhost:3000';
-        url = `${baseUrl}${endpoint}`;
-      }
-    } else {
-      // Already an absolute URL
-      url = endpoint;
-    }
-    
-    console.log('API call URL:', url); // Debug log
-    const response = await fetch(url);
+    const response = await fetch(endpoint);
     
     if (!response.ok) {
       throw new Error(`API error: ${response.status} ${response.statusText}`);

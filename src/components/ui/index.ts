@@ -1,6 +1,8 @@
 // Base UI Components
-export { Button } from "./button";
+export { Button } from "./Button";
 export { Input } from "./Input";
-export { Label } from "./label";
-export { Form } from "./form";
-export { Card, CardHeader, CardContent, CardFooter, CardTitle } from "./card";
+export { Label } from "./Label";
+export { Form } from "./Form";
+export { Card, CardHeader, CardContent, CardFooter, CardTitle } from "./Card";
+export { Avatar, AvatarImage, AvatarFallback } from "./avatar";
+export { Badge } from "./badge";

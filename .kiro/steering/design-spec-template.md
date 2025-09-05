@@ -1,7 +1,5 @@
 ---
-inclusion: fileMatch
-
-fileMatchPattern: "design.md"
+inclusion: manual
 ---
 
 # Design Spec Template

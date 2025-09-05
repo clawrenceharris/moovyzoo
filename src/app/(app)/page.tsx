@@ -1,13 +1,13 @@
 "use client";
-import { useProfile } from "@/features/profile/hooks/use-profile";
+import { useProfile } from "@/features/profile/hooks/useProfile";
 import { useUser } from "@/hooks/use-user";
 
 export default function Home() {
   const { user } = useUser();
-  const { profile } = useProfile(user.id);
+  const { profile } = useProfile(user?.id);
   return (
     <div>
-      <h1>Welcome, {profile?.displayName}</h1>
+      <h1>Welcome, {profile?.displayName || "User"}</h1>
     </div>
   );
 }

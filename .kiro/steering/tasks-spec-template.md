@@ -1,5 +1,5 @@
 ---
-inclusion: fileMatch
+inclusion: manual
 
 fileMatchPattern: "tasks.md"
 ---
