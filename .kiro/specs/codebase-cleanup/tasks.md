@@ -124,7 +124,7 @@
   - Ensure all service methods return consistent error formats
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 7. Implement transaction support for multi-step operations
+- [x] 7. Implement transaction support for multi-step operations
 - [x] 7.1 Create database transaction wrapper utility
 
   - Write `src/utils/database-transaction.ts` with transaction management functions
@@ -139,7 +139,7 @@
   - Add transaction error handling and logging
   - _Requirements: 6.1, 6.3, 6.4, 6.5_
 
-- [ ] 8. Optimize database query performance
+- [x] 8. Optimize database query performance
 - [x] 8.1 Review and optimize Habitats repository queries
 
   - Analyze `src/features/habitats/data/habitats.repository.ts` for N+1 query patterns
@@ -147,22 +147,22 @@
   - Implement efficient pagination for large datasets
   - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
 
-- [ ] 8.2 Implement query optimization strategies
+- [x] 8.2 Implement query optimization strategies
 
   - Add database-level aggregations for statistics and counts
   - Consider using database views for complex queries
   - Implement proper indexing strategies for frequently accessed data
   - _Requirements: 9.1, 9.2, 9.4, 9.5_
 
-- [ ] 9. Decouple Habitat components from external dependencies
-- [ ] 9.1 Refactor components to accept navigation handlers as props
+- [x] 9. Decouple Habitat components from external dependencies
+- [x] 9.1 Refactor components to accept navigation handlers as props
 
   - Update `HabitatCard`, `DiscussionCard`, and other components to accept `onNavigate` props
   - Remove direct router usage from component implementations
   - Update parent components to pass navigation handlers
   - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-- [ ] 9.2 Implement dependency injection patterns for components
+- [x] 9.2 Implement dependency injection patterns for components
 
   - Refactor components to receive data through props rather than fetching internally
   - Update components to use React Query hooks passed from parent components
@@ -170,59 +170,59 @@
   - Avoid prop drilling and maintain component statelessness
   - _Requirements: 7.2, 7.3, 7.4, 7.5_
 
-- [ ] 9.3 Update component interfaces for better reusability
+- [x] 9.3 Update component interfaces for better reusability
 
   - Standardize prop interfaces across similar components
   - Add proper TypeScript interfaces with optional props for customization
   - Ensure components work correctly in different contexts
   - _Requirements: 7.1, 7.4, 7.5_
 
-- [ ] 10. Improve file organization and naming consistency
-- [ ] 10.1 Standardize file naming conventions
+- [x] 10. Improve file organization and naming consistency
+- [x] 10.1 Standardize file naming conventions
 
   - Rename service files to use kebab-case (e.g., `access-control.service.ts`)
   - Organize utility files by functionality with consistent naming
   - Update import statements throughout the Habitats feature
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 10.2 Reorganize shared utilities and services
+- [x] 10.2 Reorganize shared utilities and services
 
   - Move shared utilities to appropriate directories with clear organization
   - Create proper barrel exports for clean import paths
   - Update all import statements to use new file locations
   - _Requirements: 5.2, 5.3, 5.5_
 
-- [ ] 11. Add comprehensive testing for refactored code
-- [ ] 11.1 Create unit tests for new utilities and services
+- [x] 11. Add comprehensive testing for refactored code
+- [x] 11.1 Create unit tests for new utilities and services
 
   - Write comprehensive tests for validation utilities with edge cases
   - Create tests for access control service with various permission scenarios
   - Add tests for React Query hooks with mock data and error states
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 11.2 Create integration tests for refactored components
+- [x] 11.2 Create integration tests for refactored components
 
   - Test component interactions with new React Query hooks
   - Verify that refactored components maintain existing functionality
   - Add tests for error handling and loading states
   - _Requirements: 10.1, 10.3, 10.5_
 
-- [ ] 11.3 Verify backward compatibility and performance
+- [x] 11.3 Verify backward compatibility and performance
 
   - Run existing test suite to ensure no regressions
   - Perform performance testing to verify optimizations
   - Test error handling improvements with various failure scenarios
   - _Requirements: 10.1, 10.2, 10.4, 10.5_
 
-- [ ] 12. Update documentation and clean up deprecated code
-- [ ] 12.1 Update code documentation for new patterns
+- [x] 12. Update documentation and clean up deprecated code
+- [x] 12.1 Update code documentation for new patterns
 
   - Add JSDoc comments to new utility functions and services
   - Document React Query usage patterns and caching strategies
   - Create migration notes for developers working on Habitats feature
   - _Requirements: 10.1, 10.2, 10.3_
 
-- [ ] 12.2 Remove deprecated code and update imports
+- [x] 12.2 Remove deprecated code and update imports
   - Remove old validation logic that has been centralized
   - Clean up unused imports and dead code
   - Update all import statements to use new centralized utilities
