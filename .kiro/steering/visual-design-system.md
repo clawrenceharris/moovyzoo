@@ -35,116 +35,14 @@ _Modern, sleek design for young adults with the cinematic elegance of Netflix, t
 - **Snapchat influence**: Bright playful accents, animated interactions, social-first design
 - **Hybrid experience**: Professional polish with spontaneous, fun UI elements
 - **Trust factor**: Clean layouts and thoughtful spacing keep it usable and comfortable
-
-## Dark-First Color System
-
-### Primary Palette
-
-```css
---primary: #da0b0b; /* Cinematic red for CTAs and highlights */
-```
-
-### Dark Theme Foundation
-
-```css
---dark-bg-primary: #0a0a0a; /* Theater black */
---dark-bg-secondary: #141414; /* Netflix card gray */
---dark-bg-tertiary: #1f1f1f; /* Elevated surfaces */
---dark-bg-glass: rgba(20, 20, 20, 0.8); /* Glass overlay */
-```
-
-### Accent Colors
-
-```css
---accent: #00d4ff; /* Electric social highlight */
---accent-yellow: #facc15; /* Playful spotlight */
---accent-pink: #ec4899; /* Social likes and reactions */
---accent-green: #10b981; /* Success states and positive actions */
---accent-purple: #8b5cf6; /* Premium features and special content */
-```
-
-### Gradient Combinations
-
-```css
---gradient-primary: linear-gradient(135deg, #da0b0b 0%, #ff4444 100%);
---gradient-social: linear-gradient(135deg, #00d4ff 0%, #0ea5e9 100%);
---gradient-card: linear-gradient(135deg, #1f1f1f 0%, #2a2a2a 100%);
---gradient-glass: linear-gradient(
-  135deg,
-  rgba(255, 255, 255, 0.1) 0%,
-  rgba(255, 255, 255, 0.05) 100%
-);
-```
-
-## Typography
-
-### Font Stack
-
-```css
-font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-```
-
-- **Headings**: Bold, cinematic sizes for key screens
-- **Body**: Clean, easy-to-read for chat and descriptions
-- **Labels**: Medium weight for UI clarity
+- **Dark-First Color System** Focus on making the app look good in dark theme
 
 ## Motion & Interaction
 
 ### Animation Philosophy
 
 - Smooth, cinematic transitions for page changes
-- Playful bounce/glow for social interactions
 - Hover and tap feedback for all interactive elements
-
-### Essential Animations
-
-```css
-/* Social media-inspired glow pulse for CTAs */
-@keyframes glowPulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 10px rgba(0, 212, 255, 0);
-  }
-}
-
-/* Floating label animation (Instagram-style) */
-@keyframes floatLabel {
-  0% {
-    transform: translateY(0) scale(1);
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateY(-20px) scale(0.85);
-    opacity: 1;
-  }
-}
-
-/* Micro bounce for social interactions */
-@keyframes socialBounce {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-/* Cinematic card hover */
-@keyframes cardHover {
-  0% {
-    transform: scale(1) translateY(0);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  }
-  100% {
-    transform: scale(1.02) translateY(-2px);
-    box-shadow: 0 8px 24px rgba(218, 11, 11, 0.2);
-  }
-}
-```
 
 ### Interaction States
 
@@ -274,7 +172,6 @@ npx shadcn@latest add navigation-menu select textarea checkbox
 
 Before shipping any UI component:
 
-- [ ] **MANDATORY**: Uses Shadcn UI components as foundation
 - [ ] **MANDATORY**: Eliminates verbose text and corporate patterns
 - [ ] **MANDATORY**: Includes hover states and micro-interactions
 - [ ] Works in dark mode (default) with cinematic styling

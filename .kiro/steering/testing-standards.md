@@ -1,127 +1,5 @@
 # Testing Standards - Zoovie
 
-## Issue Resolution: Vitest Configuration
-
-### Problem
-
-The vitest configuration was set up primarily for Storybook tests with a missing setup file, preventing unit tests from running properly.
-
-### Root Cause
-
-- `vitest.config.ts` referenced a non-existent setup file (`./src/test/setup.ts`)
-- Configuration only included Storybook browser tests in projects
-- Unit tests had no proper test environment configuration
-
-### Solution
-
-#### 1. Create Missing Test Setup File
-
-Create `src/test/setup.ts`:
-
-```typescript
-import "@testing-library/jest-dom";
-import { beforeAll, afterEach, afterAll } from "vitest";
-import { cleanup } from "@testing-library/react";
-
-// Cleanup after each test case (e.g. clearing jsdom)
-afterEach(() => {
-  cleanup();
-});
-
-// Optional: Setup global test environment
-beforeAll(() => {
-  // Global setup if needed
-});
-
-afterAll(() => {
-  // Global cleanup if needed
-});
-```
-
-#### 2. Fix Vitest Configuration
-
-Update `vitest.config.ts` to support both unit tests and Storybook tests:
-
-```typescript
-/// <reference types="vitest/config" />
-import { defineConfig } from "vitest/config";
-import path from "path";
-import { fileURLToPath } from "node:url";
-import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
-
-const dirname =
-  typeof __dirname !== "undefined"
-    ? __dirname
-    : path.dirname(fileURLToPath(import.meta.url));
-
-export default defineConfig({
-  test: {
-    environment: "jsdom",
-    setupFiles: ["./src/test/setup.ts"],
-    globals: true,
-    // Support both unit tests and Storybook tests
-    projects: [
-      // Unit tests project
-      {
-        name: "unit",
-        test: {
-          include: ["src/**/*.{test,spec}.{ts,tsx}"],
-          environment: "jsdom",
-          setupFiles: ["./src/test/setup.ts"],
-        },
-      },
-      // Storybook tests project
-      {
-        name: "storybook",
-        plugins: [
-          storybookTest({
-            configDir: path.join(dirname, ".storybook"),
-          }),
-        ],
-        test: {
-          browser: {
-            enabled: true,
-            headless: true,
-            provider: "playwright",
-            instances: [
-              {
-                browser: "chromium",
-              },
-            ],
-          },
-          setupFiles: [".storybook/vitest.setup.ts"],
-          include: ["src/**/*.stories.{ts,tsx}"],
-        },
-      },
-    ],
-  },
-  esbuild: {
-    jsx: "automatic",
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-});
-```
-
-#### 3. Update Package.json Scripts
-
-Ensure scripts can run different test types:
-
-```json
-{
-  "scripts": {
-    "test": "vitest",
-    "test:run": "vitest run",
-    "test:unit": "vitest run --project unit",
-    "test:storybook": "vitest run --project storybook",
-    "test:watch": "vitest --project unit"
-  }
-}
-```
-
 ## Testing Architecture
 
 ### Unit Tests
@@ -130,13 +8,6 @@ Ensure scripts can run different test types:
 - **Environment**: jsdom
 - **Purpose**: Test component logic, hooks, and utilities
 - **Tools**: Vitest + Testing Library
-
-### Storybook Tests
-
-- **Location**: `src/**/*.stories.{ts,tsx}`
-- **Environment**: Browser (Playwright)
-- **Purpose**: Visual regression and interaction testing
-- **Tools**: Storybook + Vitest addon
 
 ### Integration Tests
 
@@ -233,3 +104,8 @@ npx vitest run src/components/states/__tests__/LoadingState.test.tsx
 - **Minimal Production Code:** Write only enough production code to pass the failing test
 - **Test First:** Always write tests before implementation code
 - **Full Test Suite:** The complete test suite MUST be passing before marking any task as complete
+
+## Things to Avoid:
+
+- Do not run `npm run test:unit` or similar command. This throws an error.
+- Instead run `npm run test *` command.

@@ -87,13 +87,6 @@ export default config;
 
 - Dark-first. Light theme via attribute override:
 
-```css
-[data-theme="light"] {
-  --background: #ffffff;
-  --foreground: #000000;
-}
-```
-
 - Never hardcode color; always use tokens.
 
 ---
@@ -113,32 +106,12 @@ import { HabitatCard } from "@/components/cards";
 const LoadingCard = () => <div className="animate-pulse">...</div>;
 ```
 
-### Component Organization
-
-- **State components** (`/components/states/`) for loading, error, empty states
-- **Card components** (`/components/cards/`) for domain-specific display cards
-- **UI components** (`/components/ui/`) for Shadcn base components
-- **Feature components** (`/features/*/components/`) compose shared components
-
-### Barrel Exports
-
-Use clean imports via barrel exports:
-
-```tsx
-// ✅ Clean imports
-import { LoadingState, ErrorState, EmptyState } from "@/components/states";
-import { HabitatCard, DiscussionCard } from "@/components/cards";
-
-// ❌ Avoid direct file imports
-import LoadingState from "@/components/states/LoadingState/LoadingState";
-```
-
 ## Authoring Rules for Kiro (Steering)
 
 - Prefer using **Shadcn UI** components for UI. If an installation is needed for a new component use `npx shadcn@latest add <component_name>`
 - **Extract reusable patterns** to shared components instead of creating subcomponents in files
 - Generate Tailwind v4 code that **imports only** `src/app/globals.css`.
-- Use **component classes** (`btn`, `card`, `form-input`, etc.) for variants.
+- Use **component classes** (`btn`, `card`, etc.) for variants.
 - Keep inline utilities minimal and **tokenized**
 - Avoid adding `tailwind.config.*` unless explicitly requested.
 - Dark-first; no raw hex values in JSX.
