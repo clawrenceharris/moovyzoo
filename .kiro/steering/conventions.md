@@ -1,3 +1,7 @@
+---
+inclusion: manual
+
+---
 # Zoovie Coding + Naming Conventions (Next.js + TypeScript)
 
 This document defines file and folder naming conventions for the Zoovie project, aligned with common Next.js and modern TypeScript/React best practices.

@@ -73,16 +73,21 @@ export class ProfilesRepository {
     data: UpdateProfileData
   ): Promise<UserProfile> {
     try {
+
       // First check if profile exists
       const { data: existingProfile, error: checkError } = await supabase
         .from("user_profiles")
-        .select("id")
+        .select("*")
         .eq("user_id", userId)
         .single();
 
-      console.log("Retrieved data:", data);
 
-      if (checkError || !existingProfile) {
+      if (checkError) {
+        console.error("Error checking existing profile:", checkError);
+        throw new Error(`Profile not found: ${checkError.message}`);
+      }
+
+      if (!existingProfile) {
         throw new Error("Profile not found");
       }
 
@@ -116,21 +121,37 @@ export class ProfilesRepository {
         updateData.onboarding_completed = data.onboardingCompleted;
       }
 
-      const { data: profile, error } = await supabase
+      // Check if there's actually data to update
+      if (Object.keys(updateData).length === 0) {
+        console.log("No data to update, returning existing profile");
+        return this.mapDatabaseToProfile(existingProfile);
+      }
+
+      const { data: updatedProfile, error } = await supabase
         .from("user_profiles")
         .update(updateData)
         .eq("user_id", userId)
         .select()
         .single();
 
-      console.log("Updated data:", data);
 
       if (error) {
+        console.error("Update error details:", {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
         throw error;
       }
 
-      return this.mapDatabaseToProfile(profile);
+      if (!updatedProfile) {
+        throw new Error("Update succeeded but no profile returned");
+      }
+
+      return this.mapDatabaseToProfile(updatedProfile);
     } catch (error) {
+      console.error("Error in updateByUserId:", error);
       throw error;
     }
   }

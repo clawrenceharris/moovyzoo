@@ -80,7 +80,7 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
       router.push("/profile");
     } catch (err) {
       console.error("Error updating profile:", err);
-      setError("Failed to update profile. Please try again.");
+      setError(`Failed to update profile: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }
