@@ -58,7 +58,7 @@ export class AccessControlService implements IAccessControlService {
       | "discussion"
       | "message"
       | "poll"
-      | "watch_party" = "habitat"
+      | "streaming_session" = "habitat"
   ): Promise<boolean> {
     try {
       if (!userId || !resourceId) {
@@ -156,7 +156,7 @@ export class AccessControlService implements IAccessControlService {
       | "discussion"
       | "message"
       | "poll"
-      | "watch_party" = "habitat"
+      | "streaming_session" = "habitat"
   ): Promise<boolean> {
     try {
       for (const permission of permissions) {
@@ -189,7 +189,7 @@ export class AccessControlService implements IAccessControlService {
       | "discussion"
       | "message"
       | "poll"
-      | "watch_party" = "habitat"
+      | "streaming_session" = "habitat"
   ): Promise<void> {
     const hasAccess = await this.checkPermission(
       userId,
@@ -217,7 +217,7 @@ export class AccessControlService implements IAccessControlService {
       | "discussion"
       | "message"
       | "poll"
-      | "watch_party" = "habitat"
+      | "streaming_session" = "habitat"
   ): Promise<PermissionResult> {
     try {
       const context = await this.buildAccessContext(
@@ -265,7 +265,12 @@ export class AccessControlService implements IAccessControlService {
   async isResourceOwner(
     userId: string,
     resourceId: string,
-    resourceType: "habitat" | "discussion" | "message" | "poll" | "watch_party"
+    resourceType:
+      | "habitat"
+      | "discussion"
+      | "message"
+      | "poll"
+      | "streaming_session"
   ): Promise<boolean> {
     try {
       if (!userId || !resourceId) {
@@ -290,9 +295,9 @@ export class AccessControlService implements IAccessControlService {
           return message.user_id === userId;
         }
 
-        // TODO: Implement for polls and watch parties when those methods are available
+        // TODO: Implement for polls and streaming sessions when those methods are available
         case "poll":
-        case "watch_party":
+        case "streaming_session":
           return false;
 
         default:
@@ -310,7 +315,12 @@ export class AccessControlService implements IAccessControlService {
   private async buildAccessContext(
     userId: string,
     resourceId: string,
-    resourceType: "habitat" | "discussion" | "message" | "poll" | "watch_party"
+    resourceType:
+      | "habitat"
+      | "discussion"
+      | "message"
+      | "poll"
+      | "streaming_session"
   ): Promise<AccessContext> {
     let habitatId = resourceId;
     let userRole: Role | undefined;
@@ -414,7 +424,7 @@ export class AccessControlService implements IAccessControlService {
    */
   private async getResourceHabitatId(
     resourceId: string,
-    resourceType: "discussion" | "message" | "poll" | "watch_party"
+    resourceType: "discussion" | "message" | "poll" | "streaming_session"
   ): Promise<string> {
     try {
       switch (resourceType) {
@@ -430,9 +440,9 @@ export class AccessControlService implements IAccessControlService {
           return message.habitat_id;
         }
 
-        // TODO: Implement for polls and watch parties
+        // TODO: Implement for polls and streaming sessions
         case "poll":
-        case "watch_party":
+        case "streaming_session":
           throw new Error(`Resource type ${resourceType} not yet implemented`);
 
         default:

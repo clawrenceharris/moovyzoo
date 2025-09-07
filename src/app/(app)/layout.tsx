@@ -2,7 +2,7 @@
 import "../globals.css";
 
 import { QueryProvider, UserProvider } from "@/app/(app)/providers";
-import Header from "@/components/Header";
+import Header from "@/components/ui/Header";
 import { useAuth } from "@/features/auth/hooks";
 import { AIChatProvider } from "@/features/ai-chat";
 

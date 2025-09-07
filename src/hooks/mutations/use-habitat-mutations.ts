@@ -3,6 +3,7 @@
  * Provides mutations for habitat-related operations with error handling and cache invalidation
  */
 
+import { streamService } from "@/features/streaming/domain/stream.service";
 import {
   useBaseMutation,
   useBaseCreateMutation,
@@ -15,8 +16,6 @@ import type {
   Habitat,
   HabitatMember,
   MessageWithProfile,
-  CreateWatchPartyData,
-  WatchParty,
 } from "@/features/habitats/domain/habitats.types";
 
 /**
@@ -148,33 +147,6 @@ export function useDeleteMessage(
       invalidateQueries: [
         queryKeys.messages.byHabitat(habitatId),
         queryKeys.messages.recent(habitatId),
-        queryKeys.habitats.dashboard(habitatId),
-      ],
-      ...options,
-    }
-  );
-}
-
-/**
- * Mutation hook for creating a watch party
- */
-export function useCreateWatchParty(
-  habitatId: string,
-  options: BaseMutationOptions<
-    WatchParty,
-    Error,
-    { userId: string; data: CreateWatchPartyData },
-    unknown
-  > = {}
-) {
-  return useBaseCreateMutation(
-    async ({ userId, data }) => {
-      return await habitatsService.createWatchParty(habitatId, userId, data);
-    },
-    {
-      successMessage: "Watch party created successfully!",
-      invalidateQueries: [
-        queryKeys.watchParties.byHabitat(habitatId),
         queryKeys.habitats.dashboard(habitatId),
       ],
       ...options,

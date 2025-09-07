@@ -1,23 +1,23 @@
-# Watch Party Media Integration - Design Document
+# Streaming Session Media Integration - Design Document
 
 ## Overview
 
-This design implements TMDB movie/TV show search integration into the watch party creation workflow. The solution adds a media search component to the watch party creation form, extends the database schema to store media associations, and enhances the watch party card display with rich media content including poster images and metadata.
+This design implements TMDB movie/TV show search integration into the streaming session creation workflow. The solution adds a media search component to the streaming session creation form, extends the database schema to store media associations, and enhances the streaming session card display with rich media content including poster images and metadata.
 
 ## Architecture
 
 ### High-Level Flow
 
-1. **User searches** for media in watch party creation form
+1. **User searches** for media in streaming session creation form
 2. **TMDB service** queries the tmdb API for results
 3. **User selects** media from search results
-4. **Watch party** is created with associated media metadata
-5. **Watch party cards** display rich media content with posters
+4. **Streaming session** is created with associated media metadata
+5. **Streaming session cards** display rich media content with posters
 
 ### Component Architecture
 
 ```
-WatchPartyCreationForm
+StreamCreationForm
 ├── MediaSearchField (new)
 │   ├── SearchInput
 │   ├── SearchResults
@@ -61,14 +61,14 @@ interface SelectedMedia {
 - Selected media display with clear option
 - Keyboard navigation support
 
-### 3. Enhanced Watch Party Card
+### 3. Enhanced Streaming Session Card
 
-**File:** `src/components/cards/WatchPartyCard.tsx` (updated)
+**File:** `src/components/cards/StreamCard.tsx` (updated)
 
 **New Props:**
 
 ```typescript
-interface WatchPartyCardProps {
+interface StreamCardProps {
   // ... existing props
   media?: {
     tmdbId: number;
@@ -104,7 +104,7 @@ ALTER TABLE habitat_watch_parties ADD COLUMN poster_path VARCHAR(255);
 ALTER TABLE habitat_watch_parties ADD COLUMN release_date DATE;
 
 -- Add index for media queries
-CREATE INDEX idx_watch_parties_media ON habitat_watch_parties(tmdb_id, media_type);
+CREATE INDEX idx_streams_media ON habitat_watch_parties(tmdb_id, media_type);
 ```
 
 ### TypeScript Interfaces
@@ -112,7 +112,7 @@ CREATE INDEX idx_watch_parties_media ON habitat_watch_parties(tmdb_id, media_typ
 **File:** `src/features/habitats/domain/habitats.types.ts` (updated)
 
 ```typescript
-interface WatchPartyMedia {
+interface StreamMedia {
   tmdb_id: number;
   media_type: "movie" | "tv";
   media_title: string;
@@ -120,12 +120,12 @@ interface WatchPartyMedia {
   release_date?: string;
 }
 
-interface WatchPartyWithParticipants {
+interface StreamWithParticipants {
   // ... existing fields
-  media?: WatchPartyMedia;
+  media?: StreamMedia;
 }
 
-interface CreateWatchPartyData {
+interface CreateStreamData {
   // ... existing fields
   media?: {
     tmdb_id: number;
@@ -148,7 +148,7 @@ interface CreateWatchPartyData {
 
 ### Error Recovery Strategies
 
-- **Graceful degradation** - Watch parties work without media association
+- **Graceful degradation** - Watch streams work without media association
 - **Retry mechanisms** - Allow users to retry failed searches
 - **Fallback visuals** - Default posters for failed image loads
 - **Validation** - Ensure form submission works regardless of media state
@@ -159,7 +159,7 @@ interface CreateWatchPartyData {
 
 - **TMDB Service** - Mock API responses, test error handling
 - **MediaSearchField** - User interactions, debouncing, selection
-- **WatchPartyCard** - Media display, fallback scenarios
+- **StreamCard** - Media display, fallback scenarios
 
 ### Integration Tests
 
@@ -208,7 +208,7 @@ interface CreateWatchPartyData {
 ### Database Migration
 
 1. **Add new columns** - Non-breaking addition to existing table
-2. **Backward compatibility** - Existing watch parties continue working
+2. **Backward compatibility** - Existing streaming sessions continue working
 3. **Data population** - Optional: backfill popular content metadata
 
 ### Feature Rollout

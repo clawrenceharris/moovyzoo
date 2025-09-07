@@ -31,11 +31,11 @@ export enum Permission {
   MODERATE_POLL = "moderate:poll",
   DELETE_POLL = "delete:poll",
 
-  // Watch party permissions
-  CREATE_WATCH_PARTY = "create:watch_party",
-  JOIN_WATCH_PARTY = "join:watch_party",
-  MODERATE_WATCH_PARTY = "moderate:watch_party",
-  DELETE_WATCH_PARTY = "delete:watch_party",
+  // Streaming session permissions
+  CREATE_WATCH_PARTY = "create:streaming_session",
+  JOIN_WATCH_PARTY = "join:streaming_session",
+  MODERATE_WATCH_PARTY = "moderate:streaming_session",
+  DELETE_WATCH_PARTY = "delete:streaming_session",
 
   // Member management permissions
   INVITE_MEMBER = "invite:member",
@@ -61,7 +61,12 @@ export enum Role {
 export interface AccessContext {
   userId: string;
   resourceId: string;
-  resourceType: "habitat" | "discussion" | "message" | "poll" | "watch_party";
+  resourceType:
+    | "habitat"
+    | "discussion"
+    | "message"
+    | "poll"
+    | "streaming_session";
   userRole?: Role;
   isResourceOwner?: boolean;
   isPublicResource?: boolean;

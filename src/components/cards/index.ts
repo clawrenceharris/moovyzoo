@@ -2,10 +2,14 @@
 export { HabitatCard } from "./HabitatCard";
 export { DiscussionCard } from "./DiscussionCard";
 export { PollCard } from "./PollCard";
-export { WatchPartyCard } from "./WatchPartyCard";
+export { StreamCard } from "./StreamCard";
 
 // Card component types
 export type { HabitatCardProps } from "./HabitatCard";
 export type { DiscussionCardProps } from "./DiscussionCard";
 export type { PollCardProps } from "./PollCard";
-export type { WatchPartyCardProps } from "./WatchPartyCard";
+export type {
+  StreamCardProps,
+  NavigationContext,
+  NavigationTrackingData,
+} from "./StreamCard";

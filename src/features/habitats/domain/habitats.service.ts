@@ -9,15 +9,20 @@ import type {
   DiscussionWithStats,
   Discussion,
   Poll,
-  WatchParty,
-  CreateWatchPartyData,
-  WatchPartyMedia,
+  CreateStreamData,
 } from "./habitats.types";
 import { normalizeError } from "@/utils/normalize-error";
 import { AppErrorCode } from "@/types/error";
 import { accessControlService } from "@/services/access-control.service";
 import { Permission } from "@/services/permission-types";
 import { withTransaction } from "@/utils/database-transaction";
+import {
+  Stream,
+  StreamParticipant,
+  StreamWithParticipants,
+} from "@/features/streaming";
+import { StreamingRepository } from "@/features/streaming/data/stream.repository";
+import { streamService } from "@/features/streaming/domain/stream.service";
 
 /**
  * Service layer for habitats feature
@@ -131,7 +136,7 @@ export class HabitatsService {
           console.log("User joined habitat successfully:", {
             habitatId,
             userId,
-            memberId: newMember.id,
+            memberId: newMember.user_id,
             timestamp: new Date().toISOString(),
           });
 
@@ -293,6 +298,25 @@ export class HabitatsService {
     }
   }
 
+  /**
+   * Service for streaming session business logic
+   */
+
+  async createHabitatStream(
+    userId: string,
+    habitatId: string,
+    data: CreateStreamData
+  ): Promise<Stream> {
+    try {
+      const stream = await streamService.createStream(userId, data);
+      await habitatsRepository.createHabitatStream(habitatId, stream.id);
+      return stream;
+    } catch (error) {
+      console.log(error);
+      const normalizedError = normalizeError(error);
+      throw normalizedError;
+    }
+  }
   /**
    * Delete a message with comprehensive authorization check
    * Implements business logic for message deletion permissions
@@ -695,46 +719,13 @@ export class HabitatsService {
     }
   }
 
-  async createWatchParty(
-    habitatId: string,
-    userId: string,
-    data: CreateWatchPartyData
-  ): Promise<WatchParty> {
-    try {
-      if (!habitatId) {
-        throw new Error(errorMap[AppErrorCode.HABITAT_CREATION_FAILED].message);
-      }
-
-      // Create the watch party
-      const watchParty = await habitatsRepository.createWatchParty({
-        habitat_id: habitatId,
-        description: data.description,
-        scheduled_time: data.scheduledTime,
-        participant_count: 1, // Creator is automatically a participant
-        max_participants: data.maxParticipants,
-        created_by: userId,
-        tmdb_id: data.media.tmdb_id,
-        media_type: data.media.media_type,
-        media_title: data.media.media_title,
-        poster_path: data.media?.poster_path,
-        release_date: data.media?.release_date,
-        runtime: data.media?.runtime,
-      });
-
-      return watchParty;
-    } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
-    }
-  }
-
   /**
    * Create a new habitat with comprehensive validation and business logic
    * Uses transactions to ensure atomicity of habitat creation and member addition
    */
   async createHabitat(
     name: string,
-    description: string,
+    description: string | null,
     tags: string[],
     isPublic: boolean,
     userId: string
@@ -860,21 +851,21 @@ export class HabitatsService {
    */
   private async fetchDashboardComponents(habitatId: string): Promise<{
     discussions: DiscussionWithStats[];
-    watchParties: WatchParty[];
+    streams: Stream[];
     members: HabitatMember[];
     stats: {
       memberCount: number;
       discussionCount: number;
-      watchPartyCount: number;
+      streamCount: number;
       messageCount: number;
     };
     recentActivity: MessageWithProfile[];
   }> {
     try {
-      const [discussions, watchParties, memberData, stats, recentActivity] =
+      const [discussions, streams, memberData, stats, recentActivity] =
         await Promise.all([
           habitatsRepository.getDiscussionsByHabitat(habitatId),
-          habitatsRepository.getWatchPartiesByHabitat(habitatId),
+          habitatsRepository.getStreamsByHabitat(habitatId),
           this.getMemberManagementData(habitatId),
           this.getHabitatStats(habitatId),
           this.getRecentActivity(habitatId, 10),
@@ -882,7 +873,7 @@ export class HabitatsService {
 
       return {
         discussions,
-        watchParties,
+        streams,
         members: memberData.members,
         stats,
         recentActivity,
@@ -908,21 +899,22 @@ export class HabitatsService {
     habitat: HabitatWithMembership,
     components: {
       discussions: DiscussionWithStats[];
-      watchParties: WatchParty[];
+      streams: Stream[];
       members: HabitatMember[];
       stats: {
         memberCount: number;
         discussionCount: number;
-        watchPartyCount: number;
+        streamCount: number;
         messageCount: number;
       };
       recentActivity: MessageWithProfile[];
     },
     userId: string
   ): HabitatDashboardData {
-    // Process watch parties to include user participation status
-    const processedWatchParties = this.processWatchParties(
-      components.watchParties,
+    // Process streaming sessions to include user participation status
+    const processedStreams = this.processStreams(
+      components.streams,
+      components.members,
       userId
     );
 
@@ -937,7 +929,7 @@ export class HabitatsService {
       habitat: dashboardHabitat,
       discussions: components.discussions,
       polls: [], // TODO: Implement polls in next subtask
-      watchParties: processedWatchParties,
+      streams: processedStreams,
       members: components.members,
       onlineMembers,
       totalMembers: components.members.length,
@@ -945,17 +937,21 @@ export class HabitatsService {
   }
 
   /**
-   * Process watch parties to include user participation status
+   * Process streaming sessions to include user participation status
    */
-  private processWatchParties(
-    watchParties: WatchParty[],
+  private processStreams(
+    streams: Stream[],
+    members: HabitatMember[],
     userId: string
-  ): (WatchParty & { is_participant: boolean })[] {
-    return watchParties.map((watchParty) => ({
-      ...watchParty,
-      is_participant: watchParty.participants.some(
-        (participant) => participant.user_id === userId
-      ),
+  ): StreamWithParticipants[] {
+    return streams.map((stream) => ({
+      ...stream,
+      participants: members.map((member) => ({
+        ...member,
+        is_active: false,
+        stream_id: stream.id,
+      })),
+      is_participant: members.some((member) => member.user_id === userId),
     }));
   }
 
@@ -985,7 +981,7 @@ export class HabitatsService {
   async getHabitatStats(habitatId: string): Promise<{
     memberCount: number;
     discussionCount: number;
-    watchPartyCount: number;
+    streamCount: number;
     messageCount: number;
   }> {
     try {
@@ -994,17 +990,17 @@ export class HabitatsService {
       }
 
       // Fetch all stats in parallel
-      const [habitat, discussions, watchParties, messages] = await Promise.all([
+      const [habitat, discussions, streaming, messages] = await Promise.all([
         habitatsRepository.getHabitatById(habitatId),
         habitatsRepository.getDiscussionsByHabitat(habitatId),
-        habitatsRepository.getWatchPartiesByHabitat(habitatId),
+        habitatsRepository.getStreamsByHabitat(habitatId),
         habitatsRepository.getHabitatMessages(habitatId, 1000, 0), // Get large sample for count
       ]);
 
       return {
         memberCount: habitat.member_count,
         discussionCount: discussions.length,
-        watchPartyCount: watchParties.length,
+        streamCount: streaming.length,
         messageCount: messages.length,
       };
     } catch (error) {

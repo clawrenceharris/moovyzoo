@@ -126,7 +126,7 @@ export function createMemberSchema() {
 }
 
 /**
- * Creates a schema for time-based operations (watch parties, events)
+ * Creates a schema for time-based operations (streaming sessions, events)
  * @returns Zod schema for time-based data
  */
 export function createTimeBasedSchema() {
@@ -158,7 +158,7 @@ export function createMediaSchema() {
   return z.object({
     tmdbId: z.number().int().positive("Invalid TMDB ID"),
     mediaType: z.enum(["movie", "tv"]),
-    title: z.string().min(1, "Title is required"),
+    media_title: z.string().min(1, "Title is required"),
     posterPath: z.string().optional(),
     backdropPath: z.string().optional(),
     releaseDate: z.string().optional(),

@@ -1,4 +1,4 @@
--- Watch Party Media Integration Migration
+-- Streaming Session Media Integration Migration
 -- This migration adds TMDB media integration columns to the habitat_watch_parties table
 -- Run this in your Supabase SQL Editor after the dashboard migration
 
@@ -12,13 +12,13 @@ ADD COLUMN IF NOT EXISTS release_date DATE,
 ADD COLUMN IF NOT EXISTS runtime INTEGER;
 
 -- Create indexes for efficient media queries
-CREATE INDEX IF NOT EXISTS idx_habitat_watch_parties_tmdb_id ON habitat_watch_parties(tmdb_id);
-CREATE INDEX IF NOT EXISTS idx_habitat_watch_parties_media_type ON habitat_watch_parties(media_type);
-CREATE INDEX IF NOT EXISTS idx_habitat_watch_parties_media_title ON habitat_watch_parties(media_title);
-CREATE INDEX IF NOT EXISTS idx_habitat_watch_parties_release_date ON habitat_watch_parties(release_date);
+CREATE INDEX IF NOT EXISTS idx_habitat_streams_tmdb_id ON habitat_watch_parties(tmdb_id);
+CREATE INDEX IF NOT EXISTS idx_habitat_streams_media_type ON habitat_watch_parties(media_type);
+CREATE INDEX IF NOT EXISTS idx_habitat_streams_media_title ON habitat_watch_parties(media_title);
+CREATE INDEX IF NOT EXISTS idx_habitat_streams_release_date ON habitat_watch_parties(release_date);
 
 -- Create composite index for media queries
-CREATE INDEX IF NOT EXISTS idx_habitat_watch_parties_media_composite ON habitat_watch_parties(tmdb_id, media_type) WHERE tmdb_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_habitat_streams_media_composite ON habitat_watch_parties(tmdb_id, media_type) WHERE tmdb_id IS NOT NULL;
 
 -- Add comments to document the new columns
 COMMENT ON COLUMN habitat_watch_parties.tmdb_id IS 'The Movie Database (TMDB) ID for the associated movie or TV show';
@@ -34,7 +34,6 @@ CREATE OR REPLACE VIEW upcoming_watch_parties AS
 SELECT 
   id,
   habitat_id,
-  title,
   description,
   scheduled_time,
   participant_count,
@@ -74,10 +73,10 @@ SELECT
   -- Count active polls
   COALESCE(p.poll_count, 0) as active_polls,
   
-  -- Count upcoming watch parties
+  -- Count upcoming streaming sessions
   COALESCE(wp.watch_party_count, 0) as upcoming_watch_parties,
   
-  -- Count watch parties with media
+  -- Count streaming sessions with media
   COALESCE(wp.media_watch_party_count, 0) as media_watch_parties
   
 FROM habitats h
@@ -106,8 +105,8 @@ LEFT JOIN (
 -- Grant access to the updated dashboard view
 GRANT SELECT ON habitat_dashboard_data TO authenticated;
 
--- Create a new view for watch parties with media information
-CREATE OR REPLACE VIEW watch_parties_with_media AS
+-- Create a new view for streaming sessions with media information
+CREATE OR REPLACE VIEW streams_with_media AS
 SELECT 
   wp.*,
   CASE 
@@ -124,7 +123,7 @@ WHERE wp.is_active = true
 ORDER BY wp.scheduled_time ASC;
 
 -- Grant access to the media view
-GRANT SELECT ON watch_parties_with_media TO authenticated;
+GRANT SELECT ON streams_with_media TO authenticated;
 
 -- Add validation function for media data consistency
 CREATE OR REPLACE FUNCTION validate_watch_party_media()

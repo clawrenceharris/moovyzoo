@@ -23,6 +23,7 @@ export enum AppErrorCode {
   DISCUSSION_NOT_FOUND = "DISCUSSION_NOT_FOUND",
   MESSAGE_NOT_FOUND = "MESSAGE_NOT_FOUND",
   USER_NOT_FOUND = "USER_NOT_FOUND",
+  WATCH_PARTY_NOT_FOUND = "WATCH_PARTY_NOT_FOUND",
 
   // Database Errors
   DATABASE_ERROR = "DATABASE_ERROR",
@@ -39,6 +40,12 @@ export enum AppErrorCode {
   INSUFFICIENT_PERMISSIONS = "INSUFFICIENT_PERMISSIONS",
   CANNOT_LEAVE_OWN_HABITAT = "CANNOT_LEAVE_OWN_HABITAT",
   HABITAT_FULL = "HABITAT_FULL",
+  WATCH_PARTY_FULL = "WATCH_PARTY_FULL",
+  WATCH_PARTY_ENDED = "WATCH_PARTY_ENDED",
+  WATCH_PARTY_NOT_STARTED = "WATCH_PARTY_NOT_STARTED",
+  ALREADY_PARTICIPANT = "ALREADY_PARTICIPANT",
+  NOT_PARTICIPANT = "NOT_PARTICIPANT",
+  CANNOT_JOIN_WATCH_PARTY = "CANNOT_JOIN_WATCH_PARTY",
 
   // Content Errors
   MESSAGE_TOO_LONG = "MESSAGE_TOO_LONG",
@@ -212,6 +219,13 @@ export const errorMetadata: Record<AppErrorCode, ErrorMetadata> = {
     retryable: false,
     userFacing: true,
   },
+  [AppErrorCode.WATCH_PARTY_NOT_FOUND]: {
+    code: AppErrorCode.WATCH_PARTY_NOT_FOUND,
+    category: ErrorCategory.BUSINESS_LOGIC,
+    severity: ErrorSeverity.LOW,
+    retryable: false,
+    userFacing: true,
+  },
 
   // Database Errors
   [AppErrorCode.DATABASE_ERROR]: {
@@ -295,6 +309,48 @@ export const errorMetadata: Record<AppErrorCode, ErrorMetadata> = {
   },
   [AppErrorCode.HABITAT_FULL]: {
     code: AppErrorCode.HABITAT_FULL,
+    category: ErrorCategory.BUSINESS_LOGIC,
+    severity: ErrorSeverity.LOW,
+    retryable: false,
+    userFacing: true,
+  },
+  [AppErrorCode.WATCH_PARTY_FULL]: {
+    code: AppErrorCode.WATCH_PARTY_FULL,
+    category: ErrorCategory.BUSINESS_LOGIC,
+    severity: ErrorSeverity.LOW,
+    retryable: false,
+    userFacing: true,
+  },
+  [AppErrorCode.WATCH_PARTY_ENDED]: {
+    code: AppErrorCode.WATCH_PARTY_ENDED,
+    category: ErrorCategory.BUSINESS_LOGIC,
+    severity: ErrorSeverity.LOW,
+    retryable: false,
+    userFacing: true,
+  },
+  [AppErrorCode.WATCH_PARTY_NOT_STARTED]: {
+    code: AppErrorCode.WATCH_PARTY_NOT_STARTED,
+    category: ErrorCategory.BUSINESS_LOGIC,
+    severity: ErrorSeverity.LOW,
+    retryable: false,
+    userFacing: true,
+  },
+  [AppErrorCode.ALREADY_PARTICIPANT]: {
+    code: AppErrorCode.ALREADY_PARTICIPANT,
+    category: ErrorCategory.BUSINESS_LOGIC,
+    severity: ErrorSeverity.LOW,
+    retryable: false,
+    userFacing: true,
+  },
+  [AppErrorCode.NOT_PARTICIPANT]: {
+    code: AppErrorCode.NOT_PARTICIPANT,
+    category: ErrorCategory.BUSINESS_LOGIC,
+    severity: ErrorSeverity.LOW,
+    retryable: false,
+    userFacing: true,
+  },
+  [AppErrorCode.CANNOT_JOIN_WATCH_PARTY]: {
+    code: AppErrorCode.CANNOT_JOIN_WATCH_PARTY,
     category: ErrorCategory.BUSINESS_LOGIC,
     severity: ErrorSeverity.LOW,
     retryable: false,

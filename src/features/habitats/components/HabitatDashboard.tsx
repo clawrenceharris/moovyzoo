@@ -2,22 +2,17 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui";
 import { Plus } from "lucide-react";
 import { HabitatHero } from "./HabitatHero";
 import { HabitatDiscussions } from "./HabitatDiscussions";
-import { HabitatWatchParties } from "./HabitatWatchParties";
+import { HabitatStreams } from "./HabitatStreams";
 import { HabitatInfo } from "./HabitatInfo";
-import { PollCreationModal } from "./PollCreationModal";
-import { WatchPartyCreationModal } from "./WatchPartyCreationModal";
 import { LoadingState, ErrorState } from "@/components";
 import { habitatsService } from "../domain/habitats.service";
-import type {
-  HabitatDashboardData,
-  Poll,
-  WatchParty,
-} from "../domain/habitats.types";
+import type { HabitatDashboardData, Poll } from "../domain/habitats.types";
 import { normalizeError } from "@/utils/normalize-error";
+import { Stream } from "@/features/streaming";
 
 interface HabitatDashboardProps {
   habitatId: string;
@@ -34,7 +29,7 @@ interface HabitatDashboardState {
 interface ModalState {
   discussionModal: boolean;
   pollModal: boolean;
-  watchPartyModal: boolean;
+  streamModal: boolean;
 }
 
 export function HabitatDashboard({
@@ -52,7 +47,7 @@ export function HabitatDashboard({
   const [modals, setModals] = useState<ModalState>({
     discussionModal: false,
     pollModal: false,
-    watchPartyModal: false,
+    streamModal: false,
   });
 
   // Fetch dashboard data
@@ -108,9 +103,9 @@ export function HabitatDashboard({
     [fetchDashboardData]
   );
 
-  const handleWatchPartyCreated = useCallback(
-    (watchParty: WatchParty) => {
-      // Refresh dashboard data to show new watch party
+  const handleStreamCreated = useCallback(
+    (stream: Stream) => {
+      // Refresh dashboard data to show new streaming session
       fetchDashboardData();
     },
     [fetchDashboardData]
@@ -177,27 +172,27 @@ export function HabitatDashboard({
           <div className="px-6 pt-6">
             <HabitatHero
               habitat={state.dashboardData.habitat}
-              onStartStreamingParty={() => openModal("watchPartyModal")}
+              onStartStream={() => openModal("streamModal")}
               onCreatePoll={() => openModal("pollModal")}
             />
           </div>
 
-          {/* Watch Parties Carousel - Prominent Feature */}
-          <HabitatWatchParties
-            watchParties={state.dashboardData.watchParties}
-            onJoinParty={(watchPartyId) => {
-              // TODO: Implement join watch party
-              console.log("Join watch party:", watchPartyId);
+          {/* Streaming Sessions Carousel - Prominent Feature */}
+          <HabitatStreams
+            streams={state.dashboardData.streams}
+            onJoinStream={(streamId) => {
+              // TODO: Implement join streaming session
+              console.log("Join streaming session:", streamId);
             }}
-            onLeaveParty={(watchPartyId) => {
-              // TODO: Implement leave watch party
-              console.log("Leave watch party:", watchPartyId);
+            onLeaveStream={(streamId) => {
+              // TODO: Implement leave streaming session
+              console.log("Leave streaming session:", streamId);
             }}
-            onEnterParty={(watchPartyId) => {
-              // TODO: Navigate to watch party room
-              console.log("Enter watch party:", watchPartyId);
+            onEnterStream={(streamId) => {
+              // TODO: Navigate to streaming session room
+              console.log("Enter streaming session:", streamId);
             }}
-            onCreateParty={() => openModal("watchPartyModal")}
+            onCreateStream={() => openModal("streamModal")}
           />
 
           {/* Dashboard Grid */}
@@ -233,22 +228,6 @@ export function HabitatDashboard({
             </div>
           </div>
         </div>
-
-        <PollCreationModal
-          isOpen={modals.pollModal}
-          onClose={() => closeModal("pollModal")}
-          habitatId={habitatId}
-          userId={userId}
-          onSuccess={handlePollCreated}
-        />
-
-        <WatchPartyCreationModal
-          isOpen={modals.watchPartyModal}
-          onClose={() => closeModal("watchPartyModal")}
-          habitatId={habitatId}
-          userId={userId}
-          onSuccess={handleWatchPartyCreated}
-        />
       </div>
     );
   }

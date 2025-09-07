@@ -27,7 +27,12 @@ export interface IAccessControlService {
     userId: string,
     resourceId: string,
     permission: Permission,
-    resourceType?: "habitat" | "discussion" | "message" | "poll" | "watch_party"
+    resourceType?:
+      | "habitat"
+      | "discussion"
+      | "message"
+      | "poll"
+      | "streaming_session"
   ): Promise<boolean>;
 
   /**
@@ -50,7 +55,12 @@ export interface IAccessControlService {
     userId: string,
     resourceId: string,
     permissions: Permission[],
-    resourceType?: "habitat" | "discussion" | "message" | "poll" | "watch_party"
+    resourceType?:
+      | "habitat"
+      | "discussion"
+      | "message"
+      | "poll"
+      | "streaming_session"
   ): Promise<boolean>;
 
   /**
@@ -65,7 +75,12 @@ export interface IAccessControlService {
     userId: string,
     resourceId: string,
     permission: Permission,
-    resourceType?: "habitat" | "discussion" | "message" | "poll" | "watch_party"
+    resourceType?:
+      | "habitat"
+      | "discussion"
+      | "message"
+      | "poll"
+      | "streaming_session"
   ): Promise<void>;
 
   /**
@@ -80,7 +95,12 @@ export interface IAccessControlService {
     userId: string,
     resourceId: string,
     permission: Permission,
-    resourceType?: "habitat" | "discussion" | "message" | "poll" | "watch_party"
+    resourceType?:
+      | "habitat"
+      | "discussion"
+      | "message"
+      | "poll"
+      | "streaming_session"
   ): Promise<PermissionResult>;
 
   /**
@@ -101,7 +121,12 @@ export interface IAccessControlService {
   isResourceOwner(
     userId: string,
     resourceId: string,
-    resourceType: "habitat" | "discussion" | "message" | "poll" | "watch_party"
+    resourceType:
+      | "habitat"
+      | "discussion"
+      | "message"
+      | "poll"
+      | "streaming_session"
   ): Promise<boolean>;
 }
 
@@ -144,7 +169,12 @@ export interface IAccessControlRepository {
    */
   getResourceOwnership(
     resourceId: string,
-    resourceType: "habitat" | "discussion" | "message" | "poll" | "watch_party"
+    resourceType:
+      | "habitat"
+      | "discussion"
+      | "message"
+      | "poll"
+      | "streaming_session"
   ): Promise<ResourceOwnership | null>;
 
   /**
@@ -157,7 +187,7 @@ export interface IAccessControlRepository {
    */
   getResourceHabitatId(
     resourceId: string,
-    resourceType: "discussion" | "message" | "poll" | "watch_party"
+    resourceType: "discussion" | "message" | "poll" | "streaming_session"
   ): Promise<string | null>;
 }
 

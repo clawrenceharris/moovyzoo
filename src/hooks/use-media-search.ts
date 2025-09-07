@@ -4,7 +4,7 @@ import {
   searchMulti,
   TMDBSearchResult,
 } from "@/features/ai-chat/data/tmdb.repository";
-import { getFriendlyErrorMessage } from "@/utils/normalize-error";
+import { getUserErrorMessage, normalizeError } from "@/utils/normalize-error";
 
 export interface UseMediaSearchResult {
   results: TMDBSearchResult[];
@@ -44,7 +44,7 @@ export function useMediaSearch(): UseMediaSearchResult {
       setResults(searchResults);
       setHasSearched(true);
     } catch (error) {
-      setError(getFriendlyErrorMessage(error));
+      setError(getUserErrorMessage(error));
       setResults([]);
       setHasSearched(true);
     } finally {

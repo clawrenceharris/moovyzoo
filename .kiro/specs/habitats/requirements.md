@@ -38,7 +38,7 @@ Habitats are social spaces within Zoovie surrounding a specifc movie or show whe
 1. WHEN a user visits a habitat page THEN the system SHALL display a central dashboard with habitat branding and overview
 2. WHEN a user views the habitat dashboard THEN the system SHALL show a hero section with habitat name, description, and primary action buttons
 3. WHEN a user views the habitat dashboard THEN the system SHALL display popular ongoing discussions and polls
-4. WHEN a user views the habitat dashboard THEN the system SHALL show upcoming or current watch parties with join options
+4. WHEN a user views the habitat dashboard THEN the system SHALL show upcoming or current streaming sessions with join options
 5. WHEN a user views the habitat dashboard THEN the system SHALL display habitat metadata including creation date, tags, and member statistics
 6. WHEN a user views the habitat dashboard THEN the system SHALL show ongoing events like trivia nights or polls
 7. WHEN a user views the habitat dashboard THEN the system SHALL display current online members and total member count
@@ -57,11 +57,11 @@ Habitats are social spaces within Zoovie surrounding a specifc movie or show whe
 
 ### Requirement 5
 
-**User Story:** As a habitat member, I want to start streaming parties and create polls from the habitat dashboard, so that I can initiate interactive activities with other community members.
+**User Story:** As a habitat member, I want to start streaming streams and create polls from the habitat dashboard, so that I can initiate interactive activities with other community members.
 
 #### Acceptance Criteria
 
-1. WHEN a user clicks "Start Streaming Party" on the habitat dashboard THEN the system SHALL initiate a watch party creation flow
+1. WHEN a user clicks "Start Streaming Stream" on the habitat dashboard THEN the system SHALL initiate a streaming session creation flow
 2. WHEN a user clicks "Create Poll" on the habitat dashboard THEN the system SHALL display a poll creation interface
 3. WHEN a user creates a poll THEN the system SHALL add it to the "Popular in this habitat" section for other members to participate
 4. WHEN a user joins a streaming party THEN the system SHALL add them to the synchronized viewing session
@@ -95,15 +95,15 @@ Habitats are social spaces within Zoovie surrounding a specifc movie or show whe
 
 ### Requirement 8
 
-**User Story:** As a habitat member, I want to create watch parties within a habitat, so that I can schedule synchronized viewing sessions with other community members.
+**User Story:** As a habitat member, I want to create streaming sessions within a habitat, so that I can schedule synchronized viewing sessions with other community members.
 
 #### Acceptance Criteria
 
-1. WHEN a user clicks "Start Streaming Party" THEN the system SHALL display a watch party creation form
-2. WHEN a user fills out the watch party creation form THEN the system SHALL require a party title, scheduled time, and optional description
+1. WHEN a user clicks "Start Streaming Stream" THEN the system SHALL display a streaming session creation form
+2. WHEN a user fills out the streaming session creation form THEN the system SHALL require a party title, scheduled time, and optional description
 3. WHEN a user sets a scheduled time THEN the system SHALL validate the time is in the future
-4. WHEN a user submits a valid watch party creation form THEN the system SHALL create the new watch party and add it to the habitat
-5. WHEN a watch party is successfully created THEN the system SHALL display it in the watch parties section
-6. WHEN a user creates a watch party THEN the system SHALL validate the party title is between 5-200 characters
-7. WHEN a user creates a watch party THEN the system SHALL allow setting an optional maximum participant limit
-8. WHEN a user creates a watch party THEN the system SHALL automatically add the creator as the first participant
+4. WHEN a user submits a valid streaming session creation form THEN the system SHALL create the new streaming session and add it to the habitat
+5. WHEN a streaming session is successfully created THEN the system SHALL display it in the streaming sessions section
+6. WHEN a user creates a streaming session THEN the system SHALL validate the party title is between 5-200 characters
+7. WHEN a user creates a streaming session THEN the system SHALL allow setting an optional maximum participant limit
+8. WHEN a user creates a streaming session THEN the system SHALL automatically add the creator as the first participant

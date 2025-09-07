@@ -1,7 +1,8 @@
+"use client";
+
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Search, X, Film, Tv, AlertCircle, Loader2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button, Input } from "@/components/ui";
 import { useMediaSearch } from "@/hooks/use-media-search";
 import { cn } from "@/lib/utils";
 import { TMDBSearchResult } from "@/features/ai-chat/data/tmdb.repository";

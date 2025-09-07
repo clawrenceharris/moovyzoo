@@ -27,7 +27,7 @@ _Modern, sleek design for young adults with the cinematic elegance of Netflix, t
 - **Cinematic screens**: Dark backgrounds and vibrant accents mimicking a movie theater
 - **Social sparks**: Bright pops of color representing conversation and excitement
 - **Card-based interactions**: Swipeable and tappable UI for movies, chats, and games
-- **Party mode visuals**: Motion accents and glow effects for watch parties and game events
+- **Stream mode visuals**: Motion accents and glow effects for streaming sessions and game events
 
 ### Target Aesthetic: "Netflix meets Snapchat"
 
@@ -59,11 +59,11 @@ _Modern, sleek design for young adults with the cinematic elegance of Netflix, t
 
 **All UI components must use Shadcn UI as the foundation.** This includes:
 
-- **Buttons**: Use `@/components/ui/button` with variants
-- **Forms**: Use `@/components/ui/input`, `@/components/ui/label`, `@/components/ui/form`
-- **Cards**: Use `@/components/ui/card` with custom styling
-- **Dialogs**: Use `@/components/ui/dialog` for modals
-- **Navigation**: Use `@/components/ui/tabs`, `@/components/ui/navigation-menu`
+- **Import Example**:
+
+```jsx
+import {Button, Input} "@/components/ui"
+```
 
 ### Cards
 

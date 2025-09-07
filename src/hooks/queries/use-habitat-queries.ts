@@ -61,7 +61,7 @@ export function useHabitat(
 }
 
 /**
- * Hook to fetch habitat dashboard data (habitat + discussions + polls + watch parties)
+ * Hook to fetch habitat dashboard data (habitat + discussions + polls + streaming sessions)
  */
 export function useHabitatDashboard(
   habitatId: string,
