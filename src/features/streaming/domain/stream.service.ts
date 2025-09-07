@@ -20,7 +20,6 @@ export class StreamService {
 
   async createStream(userId: string, data: CreateStreamData): Promise<Stream> {
     try {
-      console.log("Creating...");
       const stream = await this.repository.createStream({
         description: data.description,
         scheduled_time: data.scheduledTime,
@@ -38,9 +37,7 @@ export class StreamService {
       await this.repository.joinStream(stream.id, userId);
       return stream;
     } catch (error) {
-      console.log(error);
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
   /**
@@ -147,7 +144,7 @@ export class StreamService {
         );
       }
     } catch (error) {
-      throw normalizeError(error);
+      throw error;
     }
   }
 
@@ -189,7 +186,7 @@ export class StreamService {
         );
       }
     } catch (error) {
-      throw normalizeError(error);
+      throw error;
     }
   }
 
@@ -249,7 +246,7 @@ export class StreamService {
 
       return stream;
     } catch (error) {
-      throw normalizeError(error);
+      throw error;
     }
   }
 
@@ -268,7 +265,7 @@ export class StreamService {
 
       return await this.repository.getStreamParticipants(streamId);
     } catch (error) {
-      throw normalizeError(error);
+      throw error;
     }
   }
 
@@ -326,7 +323,7 @@ export class StreamService {
 
       return userParticipation;
     } catch (error) {
-      throw normalizeError(error);
+      throw error;
     }
   }
 
@@ -367,7 +364,7 @@ export class StreamService {
     try {
       return await this.repository.getPublicStreams(options);
     } catch (error) {
-      throw normalizeError(error);
+      throw error;
     }
   }
 
@@ -394,7 +391,7 @@ export class StreamService {
 
       return await this.repository.getUserStreams(userId, options);
     } catch (error) {
-      throw normalizeError(error);
+      throw error;
     }
   }
 }

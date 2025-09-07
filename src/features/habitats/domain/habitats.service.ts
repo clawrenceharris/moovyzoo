@@ -308,8 +308,6 @@ export class HabitatsService {
     data: CreateStreamData
   ): Promise<Stream> {
     try {
-      console.log("Creating...");
-
       const stream = await streamService.createStream(userId, data);
       await habitatsRepository.createHabitatStream(habitatId, stream.id);
       return stream;
