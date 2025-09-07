@@ -55,17 +55,6 @@ export function useProfileActions(userId: string) {
     },
   });
 
-  // Function to update last active
-
-  // Function to check if profile exists
-  const checkProfileExists = async (userId: string): Promise<boolean> => {
-    try {
-      return await profilesService.profileExists(userId);
-    } catch {
-      return false;
-    }
-  };
-
   return {
     // Mutations
     createProfile: createProfileMutation.mutate,
@@ -81,8 +70,5 @@ export function useProfileActions(userId: string) {
     createError: createProfileMutation.error,
     updateError: updateProfileMutation.error,
     deleteError: deleteProfileMutation.error,
-
-    // Utility functions
-    checkProfileExists,
   };
 }

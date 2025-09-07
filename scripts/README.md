@@ -4,26 +4,50 @@ This directory contains SQL migration scripts for setting up the Zoovie database
 
 ## Files
 
+### Habitats Feature
 - `habitats-schema.sql` - Creates the complete habitats feature database schema
 - `verify-habitats-schema.sql` - Verifies that the habitats schema was created correctly
+
+### Friends Discovery Feature
+- `friends-discovery-migration.sql` - Creates friends and watch_history tables with RLS policies
+- `verify-friends-discovery-migration.sql` - Verifies the friends discovery migration
+- `rollback-friends-discovery-migration.sql` - Rollback script for friends discovery
+- `friends-discovery-migration-README.md` - Detailed documentation for friends discovery migration
+
+### Watch Party Media Integration
+- `watch-party-media-integration-migration.sql` - Adds TMDB media integration to watch parties
+- `verify-media-integration-migration.sql` - Verifies media integration migration
+- `rollback-media-integration-migration.sql` - Rollback script for media integration
+- `media-integration-migration-README.md` - Documentation for media integration
+
+### Dashboard Migration
+- `habitats-dashboard-migration.sql` - Dashboard-related database changes
+- `verify-dashboard-migration.sql` - Verifies dashboard migration
+- `rollback-dashboard-migration.sql` - Rollback script for dashboard changes
+- `dashboard-migration-README.md` - Documentation for dashboard migration
+
+### General
 - `verify-database.sql` - General database verification script
+- `run-migrations.md` - Guide for running migrations in order
 
 ## Usage
 
-### Setting up Habitats Schema
+### Running Migrations
 
+For detailed migration instructions, see `run-migrations.md` or the individual README files for each feature.
+
+**Quick Start:**
 1. Open your Supabase project dashboard
 2. Navigate to the SQL Editor
-3. Copy and paste the contents of `habitats-schema.sql`
-4. Run the script to create all tables, indexes, triggers, and RLS policies
+3. Run migrations in the recommended order (see `run-migrations.md`)
+4. Use verification scripts to ensure successful setup
 
-### Verifying the Setup
+### Feature-Specific Setup
 
-After running the migration, use the verification script:
-
-1. In the Supabase SQL Editor, copy and paste the contents of `verify-habitats-schema.sql`
-2. Run the script to check that all tables, indexes, and policies were created correctly
-3. Review the output to ensure everything is set up properly
+- **Habitats**: Run `habitats-schema.sql` then verify with `verify-habitats-schema.sql`
+- **Friends Discovery**: Run `friends-discovery-migration.sql` then verify with `verify-friends-discovery-migration.sql`
+- **Media Integration**: Run `watch-party-media-integration-migration.sql` after habitats setup
+- **Dashboard**: Run `habitats-dashboard-migration.sql` for dashboard enhancements
 
 ## Schema Overview
 

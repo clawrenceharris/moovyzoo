@@ -112,6 +112,51 @@ export interface PublicProfileDocument {
   last_active_at: Date;
 }
 
+// Friend relationship types
+export interface Friend {
+  id: string;
+  requesterId: string;
+  receiverId: string;
+  status: 'pending' | 'accepted' | 'blocked';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface FriendRequest {
+  id: string;
+  requester: {
+    id: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
+  createdAt: Date;
+}
+
+export interface FriendStatus {
+  status: 'none' | 'pending_sent' | 'pending_received' | 'friends' | 'blocked';
+  friendshipId?: string;
+}
+
+// Watch history types
+export interface WatchHistoryEntry {
+  id: string;
+  userId: string;
+  movieId: string;
+  title: string;
+  posterUrl?: string;
+  mediaType: 'movie' | 'tv';
+  status: 'watched' | 'watching' | 'dropped';
+  rating?: number;
+  watchedAt: Date;
+}
+
+// Enhanced profile types
+export interface ProfileWithFriendStatus extends UserProfile {
+  friendStatus: FriendStatus;
+  recentWatchHistory?: WatchHistoryEntry[];
+  mutualFriendsCount?: number;
+}
+
 // Service layer results
 export interface ProfileServiceResult<T> {
   success: boolean;
