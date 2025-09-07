@@ -4,7 +4,7 @@
 export interface Database {
   public: {
     Tables: {
-      profiles: {
+      user_profiles: {
         Row: {
           id: string;
           email: string;
@@ -140,9 +140,9 @@ export interface Database {
 }
 
 // Helper types for easier usage
-export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-export type ProfileInsert = Database["public"]["Tables"]["profiles"]["Insert"];
-export type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
+export type Profile = Database["public"]["Tables"]["user_profiles"]["Row"];
+export type ProfileInsert = Database["public"]["Tables"]["user_profiles"]["Insert"];
+export type ProfileUpdate = Database["public"]["Tables"]["user_profiles"]["Update"];
 
 // Habitat database types
 export type HabitatRow = Database["public"]["Tables"]["habitats"]["Row"];

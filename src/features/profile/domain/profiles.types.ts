@@ -16,17 +16,22 @@ export interface BadgeDocument {
   earned_at: string;
 }
 export interface UserProfileDocument {
-  username: string;
+  username?: string;
   id: string;
+  email: string;
   display_name?: string;
   avatar_url?: string;
+  bio?: string;
+  quote?: string;
   favorite_genres?: string[];
+  favorite_titles?: string[];
   is_public: boolean;
-  badges: BadgeDocument[];
+  badges?: BadgeDocument[];
   created_at: string;
   updated_at: string;
   onboarding_completed: boolean;
-  last_active_at: string;
+  last_active_at?: string;
+  user_id: string;
 }
 
 export interface ProfileUpdateData {
@@ -43,33 +48,45 @@ export interface PrivacySettings {
 export interface UserProfile {
   id: string;
   userId: string;
+  email: string;
   displayName?: string;
-  onboardingCompleted: boolean;
-  username: string;
+  username?: string;
   avatarUrl?: string;
+  bio?: string;
+  quote?: string;
   favoriteGenres: string[];
-  is_public: boolean;
+  favoriteTitles: string[];
+  isPublic: boolean;
+  onboardingCompleted: boolean;
   createdAt: Date;
   updatedAt: Date;
-  lastActiveAt: Date;
+  lastActiveAt?: Date;
 }
 
 export interface CreateProfileData {
   userId: string;
-  displayName?: string;
-  quote?: string;
   email: string;
-  username: string;
+  displayName?: string;
+  username?: string;
   avatarUrl?: string;
-  favoriteGenres: string[];
-  onboardingCompleted: boolean;
+  bio?: string;
+  quote?: string;
+  favoriteGenres?: string[];
+  favoriteTitles?: string[];
+  isPublic?: boolean;
+  onboardingCompleted?: boolean;
 }
 
 export interface UpdateProfileData {
   displayName?: string;
+  username?: string;
   avatarUrl?: string;
-  onboardingCompleted: boolean;
+  bio?: string;
+  quote?: string;
   favoriteGenres?: string[];
+  favoriteTitles?: string[];
+  isPublic?: boolean;
+  onboardingCompleted?: boolean;
 }
 
 export interface PublicProfile {
