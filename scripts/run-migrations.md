@@ -10,8 +10,8 @@
 The habitats feature requires three migrations:
 
 1. **Base Schema** - Core habitats, members, and messages tables
-2. **Dashboard Migration** - Discussion rooms, polls, and watch parties
-3. **Media Integration** - TMDB media support for watch parties
+2. **Dashboard Migration** - Discussion rooms, polls, and streaming sessions
+3. **Media Integration** - TMDB media support for streaming sessions
 
 ## Step-by-Step Migration Process
 

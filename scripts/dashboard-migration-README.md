@@ -8,7 +8,7 @@ The dashboard migration adds new tables and schema changes to support:
 
 - Discussion rooms (chat rooms within habitats)
 - Polls for community engagement
-- Watch parties for synchronized viewing
+- Watch streams for synchronized viewing
 - Enhanced message system with discussion room support
 
 ## Migration Files
@@ -77,7 +77,7 @@ The verification script includes basic functionality tests. All count queries sh
 
 #### `habitat_watch_parties`
 
-- Scheduled watch parties for synchronized viewing
+- Scheduled streaming sessions for synchronized viewing
 - Participant tracking and limits
 - Time-based scheduling with future date constraints
 
@@ -97,7 +97,7 @@ Aggregates dashboard statistics for each habitat:
 
 - Active discussion count
 - Active poll count
-- Upcoming watch party count
+- Upcoming streaming session count
 
 ### `popular_habitat_discussions`
 
@@ -109,9 +109,9 @@ Shows discussions ordered by recent activity:
 
 ### `upcoming_watch_parties`
 
-Shows future watch parties ordered by scheduled time:
+Shows future streaming sessions ordered by scheduled time:
 
-- Only active watch parties
+- Only active streaming sessions
 - Only future events (scheduled_time > NOW())
 
 ## Security (RLS Policies)

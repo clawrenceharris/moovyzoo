@@ -2,19 +2,19 @@
 
 import React from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui";
 import type { HabitatWithMembership } from "../domain/habitats.types";
 
 interface HabitatHeroProps {
   habitat: HabitatWithMembership;
-  onStartStreamingParty?: () => void;
+  onStartStream?: () => void;
   onCreatePoll?: () => void;
   className?: string;
 }
 
 export function HabitatHero({
   habitat,
-  onStartStreamingParty,
+  onStartStream,
   onCreatePoll,
   className = "",
 }: HabitatHeroProps) {
@@ -53,7 +53,7 @@ export function HabitatHero({
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button variant="primary" size="lg" onClick={onStartStreamingParty}>
+            <Button variant="primary" size="lg" onClick={onStartStream}>
               <svg
                 className="w-5 h-5 mr-2"
                 fill="currentColor"
@@ -61,7 +61,7 @@ export function HabitatHero({
               >
                 <path d="M8 5v14l11-7z" />
               </svg>
-              Start Streaming Party
+              Start Streaming Stream
             </Button>
             <Button variant="outline" size="lg" onClick={onCreatePoll}>
               <svg

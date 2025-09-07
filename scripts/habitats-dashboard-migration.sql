@@ -47,10 +47,10 @@ CREATE TABLE IF NOT EXISTS habitat_watch_parties (
   is_active BOOLEAN DEFAULT true,
   
   -- Constraints
-  CONSTRAINT habitat_watch_parties_title_length CHECK (length(title) >= 1 AND length(title) <= 200),
-  CONSTRAINT habitat_watch_parties_participant_count_positive CHECK (participant_count >= 0),
-  CONSTRAINT habitat_watch_parties_max_participants_positive CHECK (max_participants IS NULL OR max_participants > 0),
-  CONSTRAINT habitat_watch_parties_scheduled_future CHECK (scheduled_time > created_at)
+  CONSTRAINT habitat_streams_title_length CHECK (length(title) >= 1 AND length(title) <= 200),
+  CONSTRAINT habitat_streams_participant_count_positive CHECK (participant_count >= 0),
+  CONSTRAINT habitat_streams_max_participants_positive CHECK (max_participants IS NULL OR max_participants > 0),
+  CONSTRAINT habitat_streams_scheduled_future CHECK (scheduled_time > created_at)
 );
 
 -- Add chat_id column to habitat_messages table
@@ -71,11 +71,11 @@ CREATE INDEX IF NOT EXISTS idx_habitat_polls_created_by ON habitat_polls(created
 CREATE INDEX IF NOT EXISTS idx_habitat_polls_created_at ON habitat_polls(habitat_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_habitat_polls_is_active ON habitat_polls(habitat_id, is_active);
 
--- Watch parties indexes
-CREATE INDEX IF NOT EXISTS idx_habitat_watch_parties_habitat_id ON habitat_watch_parties(habitat_id);
-CREATE INDEX IF NOT EXISTS idx_habitat_watch_parties_created_by ON habitat_watch_parties(created_by);
-CREATE INDEX IF NOT EXISTS idx_habitat_watch_parties_scheduled_time ON habitat_watch_parties(habitat_id, scheduled_time);
-CREATE INDEX IF NOT EXISTS idx_habitat_watch_parties_is_active ON habitat_watch_parties(habitat_id, is_active);
+-- Watch streams indexes
+CREATE INDEX IF NOT EXISTS idx_habitat_streams_habitat_id ON habitat_watch_parties(habitat_id);
+CREATE INDEX IF NOT EXISTS idx_habitat_streams_created_by ON habitat_watch_parties(created_by);
+CREATE INDEX IF NOT EXISTS idx_habitat_streams_scheduled_time ON habitat_watch_parties(habitat_id, scheduled_time);
+CREATE INDEX IF NOT EXISTS idx_habitat_streams_is_active ON habitat_watch_parties(habitat_id, is_active);
 
 -- Messages table indexes (updated for chat_id)
 CREATE INDEX IF NOT EXISTS idx_habitat_messages_chat_id ON habitat_messages(chat_id);
@@ -139,16 +139,16 @@ CREATE POLICY "Users can delete their own polls" ON habitat_polls
   FOR DELETE USING (auth.uid() = created_by);
 
 -- RLS Policies for habitat_watch_parties table
--- Users can view watch parties in habitats they are members of
-CREATE POLICY "Users can view watch parties in their habitats" ON habitat_watch_parties
+-- Users can view streaming sessions in habitats they are members of
+CREATE POLICY "Users can view streaming sessions in their habitats" ON habitat_watch_parties
   FOR SELECT USING (
     habitat_id IN (
       SELECT habitat_id FROM habitat_members WHERE user_id = auth.uid()
     )
   );
 
--- Users can create watch parties in habitats they are members of
-CREATE POLICY "Users can create watch parties in their habitats" ON habitat_watch_parties
+-- Users can create streaming sessions in habitats they are members of
+CREATE POLICY "Users can create streaming sessions in their habitats" ON habitat_watch_parties
   FOR INSERT WITH CHECK (
     auth.uid() = created_by AND
     habitat_id IN (
@@ -156,12 +156,12 @@ CREATE POLICY "Users can create watch parties in their habitats" ON habitat_watc
     )
   );
 
--- Users can update watch parties they created
-CREATE POLICY "Users can update their own watch parties" ON habitat_watch_parties
+-- Users can update streaming sessions they created
+CREATE POLICY "Users can update their own streaming sessions" ON habitat_watch_parties
   FOR UPDATE USING (auth.uid() = created_by);
 
--- Users can delete watch parties they created
-CREATE POLICY "Users can delete their own watch parties" ON habitat_watch_parties
+-- Users can delete streaming sessions they created
+CREATE POLICY "Users can delete their own streaming sessions" ON habitat_watch_parties
   FOR DELETE USING (auth.uid() = created_by);
 
 -- Update habitat_messages RLS policy to work with chat_id
@@ -196,11 +196,11 @@ GRANT ALL ON habitat_discussions TO authenticated;
 GRANT ALL ON habitat_polls TO authenticated;
 GRANT ALL ON habitat_watch_parties TO authenticated;
 
--- Create trigger function to update watch party participant count
+-- Create trigger function to update streaming session participant count
 CREATE OR REPLACE FUNCTION update_watch_party_participant_count()
 RETURNS TRIGGER AS $
 BEGIN
-  -- This function will be used later when we implement watch party participation
+  -- This function will be used later when we implement streaming session participation
   -- For now, it's a placeholder that can be extended
   RETURN COALESCE(NEW, OLD);
 END;
@@ -223,7 +223,7 @@ SELECT
   -- Count active polls
   COALESCE(p.poll_count, 0) as active_polls,
   
-  -- Count upcoming watch parties
+  -- Count upcoming streaming sessions
   COALESCE(wp.watch_party_count, 0) as upcoming_watch_parties
   
 FROM habitats h
@@ -271,7 +271,7 @@ ORDER BY last_activity DESC;
 -- Grant access to the popular discussions view
 GRANT SELECT ON popular_habitat_discussions TO authenticated;
 
--- Create a view for upcoming watch parties
+-- Create a view for upcoming streaming sessions
 CREATE OR REPLACE VIEW upcoming_watch_parties AS
 SELECT *
 FROM habitat_watch_parties
@@ -279,5 +279,5 @@ WHERE is_active = true
   AND scheduled_time > NOW()
 ORDER BY scheduled_time ASC;
 
--- Grant access to the upcoming watch parties view
+-- Grant access to the upcoming streaming sessions view
 GRANT SELECT ON upcoming_watch_parties TO authenticated;

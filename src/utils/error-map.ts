@@ -80,6 +80,10 @@ export const errorMap: Record<AppErrorCode, ErrorMessage> = {
     title: "User Not Found",
     message: "This user doesn't exist or their profile is private.",
   },
+  [AppErrorCode.WATCH_PARTY_NOT_FOUND]: {
+    title: "Streaming Session Not Found",
+    message: "This streaming session doesn't exist or has been removed.",
+  },
 
   // Database Errors
   [AppErrorCode.DATABASE_ERROR]: {
@@ -133,6 +137,32 @@ export const errorMap: Record<AppErrorCode, ErrorMessage> = {
   [AppErrorCode.HABITAT_FULL]: {
     title: "Habitat Full",
     message: "This habitat is at capacity. Try joining another one!",
+  },
+  [AppErrorCode.WATCH_PARTY_FULL]: {
+    title: "Streaming Session Full",
+    message: "This streaming session is at capacity. Try joining another one!",
+  },
+  [AppErrorCode.WATCH_PARTY_ENDED]: {
+    title: "Streaming Session Ended",
+    message:
+      "This streaming session has already ended. Check out upcoming streams!",
+  },
+  [AppErrorCode.WATCH_PARTY_NOT_STARTED]: {
+    title: "Streaming Session Not Started",
+    message:
+      "This streaming session hasn't started yet. Come back at the scheduled time!",
+  },
+  [AppErrorCode.ALREADY_PARTICIPANT]: {
+    title: "Already Joined",
+    message: "You're already part of this streaming session! Welcome back.",
+  },
+  [AppErrorCode.NOT_PARTICIPANT]: {
+    title: "Not a Participant",
+    message: "You need to join this streaming session first to participate.",
+  },
+  [AppErrorCode.CANNOT_JOIN_WATCH_PARTY]: {
+    title: "Cannot Join",
+    message: "You cannot join this streaming session at this time.",
   },
 
   // Content Errors

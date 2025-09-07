@@ -13,7 +13,7 @@ Each feature follows a modular, responsibility-based structure:
 │  │  ├─ habitats/
 │  │  │  ├─ page.tsx
 │  │  │  └─ [id]/page.tsx
-│  │  ├─ parties/
+│  │  ├─ streams/
 │  │  │  ├─ page.tsx
 │  │  │  └─ [id]/page.tsx
 │  │  ├─ profile/
@@ -36,7 +36,7 @@ Each feature follows a modular, responsibility-based structure:
 │  │  ├─ HabitatCard.tsx               # Habitat display cards
 │  │  ├─ DiscussionCard.tsx            # Discussion display cards
 │  │  ├─ PollCard.tsx                  # Poll display cards
-│  │  ├─ WatchPartyCard.tsx            # Watch party display cards
+│  │  ├─ StreamCard.tsx            # Streaming session display cards
 │  │  └─ index.ts                       # Barrel exports
 │  └─ index.ts                          # Main barrel export for all shared components
 ├─ features/                             # Feature modules (vertical slices)
@@ -45,8 +45,6 @@ Each feature follows a modular, responsibility-based structure:
 │  │  │  ├─ ProfileForm.tsx
 │  │  │  └─ ProfileCard.tsx
 │  │  ├─ domain/
-│  │  ├─ __tests__/
-│  │  │  ├─ profiles.repository.test.ts
 │  │  │  ├─ profiles.types.ts
 │  │  │  ├─ profiles.schema.ts           #zod schemas only
 │  │  │  └─ profiles.service.ts

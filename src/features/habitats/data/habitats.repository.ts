@@ -1,3 +1,8 @@
+import {
+  Stream,
+  StreamParticipant,
+  StreamWithParticipants,
+} from "@/features/streaming";
 import type {
   Habitat,
   HabitatMember,
@@ -10,10 +15,6 @@ import type {
   Poll,
   PollInsert,
   PollUpdate,
-  WatchParty,
-  WatchPartyInsert,
-  WatchPartyUpdate,
-  WatchPartyWithParticipants,
 } from "../domain/habitats.types";
 import type { HabitatRow, HabitatMemberRow } from "@/types/database";
 import { supabase } from "@/utils/supabase/client";
@@ -23,6 +24,20 @@ import { supabase } from "@/utils/supabase/client";
  * Contains only database access logic, no business rules
  */
 export class HabitatsRepository {
+  async createHabitatStream(habitatId: string, streamId: string) {
+    try {
+      const { data: stream, error } = await supabase
+        .from("habitat_streams")
+        .insert({ habitat_id: habitatId, stream_id: streamId })
+        .single();
+      if (error) {
+        throw error;
+      }
+      return stream;
+    } catch (error) {
+      throw error;
+    }
+  }
   /**
    * Get all habitats that a user has joined
    */
@@ -725,7 +740,7 @@ export class HabitatsRepository {
    */
   async createHabitat(
     name: string,
-    description: string,
+    description: string | null,
     tags: string[],
     isPublic: boolean,
     createdBy: string
@@ -735,7 +750,7 @@ export class HabitatsRepository {
         .from("habitats")
         .insert({
           name: name.trim(),
-          description: description.trim(),
+          description: description?.trim(),
           tags: tags,
           is_public: isPublic,
           created_by: createdBy,
@@ -994,299 +1009,35 @@ export class HabitatsRepository {
   }
 
   /**
-   * Get watch parties for a habitat
+   * Get streaming sessions for a habitat
    */
-  async getWatchPartiesByHabitat(
+  async getStreamsByHabitat(
     habitatId: string
-  ): Promise<WatchPartyWithParticipants[]> {
+  ): Promise<StreamWithParticipants[]> {
     try {
-      const { data: watchParties, error } = await supabase
-        .from("habitat_watch_parties")
-        .select("*")
+      const { data, error } = await supabase
+        .from("habitat_streams")
+
+        .select("streams:stream_id(*)")
         .eq("habitat_id", habitatId)
-        .eq("is_active", true)
-        .order("scheduled_time", { ascending: true });
+        .eq("streams.is_active", true);
 
       if (error) {
         throw error;
       }
+      const streams = (data ?? []).map((row) => row.streams).flat();
 
-      // For now, return watch parties without participants
-      // TODO: Implement proper watch party participation with junction table
-      return watchParties.map((watchParty) => ({
-        ...this.mapDatabaseToWatchParty(watchParty),
-        participants: [], // Empty participants array for now
-        is_participant: false, // User is not a participant by default
-      }));
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Create a new watch party in a habitat
-   */
-  async createWatchParty(
-    watchPartyData: WatchPartyInsert
-  ): Promise<WatchParty> {
-    try {
-      // Validate media data consistency
-      this.validateMediaData(watchPartyData);
-
-      const insertData: Record<string, any> = {
-        habitat_id: watchPartyData.habitat_id,
-        description: watchPartyData.description?.trim(),
-        scheduled_time: watchPartyData.scheduled_time,
-        participant_count: watchPartyData.participant_count || 0,
-        max_participants: watchPartyData.max_participants,
-        created_by: watchPartyData.created_by,
-      };
-
-      // Add media fields if provided
-      if (watchPartyData.tmdb_id !== undefined) {
-        insertData.tmdb_id = watchPartyData.tmdb_id;
-      }
-      if (watchPartyData.media_type !== undefined) {
-        insertData.media_type = watchPartyData.media_type;
-      }
-      if (watchPartyData.media_title !== undefined) {
-        insertData.media_title = watchPartyData.media_title.trim();
-      }
-      if (watchPartyData.poster_path !== undefined) {
-        insertData.poster_path = watchPartyData.poster_path;
-      }
-      if (watchPartyData.release_date !== undefined) {
-        insertData.release_date = watchPartyData.release_date;
-      }
-      if (watchPartyData.runtime !== undefined) {
-        insertData.runtime = watchPartyData.runtime;
-      }
-
-      const { data: watchParty, error } = await supabase
-        .from("habitat_watch_parties")
-        .insert(insertData)
-        .select()
-        .single();
-
-      if (error) {
-        // Handle specific media-related database errors
-        if (
-          error.message?.includes("media_type") ||
-          error.message?.includes("tmdb_id")
-        ) {
-          throw new Error(`Media data validation failed: ${error.message}`);
-        }
-        throw error;
-      }
-
-      return this.mapDatabaseToWatchParty(watchParty);
-    } catch (error) {
-      // Re-throw with additional context for media-related errors
-      if (error instanceof Error && error.message.includes("Media data")) {
-        throw error;
-      }
-      throw new Error(
-        `Failed to create watch party: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
-    }
-  }
-
-  /**
-   * Update a watch party
-   */
-  async updateWatchParty(
-    watchPartyId: string,
-    updateData: WatchPartyUpdate,
-    userId: string
-  ): Promise<WatchParty> {
-    try {
-      // Validate media data consistency for updates
-      this.validateMediaData(updateData);
-
-      const updateFields: Record<string, any> = {};
-
-      // Add basic fields if provided
-      if (updateData.title !== undefined) {
-        updateFields.title = updateData.title.trim();
-      }
-      if (updateData.description !== undefined) {
-        updateFields.description = updateData.description?.trim();
-      }
-      if (updateData.scheduled_time !== undefined) {
-        updateFields.scheduled_time = updateData.scheduled_time;
-      }
-      if (updateData.participant_count !== undefined) {
-        updateFields.participant_count = updateData.participant_count;
-      }
-      if (updateData.max_participants !== undefined) {
-        updateFields.max_participants = updateData.max_participants;
-      }
-      if (updateData.is_active !== undefined) {
-        updateFields.is_active = updateData.is_active;
-      }
-
-      // Add media fields if provided
-      if (updateData.tmdb_id !== undefined) {
-        updateFields.tmdb_id = updateData.tmdb_id;
-      }
-      if (updateData.media_type !== undefined) {
-        updateFields.media_type = updateData.media_type;
-      }
-      if (updateData.media_title !== undefined) {
-        updateFields.media_title = updateData.media_title?.trim();
-      }
-      if (updateData.poster_path !== undefined) {
-        updateFields.poster_path = updateData.poster_path;
-      }
-      if (updateData.release_date !== undefined) {
-        updateFields.release_date = updateData.release_date;
-      }
-      if (updateData.runtime !== undefined) {
-        updateFields.runtime = updateData.runtime;
-      }
-
-      const { data: watchParty, error } = await supabase
-        .from("habitat_watch_parties")
-        .update(updateFields)
-        .eq("id", watchPartyId)
-        .eq("created_by", userId) // Only creator can update
-        .select()
-        .single();
-
-      if (error) {
-        // Handle specific media-related database errors
-        if (
-          error.message?.includes("media_type") ||
-          error.message?.includes("tmdb_id")
-        ) {
-          throw new Error(`Media data validation failed: ${error.message}`);
-        }
-        throw error;
-      }
-
-      return this.mapDatabaseToWatchParty(watchParty);
-    } catch (error) {
-      // Re-throw with additional context for media-related errors
-      if (error instanceof Error && error.message.includes("Media data")) {
-        throw error;
-      }
-      throw new Error(
-        `Failed to update watch party: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
-    }
-  }
-
-  /**
-   * Get a specific watch party by ID
-   */
-  async getWatchPartyById(watchPartyId: string): Promise<WatchParty> {
-    try {
-      const { data: watchParty, error } = await supabase
-        .from("habitat_watch_parties")
-        .select("*")
-        .eq("id", watchPartyId)
-        .single();
-
-      if (error) {
-        throw error;
-      }
-
-      return this.mapDatabaseToWatchParty(watchParty);
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Delete a watch party (only by creator)
-   */
-  async deleteWatchParty(watchPartyId: string, userId: string): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from("habitat_watch_parties")
-        .update({ is_active: false })
-        .eq("id", watchPartyId)
-        .eq("created_by", userId);
-
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Join a watch party
-   */
-  async joinWatchParty(watchPartyId: string, userId: string): Promise<void> {
-    try {
-      // First check if user is already a participant
-      const { data: existing } = await supabase
-        .from("habitat_watch_party_participants")
-        .select("*")
-        .eq("watch_party_id", watchPartyId)
-        .eq("user_id", userId)
-        .single();
-
-      if (existing) {
-        return; // Already a participant
-      }
-
-      // Add user as participant
-      const { error: insertError } = await supabase
-        .from("habitat_watch_party_participants")
-        .insert({
-          watch_party_id: watchPartyId,
-          user_id: userId,
-        });
-
-      if (insertError) {
-        throw insertError;
-      }
-
-      // Update participant count
-      const { error: updateError } = await supabase.rpc(
-        "increment_watch_party_participants",
-        { watch_party_id: watchPartyId }
-      );
-
-      if (updateError) {
-        throw updateError;
-      }
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Leave a watch party
-   */
-  async leaveWatchParty(watchPartyId: string, userId: string): Promise<void> {
-    try {
-      const { error: deleteError } = await supabase
-        .from("habitat_watch_party_participants")
-        .delete()
-        .eq("watch_party_id", watchPartyId)
-        .eq("user_id", userId);
-
-      if (deleteError) {
-        throw deleteError;
-      }
-
-      // Update participant count
-      const { error: updateError } = await supabase.rpc(
-        "decrement_watch_party_participants",
-        { watch_party_id: watchPartyId }
-      );
-
-      if (updateError) {
-        throw updateError;
-      }
+      // For now, return streaming sessions without participants
+      // TODO: Implement proper streaming session participation with junction table
+      return streams
+        .map((stream) => ({
+          ...this.mapDatabaseToStream(stream),
+          participants: [], // Empty participants array for now
+          is_participant: false, // User is not a participant by default
+        }))
+        .sort((a, b) =>
+          new Date(a.scheduled_time) < new Date(b.scheduled_time) ? 1 : -1
+        );
     } catch (error) {
       throw error;
     }
@@ -1484,9 +1235,9 @@ export class HabitatsRepository {
   }
 
   /**
-   * Map database row to WatchParty type
+   * Map database row to Stream type
    */
-  private mapDatabaseToWatchParty(dbWatchParty: {
+  private mapDatabaseToStream(dbStream: {
     id: string;
     habitat_id: string;
     title: string;
@@ -1503,31 +1254,31 @@ export class HabitatsRepository {
     poster_path?: string;
     release_date?: string;
     runtime?: number;
-  }): WatchParty {
+  }): Stream {
     return {
-      id: dbWatchParty.id,
-      habitat_id: dbWatchParty.habitat_id,
-      description: dbWatchParty.description || undefined,
-      scheduled_time: dbWatchParty.scheduled_time,
-      participant_count: dbWatchParty.participant_count,
-      max_participants: dbWatchParty.max_participants || undefined,
-      created_by: dbWatchParty.created_by,
-      created_at: dbWatchParty.created_at,
-      is_active: dbWatchParty.is_active,
+      id: dbStream.id,
+      habitat_id: dbStream.habitat_id,
+      description: dbStream.description || undefined,
+      scheduled_time: dbStream.scheduled_time,
+      participant_count: dbStream.participant_count,
+      max_participants: dbStream.max_participants || 0,
+      created_by: dbStream.created_by,
+      created_at: dbStream.created_at,
+      is_active: dbStream.is_active,
       // Media integration fields
-      tmdb_id: dbWatchParty.tmdb_id || undefined,
-      media_type: dbWatchParty.media_type || undefined,
-      media_title: dbWatchParty.media_title || undefined,
-      poster_path: dbWatchParty.poster_path || undefined,
-      release_date: dbWatchParty.release_date || undefined,
-      runtime: dbWatchParty.runtime || undefined,
+      tmdb_id: dbStream.tmdb_id || undefined,
+      media_type: dbStream.media_type || undefined,
+      media_title: dbStream.media_title || undefined,
+      poster_path: dbStream.poster_path || undefined,
+      release_date: dbStream.release_date || undefined,
+      runtime: dbStream.runtime || undefined,
     };
   }
 
   /**
-   * Map database row to WatchPartyWithParticipants type
+   * Map database row to StreamWithParticipants type
    */
-  private mapDatabaseToWatchPartyWithParticipants(dbWatchParty: {
+  private mapDatabaseToStreamWithParticipants(dbStream: {
     id: string;
     habitat_id: string;
     title: string;
@@ -1538,17 +1289,17 @@ export class HabitatsRepository {
     created_by: string;
     created_at: string;
     is_active: boolean;
-    tmdb_id?: number;
-    media_type?: "movie" | "tv";
-    media_title?: string;
-    poster_path?: string;
-    release_date?: string;
-    runtime?: number;
-    participants?: HabitatMember[];
-  }): WatchPartyWithParticipants {
+    tmdb_id: number;
+    media_type: "movie" | "tv";
+    media_title: string;
+    poster_path: string;
+    release_date: string;
+    runtime: number;
+    participants?: StreamParticipant[];
+  }): StreamWithParticipants {
     return {
-      ...this.mapDatabaseToWatchParty(dbWatchParty),
-      participants: dbWatchParty.participants || [],
+      ...this.mapDatabaseToStream(dbStream),
+      participants: dbStream.participants || [],
       is_participant: false, // This will be set by the service layer based on current user
     };
   }
@@ -1590,41 +1341,9 @@ export class HabitatsRepository {
   }
 
   /**
-   * Map media data from CreateWatchPartyData to database insert format
+   * Extract media information from streaming session for display
    */
-  public mapMediaDataForInsert(media?: {
-    tmdb_id: number;
-    media_type: "movie" | "tv";
-    media_title: string;
-    poster_path?: string;
-    release_date?: string;
-    runtime?: number;
-  }): {
-    tmdb_id?: number;
-    media_type?: "movie" | "tv";
-    media_title?: string;
-    poster_path?: string;
-    release_date?: string;
-    runtime?: number;
-  } {
-    if (!media) {
-      return {};
-    }
-
-    return {
-      tmdb_id: media.tmdb_id,
-      media_type: media.media_type,
-      media_title: media.media_title,
-      poster_path: media.poster_path || undefined,
-      release_date: media.release_date || undefined,
-      runtime: media.runtime || undefined,
-    };
-  }
-
-  /**
-   * Extract media information from watch party for display
-   */
-  public extractMediaInfo(watchParty: WatchParty): {
+  public extractMediaInfo(stream: Stream): {
     tmdbId?: number;
     mediaType?: "movie" | "tv";
     title?: string;
@@ -1632,23 +1351,19 @@ export class HabitatsRepository {
     releaseDate?: string;
     runtime?: number;
   } | null {
-    if (
-      !watchParty.tmdb_id ||
-      !watchParty.media_type ||
-      !watchParty.media_title
-    ) {
+    if (!stream.tmdb_id || !stream.media_type || !stream.media_title) {
       return null;
     }
 
     return {
-      tmdbId: watchParty.tmdb_id,
-      mediaType: watchParty.media_type,
-      title: watchParty.media_title,
-      posterUrl: watchParty.poster_path
-        ? this.constructTMDBPosterUrl(watchParty.poster_path)
+      tmdbId: stream.tmdb_id,
+      mediaType: stream.media_type,
+      title: stream.media_title,
+      posterUrl: stream.poster_path
+        ? this.constructTMDBPosterUrl(stream.poster_path)
         : undefined,
-      releaseDate: watchParty.release_date || undefined,
-      runtime: watchParty.runtime || undefined,
+      releaseDate: stream.release_date || undefined,
+      runtime: stream.runtime || undefined,
     };
   }
 

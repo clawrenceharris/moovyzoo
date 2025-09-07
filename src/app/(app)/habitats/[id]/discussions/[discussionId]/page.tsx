@@ -3,10 +3,7 @@
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ChatInterface } from "@/features/habitats/components";
-import {
-  useDiscussionMessages,
-  useDiscussionRealtimeChat,
-} from "@/features/habitats/hooks";
+
 import type {
   Discussion,
   HabitatWithMembership,
@@ -14,6 +11,8 @@ import type {
 import { habitatsService } from "@/features/habitats/domain/habitats.service";
 import { normalizeError } from "@/utils/normalize-error";
 import { useUser } from "@/hooks/use-user";
+import { useDiscussionMessages } from "@/features/habitats/hooks/use-discussion-messages";
+import { useDiscussionRealtimeChat } from "@/features/habitats/hooks/use-discussion-realtime-chat";
 
 export default function DiscussionRoomPage() {
   const params = useParams();
@@ -70,8 +69,7 @@ export default function DiscussionRoomPage() {
     removeMessage,
   } = useDiscussionMessages(
     accessState.hasAccess ? habitatId : null,
-    accessState.hasAccess ? discussionId : null,
-    user?.id || null
+    accessState.hasAccess ? discussionId : null
   );
 
   // Use discussion-specific real-time chat

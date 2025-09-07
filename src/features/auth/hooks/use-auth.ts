@@ -4,7 +4,7 @@ import { User } from "@supabase/supabase-js";
 import type { AuthState, SignupData, LoginData } from "../domain/auth.types";
 import { authServices } from "../domain/auth.service";
 import { useRouter } from "next/navigation";
-import { getFriendlyErrorMessage } from "@/utils/normalize-error";
+import { getUserErrorMessage, normalizeError } from "@/utils/normalize-error";
 
 export function useAuth() {
   const [authState, setAuthState] = useState<AuthState>({
@@ -39,7 +39,7 @@ export function useAuth() {
           setAuthState({
             user: null,
             loading: false,
-            error: getFriendlyErrorMessage(error),
+            error: getUserErrorMessage(error),
           });
         }
       }
@@ -58,7 +58,7 @@ export function useAuth() {
       setAuthState((prev) => ({
         ...prev,
         loading: false,
-        error: getFriendlyErrorMessage(error),
+        error: getUserErrorMessage(error),
       }));
       throw error;
     }
@@ -76,7 +76,7 @@ export function useAuth() {
         setAuthState((prev) => ({
           ...prev,
           loading: false,
-          error: getFriendlyErrorMessage(error),
+          error: getUserErrorMessage(error),
         }));
         throw error;
       }
@@ -95,7 +95,7 @@ export function useAuth() {
       setAuthState((prev) => ({
         ...prev,
         loading: false,
-        error: getFriendlyErrorMessage(error),
+        error: getUserErrorMessage(error),
       }));
       throw error;
     }
@@ -110,7 +110,7 @@ export function useAuth() {
     } catch (error) {
       setAuthState((prev) => ({
         ...prev,
-        error: getFriendlyErrorMessage(error),
+        error: getUserErrorMessage(error),
       }));
       throw error;
     }
@@ -126,7 +126,7 @@ export function useAuth() {
       } catch (error) {
         setAuthState((prev) => ({
           ...prev,
-          error: getFriendlyErrorMessage(error),
+          error: getUserErrorMessage(error),
         }));
         throw error;
       }
@@ -144,7 +144,7 @@ export function useAuth() {
       } catch (error) {
         setAuthState((prev) => ({
           ...prev,
-          error: getFriendlyErrorMessage(error),
+          error: getUserErrorMessage(error),
         }));
       }
     },

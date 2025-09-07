@@ -72,15 +72,15 @@
   }
 
   /* Habitat Card Components */
-  .habitat-card {
-    @apply relative overflow-hidden rounded-xl bg-card border border-border/50 cursor-pointer transition-all duration-300 hover:scale-[1.02];
+  .media-card {
+    @apply p-2 relative overflow-hidden rounded-md bg-card border border-border/80 cursor-pointer transition-all duration-300 hover:scale-[1.02];
   }
 
-  .habitat-card-banner {
-    @apply relative aspect-[16/10] overflow-hidden;
+  .media-card-banner {
+    @apply relative aspect-[16/10] overflow-hidden rounded-md;
   }
 
-  .habitat-card-banner::after {
+  .media-card-banner::after {
     @apply bg-background/50 absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent;
     content: "";
   }
@@ -101,23 +101,23 @@
     @apply flex items-center p-6 justify-between mt-auto;
   }
 
-  .habitat-card-members {
+  .media-card-members {
     @apply flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-sm font-medium;
   }
 
-  .habitat-card-members-icon {
+  .media-card-members-icon {
     @apply w-4 h-4 text-accent;
   }
 
-  .habitat-card-cta {
+  .media-card-cta {
     @apply px-6 py-2.5 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold rounded-lg transition-colors duration-200;
   }
 
-  .habitat-card-tags {
-    @apply absolute top-4 right-4 flex flex-wrap gap-1.5 z-20;
+  .media-card-tags {
+    @apply absolute bottom-4 left-4 flex flex-wrap gap-1.5 z-20;
   }
 
-  .habitat-card-tag {
+  .media-card-tag {
     @apply px-2 py-1 text-xs font-medium bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white/90;
   }
 

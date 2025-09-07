@@ -25,7 +25,7 @@ const BASE_ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     Permission.CREATE_POLL,
     Permission.VOTE_POLL,
 
-    // Watch party participation
+    // Streaming session participation
     Permission.CREATE_WATCH_PARTY,
     Permission.JOIN_WATCH_PARTY,
   ],
@@ -193,7 +193,7 @@ export const SPECIAL_PERMISSION_RULES: SpecialPermissionRule[] = [
       userId === resourceOwnerId ||
       Boolean(userRole && isRoleHigherThan(userRole, Role.MEMBER)),
     description:
-      "Users can delete their own watch parties, or moderators+ can delete any",
+      "Users can delete their own streaming sessions, or moderators+ can delete any",
   },
 ];
 

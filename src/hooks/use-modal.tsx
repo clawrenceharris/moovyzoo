@@ -1,6 +1,5 @@
-import { Modal } from "@/components";
-import { ModalProps } from "@/components/Modal";
-import { cloneElement, useRef, useState } from "react";
+import { Modal, ModalProps } from "@/components/ui/Modal";
+import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 const useModal = ({ onClose, children, ...props }: ModalProps) => {

@@ -264,9 +264,10 @@ export function isUserFacingError(error: NormalizedError): boolean {
 /**
  * Gets a user-friendly error message from a normalized error
  */
-export function getUserErrorMessage(error: NormalizedError): string {
-  if (isUserFacingError(error)) {
-    return getErrorMessage(error.code).message;
+export function getUserErrorMessage(error: unknown): string {
+  const normalizedError = normalizeError(error);
+  if (isUserFacingError(normalizedError)) {
+    return getErrorMessage(normalizedError.code).message;
   }
 
   // Return generic message for internal errors

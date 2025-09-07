@@ -58,17 +58,16 @@ export const queryKeys = {
       [...queryKeys.polls.detail(id), "results"] as const,
   },
 
-  // Watch party-related queries
-  watchParties: {
-    all: ["watchParties"] as const,
+  // Streaming session-related queries
+  streaming: {
+    all: ["streaming"] as const,
     byHabitat: (habitatId: string) =>
-      [...queryKeys.watchParties.all, "habitat", habitatId] as const,
-    detail: (id: string) =>
-      [...queryKeys.watchParties.all, "detail", id] as const,
+      [...queryKeys.streaming.all, "habitat", habitatId] as const,
+    detail: (id: string) => [...queryKeys.streaming.all, "detail", id] as const,
     upcoming: (habitatId: string) =>
-      [...queryKeys.watchParties.byHabitat(habitatId), "upcoming"] as const,
+      [...queryKeys.streaming.byHabitat(habitatId), "upcoming"] as const,
     active: (habitatId: string) =>
-      [...queryKeys.watchParties.byHabitat(habitatId), "active"] as const,
+      [...queryKeys.streaming.byHabitat(habitatId), "active"] as const,
   },
 
   // User-related queries
@@ -141,7 +140,7 @@ export const queryKeyHelpers = {
     queryKeys.discussions.byHabitat(habitatId),
     queryKeys.messages.byHabitat(habitatId),
     queryKeys.polls.byHabitat(habitatId),
-    queryKeys.watchParties.byHabitat(habitatId),
+    queryKeys.streaming.byHabitat(habitatId),
   ],
 
   /**

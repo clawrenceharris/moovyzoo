@@ -1,8 +1,8 @@
-# Watch Party Media Integration - Implementation Plan
+# Streaming Session Media Integration - Implementation Plan
 
 ## Task Overview
 
-This implementation plan transforms watch party creation from basic text-based events into rich, media-driven experiences by integrating TMDB movie and TV show search. The tasks are organized to build incrementally from database foundation through UI components to final integration.
+This implementation plan transforms streaming session creation from basic text-based events into rich, media-driven experiences by integrating TMDB movie and TV show search. The tasks are organized to build incrementally from database foundation through UI components to final integration.
 
 ## Implementation Tasks
 
@@ -35,35 +35,35 @@ This implementation plan transforms watch party creation from basic text-based e
   - Style component to match design system and ensure mobile responsiveness
   - _Requirements: 1.1, 1.4, 1.5, 4.2, 4.3, 4.5, 7.1, 7.3_
 
-- [ ] 4. Update watch party creation form
+- [ ] 4. Update streaming session creation form
 
-  - Integrate MediaSearchField into WatchPartyCreationForm component
+  - Integrate MediaSearchField into StreamCreationForm component
   - Update form validation schema to include optional media fields
   - Modify form submission to include selected media data
   - Ensure form works correctly with and without media selection
   - Add form field for media search with proper labeling and help text
   - _Requirements: 1.1, 1.6, 6.1_
 
-- [x] 5. Update watch party data layer
+- [x] 5. Update streaming session data layer
 
-  - Modify habitats repository to handle media fields in watch party creation
-  - Update createWatchParty method to store media information
-  - Modify getWatchParties methods to include media data in responses
+  - Modify habitats repository to handle media fields in streaming session creation
+  - Update createStream method to store media information
+  - Modify getStreaming methods to include media data in responses
   - Add database mapping functions for media fields
   - Implement proper error handling for media data storage failures
   - _Requirements: 2.1, 2.2, 2.3_
 
-- [x] 6. Update watch party service layer
+- [x] 6. Update streaming session service layer
 
   - Modify habitats service to validate and process media data
-  - Update createWatchParty service method to handle media information
+  - Update createStream service method to handle media information
   - Add validation for TMDB IDs and media types
   - Implement business logic for optional media association
   - _Requirements: 2.1, 2.2, 6.3_
 
-- [x] 7. Enhance WatchPartyCard component
+- [x] 7. Enhance StreamCard component
 
-  - Update WatchPartyCard to display media poster images
+  - Update StreamCard to display media poster images
   - Add media title and type display with proper styling
   - Implement fallback images for missing or failed poster loads
   - Add release year and media type badges
@@ -71,12 +71,12 @@ This implementation plan transforms watch party creation from basic text-based e
   - Update component props interface to include media information
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 6.4, 7.4_
 
-- [ ] 8. Update watch party types and schemas
+- [ ] 8. Update streaming session types and schemas
 
   - Add media-related TypeScript interfaces to habitats.types.ts
-  - Update Zod validation schemas for watch party creation with media fields
-  - Create SelectedMedia and WatchPartyMedia type definitions
-  - Update CreateWatchPartyData interface to include media fields
+  - Update Zod validation schemas for streaming session creation with media fields
+  - Create SelectedMedia and StreamMedia type definitions
+  - Update CreateStreamData interface to include media fields
   - Ensure type safety across all components using media data
   - _Requirements: 2.1, 2.2_
 
@@ -86,7 +86,7 @@ This implementation plan transforms watch party creation from basic text-based e
   - Implement graceful degradation when media search is unavailable
   - Create fallback UI states for failed image loads and API errors
   - Add retry mechanisms for failed search requests
-  - Ensure watch party creation works regardless of media search state
+  - Ensure streaming session creation works regardless of media search state
   - Add user-friendly error messages following brand voice
   - _Requirements: 4.4, 6.1, 6.2, 6.3, 6.4, 6.5_
 
@@ -94,24 +94,24 @@ This implementation plan transforms watch party creation from basic text-based e
 
   - Write unit tests for TMDB service with mocked API responses
   - Create tests for MediaSearchField component interactions and state management
-  - Add tests for enhanced WatchPartyCard with media display scenarios
-  - Write integration tests for watch party creation with media selection
+  - Add tests for enhanced StreamCard with media display scenarios
+  - Write integration tests for streaming session creation with media selection
   - Test error scenarios and fallback behaviors
   - Add visual regression tests for responsive design
   - _Requirements: All requirements - comprehensive testing coverage_
 
-- [ ] 11. Update watch party carousel and list displays
+- [ ] 11. Update streaming session carousel and list displays
 
-  - Modify WatchPartiesCarousel to show enhanced cards with media
-  - Update any other watch party list components to display media information
-  - Ensure consistent media display across all watch party UI components
+  - Modify StreamingCarousel to show enhanced cards with media
+  - Update any other streaming session list components to display media information
+  - Ensure consistent media display across all streaming session UI components
   - Test carousel performance with image loading
   - _Requirements: 3.1, 3.2, 3.3, 7.4_
 
 - [ ] 12. Performance optimization and caching
 
   - Implement search result caching with appropriate TTL
-  - Add image lazy loading for watch party cards
+  - Add image lazy loading for streaming session cards
   - Optimize TMDB image sizes for different display contexts
   - Implement request throttling to prevent API abuse
   - Add performance monitoring for search and image loading
@@ -128,16 +128,16 @@ This implementation plan transforms watch party creation from basic text-based e
 
 - [ ] 14. Integration testing and bug fixes
 
-  - Test complete flow from media search to watch party creation
-  - Verify media display in all watch party UI components
+  - Test complete flow from media search to streaming session creation
+  - Verify media display in all streaming session UI components
   - Test edge cases like network failures and invalid media data
   - Fix any bugs discovered during integration testing
-  - Ensure backward compatibility with existing watch parties
+  - Ensure backward compatibility with existing streaming sessions
   - _Requirements: All requirements - end-to-end validation_
 
 - [ ] 15. Documentation and cleanup
   - Update component documentation with new media functionality
-  - Create Storybook stories for MediaSearchField and enhanced WatchPartyCard
+  - Create Storybook stories for MediaSearchField and enhanced StreamCard
   - Document TMDB service usage and configuration
   - Clean up any unused imports or temporary code
   - Update README with new environment variable requirements

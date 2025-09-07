@@ -1,8 +1,4 @@
 "use client";
-
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useFormContext } from "react-hook-form";
 import { CreateDiscussionInput } from "../domain";
 import {
@@ -10,7 +6,8 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from "@/components/ui/form";
+  Input,
+} from "@/components/ui";
 
 export function DiscussionCreationForm() {
   const {

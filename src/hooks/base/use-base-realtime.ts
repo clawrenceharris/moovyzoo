@@ -14,7 +14,7 @@ interface UseBaseRealtimeState {
   error: string | null;
 }
 
-interface UseBaseRealtimeCallbacks<T = any> {
+interface UseBaseRealtimeCallbacks<T extends { [key: string]: any } = any> {
   onInsert?: (payload: RealtimePostgresChangesPayload<T>) => void;
   onUpdate?: (payload: RealtimePostgresChangesPayload<T>) => void;
   onDelete?: (payload: RealtimePostgresChangesPayload<T>) => void;
@@ -28,7 +28,7 @@ interface UseBaseRealtimeOptions {
   maxReconnectAttempts?: number;
 }
 
-interface UseBaseRealtimeParams<T = any> {
+interface UseBaseRealtimeParams<T extends { [key: string]: any } = any> {
   channelName: string;
   tableName: string;
   filter?: string;
@@ -42,7 +42,7 @@ interface UseBaseRealtimeParams<T = any> {
  * Handles connection management, subscriptions, and error recovery
  * Can be extended for specific real-time use cases
  */
-export function useBaseRealtime<T = any>({
+export function useBaseRealtime<T extends { [key: string]: any } = any>({
   channelName,
   tableName,
   filter,
@@ -98,33 +98,29 @@ export function useBaseRealtime<T = any>({
 
       // Set up postgres change listeners
       const baseConfig = {
+        event: "*" as const,
         schema: "public",
         table: tableName,
         ...(filter && { filter }),
       };
 
-      channel
-        .on(
-          "postgres_changes",
-          { ...baseConfig, event: "INSERT" },
-          (payload: RealtimePostgresChangesPayload<T>) => {
-            callbacksRef.current.onInsert?.(payload);
+      channel.on(
+        "postgres_changes",
+        baseConfig,
+        (payload: RealtimePostgresChangesPayload<T>) => {
+          switch (payload.eventType) {
+            case "INSERT":
+              callbacksRef.current.onInsert?.(payload);
+              break;
+            case "UPDATE":
+              callbacksRef.current.onUpdate?.(payload);
+              break;
+            case "DELETE":
+              callbacksRef.current.onDelete?.(payload);
+              break;
           }
-        )
-        .on(
-          "postgres_changes",
-          { ...baseConfig, event: "UPDATE" },
-          (payload: RealtimePostgresChangesPayload<T>) => {
-            callbacksRef.current.onUpdate?.(payload);
-          }
-        )
-        .on(
-          "postgres_changes",
-          { ...baseConfig, event: "DELETE" },
-          (payload: RealtimePostgresChangesPayload<T>) => {
-            callbacksRef.current.onDelete?.(payload);
-          }
-        );
+        }
+      );
 
       // Handle channel status changes
       channel.subscribe((status, err) => {
