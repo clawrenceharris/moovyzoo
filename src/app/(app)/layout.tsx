@@ -19,8 +19,6 @@ export default function RootLayout({
     <QueryProvider>
       <UserProvider user={user}>
         <div className="flex min-h-screen flex-col">
-          <Header />
-
           {/* Page Content */}
 
           <main className="flex-1">{children}</main>

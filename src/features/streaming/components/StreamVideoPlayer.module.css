@@ -1,0 +1,274 @@
+/* Video Player Styles */
+.videoPlayer {
+  position: relative;
+  background: #000;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  outline: none;
+}
+
+.videoPlayer:focus-visible {
+  ring: 2px solid var(--accent);
+  ring-offset: 2px;
+}
+
+.videoElement {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  display: block;
+}
+
+.loadingOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.loadingText {
+  color: white;
+  font-size: 1rem;
+  animation: pulse 2s infinite;
+}
+
+.errorContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 16rem;
+  background: #1a1a1a;
+  border-radius: 0.5rem;
+}
+
+.errorContent {
+  text-align: center;
+}
+
+.errorText {
+  color: #ef4444;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.controlsOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  padding: 1rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.videoPlayer:hover .controlsOverlay,
+.videoPlayer:focus-within .controlsOverlay {
+  opacity: 1;
+}
+
+.progressContainer {
+  margin-bottom: 1rem;
+}
+
+.progressBar {
+  width: 100%;
+  height: 0.5rem;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 0.25rem;
+  appearance: none;
+  cursor: pointer;
+  outline: none;
+}
+
+.progressBar::-webkit-slider-thumb {
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  background: var(--primary);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.progressBar::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  background: var(--primary);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.progressBar:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.timeDisplay {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 0.25rem;
+}
+
+.controlsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.leftControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.volumeControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.volumeSlider {
+  width: 5rem;
+  height: 0.5rem;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 0.25rem;
+  appearance: none;
+  cursor: pointer;
+  outline: none;
+}
+
+.volumeSlider::-webkit-slider-thumb {
+  appearance: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.volumeSlider::-moz-range-thumb {
+  width: 0.75rem;
+  height: 0.75rem;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.rightControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.controlButton {
+  color: white;
+  background: transparent;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.controlButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.controlButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.viewOnlyIndicator {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  backdrop-filter: blur(4px);
+}
+
+/* Mobile optimizations */
+.mobileOptimized {
+  /* Larger touch targets on mobile */
+}
+
+.mobileOptimized .controlButton {
+  padding: 0.75rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+}
+
+.mobileOptimized .progressBar {
+  height: 0.75rem;
+}
+
+.mobileOptimized .progressBar::-webkit-slider-thumb {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.mobileOptimized .progressBar::-moz-range-thumb {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.mobileOptimized .volumeSlider {
+  width: 4rem;
+  height: 0.75rem;
+}
+
+.mobileOptimized .controlsOverlay {
+  padding: 1.5rem 1rem;
+}
+
+/* Animations */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Fullscreen styles */
+.videoPlayer:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+}
+
+.videoPlayer:fullscreen .videoElement {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Focus styles for accessibility */
+.progressBar:focus-visible,
+.volumeSlider:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.controlButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

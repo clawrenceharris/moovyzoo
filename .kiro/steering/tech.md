@@ -12,5 +12,5 @@ inclusion: manual
   - Data: Supabase (social data), Realtime Database (presence + party sync) + TMDB (Movie Data)
   - Storage: Supabase Storage for media
 - State: TanStack Query or direct listeners (hook wrappers)
-- Tests: Vitest (unit)
+- Tests: Vitest (unit) TDD methodology
 - Deploy: Vercel

@@ -1,35 +1,23 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui";
-import { Plus } from "lucide-react";
 import { HabitatHero } from "./HabitatHero";
 import { HabitatDiscussions } from "./HabitatDiscussions";
 import { HabitatStreams } from "./HabitatStreams";
 import { HabitatInfo } from "./HabitatInfo";
 import { LoadingState, ErrorState } from "@/components";
-import { habitatsService } from "../domain/habitats.service";
-import type { HabitatDashboardData, Poll } from "../domain/habitats.types";
-import { normalizeError } from "@/utils/normalize-error";
-import { Stream } from "@/features/streaming";
+import type { HabitatDashboardData } from "../domain/habitats.types";
+import { getUserErrorMessage } from "@/utils/normalize-error";
+import { useHabitatDashboard } from "@/hooks/queries/use-habitat-queries";
+import useModal from "@/hooks/use-modal";
+import { StreamCreationForm } from "@/features/streaming/components/StreamCreationForm";
+import { useJoinStream, useLeaveStream } from "@/features/streaming";
 
 interface HabitatDashboardProps {
   habitatId: string;
   userId: string;
   className?: string;
-}
-
-interface HabitatDashboardState {
-  dashboardData: HabitatDashboardData | null;
-  loading: boolean;
-  error: string | null;
-}
-
-interface ModalState {
-  discussionModal: boolean;
-  pollModal: boolean;
-  streamModal: boolean;
 }
 
 export function HabitatDashboard({
@@ -38,81 +26,35 @@ export function HabitatDashboard({
   className = "",
 }: HabitatDashboardProps) {
   const router = useRouter();
-  const [state, setState] = useState<HabitatDashboardState>({
-    dashboardData: null,
-    loading: true,
-    error: null,
-  });
-
-  const [modals, setModals] = useState<ModalState>({
-    discussionModal: false,
-    pollModal: false,
-    streamModal: false,
-  });
-
-  // Fetch dashboard data
-  const fetchDashboardData = useCallback(async () => {
-    if (!habitatId || !userId) return;
-
-    setState((prev) => ({ ...prev, loading: true, error: null }));
-
-    try {
-      const dashboardData = await habitatsService.getDashboardData(
-        habitatId,
-        userId
-      );
-      setState({
-        dashboardData,
-        loading: false,
-        error: null,
-      });
-    } catch (error) {
-      const normalizedError = normalizeError(error);
-      setState({
-        dashboardData: null,
-        loading: false,
-        error: normalizedError.message,
-      });
-    }
-  }, [habitatId, userId]);
-
-  // Load dashboard data on mount
-  useEffect(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData]);
-
-  // Handle retry
-  const handleRetry = useCallback(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData]);
-
-  // Modal management
-  const openModal = (modalType: keyof ModalState) => {
-    setModals((prev) => ({ ...prev, [modalType]: true }));
-  };
-
-  const closeModal = (modalType: keyof ModalState) => {
-    setModals((prev) => ({ ...prev, [modalType]: false }));
-  };
-
-  const handlePollCreated = useCallback(
-    (poll: Poll) => {
-      // Refresh dashboard data to show new poll
-      fetchDashboardData();
-    },
-    [fetchDashboardData]
+  const { isLoading, error, refetch, data } = useHabitatDashboard(
+    habitatId,
+    userId
   );
+  const { mutate: joinStream } = useJoinStream();
+  const { mutate: leaveStream } = useLeaveStream();
 
-  const handleStreamCreated = useCallback(
-    (stream: Stream) => {
-      // Refresh dashboard data to show new streaming session
-      fetchDashboardData();
-    },
-    [fetchDashboardData]
-  );
+  const {
+    closeModal: closeStreamCreationModal,
+    openModal: openStreamCreationModal,
+    modal: streamCreationModal,
+  } = useModal({
+    title: "Create Stream",
+    children: (
+      <StreamCreationForm
+        isLoading={isLoading}
+        onSuccess={() => {
+          closeStreamCreationModal();
+          refetch();
+        }}
+        onCancel={() => closeStreamCreationModal}
+        habitatId={habitatId}
+        userId={userId}
+      />
+    ),
+  });
 
   // Show loading state
-  if (state.loading) {
+  if (isLoading) {
     return (
       <div className={`flex flex-col h-full bg-background ${className}`}>
         <LoadingState variant="grid" />
@@ -121,23 +63,23 @@ export function HabitatDashboard({
   }
 
   // Show error state
-  if (state.error) {
+  if (error) {
     return (
       <div className={`flex flex-col h-full bg-background ${className}`}>
         <ErrorState
           title="Unable to load habitat"
-          message={state.error}
-          onRetry={handleRetry}
-          retryLabel="Try Again"
+          message={getUserErrorMessage(error.message)}
+          onRetry={refetch}
         />
       </div>
     );
   }
 
   // Show dashboard
-  if (state.dashboardData) {
+  if (data) {
     return (
       <div className={`flex flex-col h-full bg-background ${className}`}>
+        {streamCreationModal}
         {/* Breadcrumb Navigation */}
         <div className="border-b border-border  px-6 py-3 backdrop-blur-md">
           <nav className="flex items-center gap-2 text-sm">
@@ -161,38 +103,38 @@ export function HabitatDashboard({
               />
             </svg>
             <span className="text-foreground font-medium">
-              {state.dashboardData.habitat.name}
+              {data.habitat.name}
             </span>
           </nav>
         </div>
 
         {/* Dashboard Content */}
-        <div className="flex-1 overflow-auto bg-background">
+        <div className="flex-1 overflow-y-auto bg-background">
           {/* Hero Section - Full Width */}
           <div className="px-6 pt-6">
             <HabitatHero
-              habitat={state.dashboardData.habitat}
-              onStartStream={() => openModal("streamModal")}
-              onCreatePoll={() => openModal("pollModal")}
+              habitat={data.habitat}
+              onStartStream={openStreamCreationModal}
             />
           </div>
 
-          {/* Streaming Sessions Carousel - Prominent Feature */}
+          {/* Streams Carousel - Prominent Feature */}
           <HabitatStreams
-            streams={state.dashboardData.streams}
+            userId={userId}
+            streams={data.streams}
             onJoinStream={(streamId) => {
-              // TODO: Implement join streaming session
-              console.log("Join streaming session:", streamId);
+              joinStream({ streamId, userId });
+              console.log("Join Stream:", streamId);
             }}
             onLeaveStream={(streamId) => {
-              // TODO: Implement leave streaming session
-              console.log("Leave streaming session:", streamId);
+              leaveStream({ streamId, userId });
+              console.log("Leave Stream:", streamId);
             }}
             onEnterStream={(streamId) => {
-              // TODO: Navigate to streaming session room
-              console.log("Enter streaming session:", streamId);
+              router.push(`/streams/${streamId}`);
+              console.log("Enter Stream:", streamId);
             }}
-            onCreateStream={() => openModal("streamModal")}
+            onCreateStream={openStreamCreationModal}
           />
 
           {/* Dashboard Grid */}
@@ -202,12 +144,12 @@ export function HabitatDashboard({
               <div className="lg:col-span-2 space-y-8">
                 {/* Popular in Habitat Section */}
                 <HabitatDiscussions
-                  loading={state.loading}
+                  loading={isLoading}
                   habitatId={habitatId}
-                  discussions={state.dashboardData.discussions}
+                  discussions={data.discussions}
                   onDiscussionClick={(discussionId) => {
                     router.push(
-                      `/habitats/${state.dashboardData?.habitat.id}/discussions/${discussionId}`
+                      `/habitats/${data.habitat.id}/discussions/${discussionId}`
                     );
                   }}
                 />
@@ -216,9 +158,9 @@ export function HabitatDashboard({
               {/* Sidebar */}
               <div className="space-y-6">
                 <HabitatInfo
-                  habitat={state.dashboardData.habitat}
-                  members={state.dashboardData.members}
-                  onlineMembers={state.dashboardData.onlineMembers}
+                  habitat={data.habitat}
+                  members={data.members}
+                  onlineMembers={data.onlineMembers}
                   onViewAllMembers={() => {
                     // TODO: Open members modal or navigate to members page
                     console.log("View all members");
@@ -234,8 +176,8 @@ export function HabitatDashboard({
 
   // Fallback state (shouldn't happen)
   return (
-    <div className={`flex flex-col h-full bg-background ${className}`}>
-      <ErrorState message="Something went wrong" onRetry={handleRetry} />
+    <div className="flex flex-col h-full bg-background">
+      <ErrorState message="Something went wrong" onRetry={refetch} />
     </div>
   );
 }

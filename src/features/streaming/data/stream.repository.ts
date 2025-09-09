@@ -4,6 +4,7 @@ import type {
   StreamInsert,
   StreamUpdate,
   StreamParticipant,
+  ParticipantInsert,
 } from "../domain/stream.types";
 import { supabase } from "@/utils/supabase/client";
 
@@ -69,17 +70,46 @@ export class StreamingRepository {
   async getStreamParticipants(streamId: string): Promise<StreamParticipant[]> {
     try {
       const { data, error } = await supabase
-        .from("streaming_members")
-        .select("*")
+        .from("stream_members")
+        .select(
+          `
+          id,
+          stream_id,
+          user_id,
+          joined_at,
+          is_host,
+          reminder_enabled,
+          created_at,
+          user_profiles:user_id (
+            display_name,
+            avatar_url
+          )
+        `
+        )
         .eq("stream_id", streamId)
-        .eq("is_active", true);
-
+        .order("is_host", { ascending: false })
+        .order("joined_at", { ascending: true });
+      console.log({ data });
       if (error) {
         console.error("Error fetching participants:", error);
         return [];
       }
 
-      return data || [];
+      return (data || []).map((participant) => ({
+        id: participant.id,
+        stream_id: participant.stream_id,
+        user_id: participant.user_id,
+        joined_at: participant.joined_at,
+        is_host: participant.is_host,
+        reminder_enabled: participant.reminder_enabled,
+        created_at: participant.created_at,
+        profile: participant.user_profiles
+          ? {
+              display_name: (participant.user_profiles as any).display_name,
+              avatar_url: (participant.user_profiles as any).avatar_url,
+            }
+          : undefined,
+      }));
     } catch (error) {
       console.error("Error in getStreamParticipants:", error);
       return [];
@@ -92,11 +122,10 @@ export class StreamingRepository {
   async isUserParticipant(streamId: string, userId: string): Promise<boolean> {
     try {
       const { data, error } = await supabase
-        .from("streaming_members")
+        .from("stream_members")
         .select("user_id")
         .eq("stream_id", streamId)
         .eq("user_id", userId)
-        .eq("is_active", true)
         .maybeSingle();
 
       return !error && !!data;
@@ -107,14 +136,19 @@ export class StreamingRepository {
   }
 
   /**
-   * Join streaming session
+   * Join streaming session (legacy method - use service layer for new functionality)
    */
   async joinStream(streamId: string, userId: string): Promise<boolean> {
     try {
-      const { error } = await supabase.from("streaming_members").insert({
+      // Check if this will be the first participant (becomes host)
+      const existingParticipants = await this.getStreamParticipants(streamId);
+      const isFirstParticipant = existingParticipants.length === 0;
+
+      const { error } = await supabase.from("stream_members").insert({
         stream_id: streamId,
         user_id: userId,
-        is_active: true,
+        is_host: isFirstParticipant,
+        reminder_enabled: false,
       });
 
       if (error) {
@@ -122,8 +156,6 @@ export class StreamingRepository {
         return false;
       }
 
-      // Update participant count
-      await this.updateParticipantCount(streamId);
       return true;
     } catch (error) {
       console.error("Error in joinStream:", error);
@@ -132,13 +164,13 @@ export class StreamingRepository {
   }
 
   /**
-   * Leave streaming session
+   * Leave streaming session (legacy method - use service layer for new functionality)
    */
   async leaveStream(streamId: string, userId: string): Promise<boolean> {
     try {
       const { error } = await supabase
-        .from("streaming_members")
-        .update({ is_active: false })
+        .from("stream_members")
+        .delete()
         .eq("stream_id", streamId)
         .eq("user_id", userId);
 
@@ -147,8 +179,6 @@ export class StreamingRepository {
         return false;
       }
 
-      // Update participant count
-      await this.updateParticipantCount(streamId);
       return true;
     } catch (error) {
       console.error("Error in leaveStream:", error);
@@ -396,10 +426,9 @@ export class StreamingRepository {
   private async updateParticipantCount(streamId: string): Promise<void> {
     try {
       const { count } = await supabase
-        .from("streaming_members")
+        .from("stream_members")
         .select("*", { count: "exact", head: true })
-        .eq("stream_id", streamId)
-        .eq("is_active", true);
+        .eq("stream_id", streamId);
 
       await supabase
         .from("streams")
@@ -407,6 +436,410 @@ export class StreamingRepository {
         .eq("id", streamId);
     } catch (error) {
       console.error("Error updating participant count:", error);
+    }
+  }
+
+  // ===== PARTICIPANT MANAGEMENT REPOSITORY METHODS =====
+
+  /**
+   * Transform raw participant data to StreamParticipant interface
+   */
+  private transformParticipantData(data: any): StreamParticipant {
+    return {
+      id: data.id,
+      stream_id: data.stream_id,
+      user_id: data.user_id,
+      joined_at: data.joined_at,
+      is_host: data.is_host,
+      reminder_enabled: data.reminder_enabled,
+      created_at: data.created_at,
+      profile: data.profiles
+        ? {
+            display_name: data.profiles.display_name,
+            avatar_url: data.profiles.avatar_url,
+          }
+        : undefined,
+    };
+  }
+
+  /**
+   * Create a new participant record
+   */
+  async createParticipant(participantData: {
+    stream_id: string;
+    user_id: string;
+    is_host: boolean;
+    reminder_enabled: boolean;
+  }): Promise<StreamParticipant> {
+    try {
+      const { data, error } = await supabase
+        .from("stream_members")
+        .insert(participantData)
+        .select(
+          `
+          id,
+          stream_id,
+          user_id,
+          joined_at,
+          is_host,
+          reminder_enabled,
+          created_at,
+          user_profiles:user_id (
+            display_name,
+            avatar_url
+          )
+        `
+        )
+        .single();
+
+      if (error) {
+        throw new Error(`Failed to create participant: ${error.message}`);
+      }
+
+      return {
+        id: data.id,
+        stream_id: data.stream_id,
+        user_id: data.user_id,
+        joined_at: data.joined_at,
+        is_host: data.is_host,
+        reminder_enabled: data.reminder_enabled,
+        created_at: data.created_at,
+        profile: data.user_profiles
+          ? {
+              display_name: (data.user_profiles as any).display_name,
+              avatar_url: (data.user_profiles as any).avatar_url,
+            }
+          : undefined,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get participant by ID
+   */
+  async getParticipantById(
+    participantId: string
+  ): Promise<StreamParticipant | null> {
+    try {
+      const { data, error } = await supabase
+        .from("stream_members")
+        .select(
+          `
+          id,
+          stream_id,
+          user_id,
+          joined_at,
+          is_host,
+          reminder_enabled,
+          created_at,
+          user_profiles:user_id (
+            display_name,
+            avatar_url
+          )
+        `
+        )
+        .eq("id", participantId)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching participant by ID:", error);
+        return null;
+      }
+
+      if (!data) {
+        return null;
+      }
+
+      return {
+        id: data.id,
+        stream_id: data.stream_id,
+        user_id: data.user_id,
+        joined_at: data.joined_at,
+        is_host: data.is_host,
+        reminder_enabled: data.reminder_enabled,
+        created_at: data.created_at,
+        profile: data.user_profiles
+          ? {
+              display_name: (data.user_profiles as any).display_name,
+              avatar_url: (data.user_profiles as any).avatar_url,
+            }
+          : undefined,
+      };
+    } catch (error) {
+      console.error("Error in getParticipantById:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Update participant reminder setting
+   */
+  async updateParticipantReminder(
+    streamId: string,
+    userId: string,
+    reminderEnabled: boolean
+  ): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from("stream_members")
+        .update({ reminder_enabled: reminderEnabled })
+        .eq("stream_id", streamId)
+        .eq("user_id", userId);
+
+      if (error) {
+        throw new Error(`Failed to update reminder setting: ${error.message}`);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Delete participant record
+   */
+  async deleteParticipant(streamId: string, userId: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from("stream_members")
+        .delete()
+        .eq("stream_id", streamId)
+        .eq("user_id", userId);
+
+      if (error) {
+        throw new Error(`Failed to delete participant: ${error.message}`);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get participant count for a stream
+   */
+  async getParticipantCount(streamId: string): Promise<number> {
+    try {
+      const { count, error } = await supabase
+        .from("stream_members")
+        .select("*", { count: "exact", head: true })
+        .eq("stream_id", streamId);
+
+      if (error) {
+        console.error("Error getting participant count:", error);
+        return 0;
+      }
+
+      return count || 0;
+    } catch (error) {
+      console.error("Error in getParticipantCount:", error);
+      return 0;
+    }
+  }
+
+  /**
+   * Get stream host participant
+   */
+  async getStreamHost(streamId: string): Promise<StreamParticipant | null> {
+    try {
+      const { data, error } = await supabase
+        .from("stream_members")
+        .select(
+          `
+          id,
+          stream_id,
+          user_id,
+          joined_at,
+          is_host,
+          reminder_enabled,
+          created_at,
+          user_profiles:user_id (
+            display_name,
+            avatar_url
+          )
+        `
+        )
+        .eq("stream_id", streamId)
+        .eq("is_host", true)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching stream host:", error);
+        return null;
+      }
+
+      if (!data) {
+        return null;
+      }
+
+      return {
+        id: data.id,
+        stream_id: data.stream_id,
+        user_id: data.user_id,
+        joined_at: data.joined_at,
+        is_host: data.is_host,
+        reminder_enabled: data.reminder_enabled,
+        created_at: data.created_at,
+        profile: data.user_profiles
+          ? {
+              display_name: (data.user_profiles as any).display_name,
+              avatar_url: (data.user_profiles as any).avatar_url,
+            }
+          : undefined,
+      };
+    } catch (error) {
+      console.error("Error in getStreamHost:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Update participant host status
+   */
+  async updateParticipantHostStatus(
+    streamId: string,
+    userId: string,
+    isHost: boolean
+  ): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from("stream_members")
+        .update({ is_host: isHost })
+        .eq("stream_id", streamId)
+        .eq("user_id", userId);
+
+      if (error) {
+        throw new Error(`Failed to update host status: ${error.message}`);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get participants with profile information
+   */
+  async getParticipantsWithProfiles(
+    streamId: string
+  ): Promise<StreamParticipant[]> {
+    try {
+      const { data, error } = await supabase
+        .from("stream_members")
+        .select(
+          `
+          id,
+          stream_id,
+          user_id,
+          joined_at,
+          is_host,
+          reminder_enabled,
+          created_at,
+          user_profiles:user_id (
+            display_name,
+            avatar_url
+          )
+        `
+        )
+        .eq("stream_id", streamId)
+        .order("is_host", { ascending: false })
+        .order("joined_at", { ascending: true });
+
+      if (error) {
+        console.error("Error fetching participants with user_profiles", error);
+        return [];
+      }
+
+      return (data || []).map((participant) => ({
+        id: participant.id,
+        stream_id: participant.stream_id,
+        user_id: participant.user_id,
+        joined_at: participant.joined_at,
+        is_host: participant.is_host,
+        reminder_enabled: participant.reminder_enabled,
+        created_at: participant.created_at,
+        profile: participant.user_profiles
+          ? {
+              display_name: (participant.user_profiles as any).display_name,
+              avatar_url: (participant.user_profiles as any).avatar_url,
+            }
+          : undefined,
+      }));
+    } catch (error) {
+      console.error("Error in getParticipantsWithProfiles:", error);
+      return [];
+    }
+  }
+
+  // ===== PLAYBACK SYNCHRONIZATION REPOSITORY METHODS =====
+
+  /**
+   * Update playback state for a stream
+   */
+  async updatePlaybackState(
+    streamId: string,
+    playbackState: {
+      currentTime?: number;
+      isPlaying?: boolean;
+    }
+  ): Promise<void> {
+    try {
+      const updateData: Record<string, any> = {
+        last_sync_at: new Date().toISOString(),
+      };
+
+      if (playbackState.currentTime !== undefined) {
+        updateData.current_time = Math.floor(playbackState.currentTime);
+      }
+
+      if (playbackState.isPlaying !== undefined) {
+        updateData.is_playing = playbackState.isPlaying;
+      }
+
+      const { error } = await supabase
+        .from("streams")
+        .update(updateData)
+        .eq("id", streamId);
+
+      if (error) {
+        throw new Error(`Failed to update playback state: ${error.message}`);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get current playback state for a stream
+   */
+  async getPlaybackState(streamId: string): Promise<{
+    currentTime: number;
+    isPlaying: boolean;
+    lastSyncAt: string;
+  } | null> {
+    try {
+      const { data, error } = await supabase
+        .from("streams")
+        .select("current_time, is_playing, last_sync_at")
+        .eq("id", streamId)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching playback state:", error);
+        return null;
+      }
+
+      if (!data) {
+        return null;
+      }
+
+      return {
+        currentTime: data.current_time || 0,
+        isPlaying: data.is_playing || false,
+        lastSyncAt: data.last_sync_at || new Date().toISOString(),
+      };
+    } catch (error) {
+      console.error("Error in getPlaybackState:", error);
+      return null;
     }
   }
 }

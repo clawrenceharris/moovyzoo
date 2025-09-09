@@ -1,8 +1,8 @@
 // TMDB API Configuration
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
-const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+const NEXT_PUBLIC_TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 
-if (!TMDB_API_KEY) {
+if (!NEXT_PUBLIC_TMDB_API_KEY) {
   throw new Error(
     "NEXT_PUBLIC_TMDB_API_KEY is required. Please set it in your environment variables."
   );
@@ -401,7 +401,7 @@ async function tmdbFetch<T>(
     method: "GET",
     headers: {
       accept: "application/json",
-      Authorization: `Bearer ${TMDB_API_KEY}`,
+      Authorization: `Bearer ${NEXT_PUBLIC_TMDB_API_KEY}`,
     },
   };
 
@@ -453,7 +453,7 @@ export async function searchMulti(title: string): Promise<TMDBSearchResult[]> {
   if (!title.trim()) {
     throw new Error("Title is required for search");
   }
-  console.log(TMDB_API_KEY);
+  console.log(NEXT_PUBLIC_TMDB_API_KEY);
   const response = await tmdbFetch<TMDBMultiSearchResponse>("/search/multi", {
     query: title.trim(),
 

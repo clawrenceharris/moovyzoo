@@ -16,17 +16,17 @@ export default function StreamingSessionNotFound() {
           {/* Title and Message */}
           <div className="space-y-2">
             <h1 className="text-2xl font-bold text-foreground">
-              Streaming Session Not Found
+              Stream Not Found
             </h1>
             <p className="text-muted-foreground">
-              This streaming session doesn't exist or may have been removed.
+              This Stream doesn't exist or may have been removed.
             </p>
           </div>
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button asChild>
-              <Link href="/streams">Browse Streaming Sessions</Link>
+              <Link href="/streams">Browse Streams</Link>
             </Button>
             <Button variant="outline" asChild>
               <Link href="/" className="flex items-center gap-2">

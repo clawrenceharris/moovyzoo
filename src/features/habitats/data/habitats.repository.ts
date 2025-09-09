@@ -305,7 +305,7 @@ export class HabitatsRepository {
         .select(
           `
           *,
-          profiles:user_id (
+          user_profiles:user_id (
             display_name,
             avatar_url
           )
@@ -416,7 +416,7 @@ export class HabitatsRepository {
         .select(
           `
           *,
-          profiles:user_id (
+          user_profiles:user_id (
             display_name,
             avatar_url
           )
@@ -452,7 +452,7 @@ export class HabitatsRepository {
         .select(
           `
           *,
-          profiles:user_id (
+          user_profiles:user_id (
             display_name,
             avatar_url
           )
@@ -489,7 +489,7 @@ export class HabitatsRepository {
         .select(
           `
           *,
-          profiles:user_id (
+          user_profiles:user_id (
             display_name,
             avatar_url
           )
@@ -646,7 +646,7 @@ export class HabitatsRepository {
         .select(
           `
           *,
-          profiles:user_id (
+          user_profiles:user_id (
             display_name,
             avatar_url
           )
@@ -1248,17 +1248,17 @@ export class HabitatsRepository {
     created_by: string;
     created_at: string;
     is_active: boolean;
-    tmdb_id?: number;
-    media_type?: "movie" | "tv";
-    media_title?: string;
-    poster_path?: string;
+    tmdb_id: number;
+    media_type: "movie" | "tv";
+    media_title: string;
+    poster_path: string | null;
     release_date?: string;
     runtime?: number;
   }): Stream {
     return {
       id: dbStream.id,
       habitat_id: dbStream.habitat_id,
-      description: dbStream.description || undefined,
+      description: dbStream.description,
       scheduled_time: dbStream.scheduled_time,
       participant_count: dbStream.participant_count,
       max_participants: dbStream.max_participants || 0,
@@ -1266,12 +1266,12 @@ export class HabitatsRepository {
       created_at: dbStream.created_at,
       is_active: dbStream.is_active,
       // Media integration fields
-      tmdb_id: dbStream.tmdb_id || undefined,
-      media_type: dbStream.media_type || undefined,
-      media_title: dbStream.media_title || undefined,
-      poster_path: dbStream.poster_path || undefined,
-      release_date: dbStream.release_date || undefined,
-      runtime: dbStream.runtime || undefined,
+      tmdb_id: dbStream.tmdb_id,
+      media_type: dbStream.media_type,
+      media_title: dbStream.media_title,
+      poster_path: dbStream.poster_path,
+      release_date: dbStream.release_date,
+      runtime: dbStream.runtime,
     };
   }
 

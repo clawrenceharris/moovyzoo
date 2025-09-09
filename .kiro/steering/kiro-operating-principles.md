@@ -25,6 +25,29 @@ Kiro must include these sections in its PR summary or output:
 - **Migrations**: If a migration is unavoidable, add a `MIGRATION.md` note with steps and a revert path.
 - **Idempotence**: Re-running the spec should produce no further changes if nothing else changed.
 
+### Important!! Test-Driven Development (TDD) - MANDATORY
+
+**Requirement:** All code must be developed using strict Test-Driven Development practices.
+
+#### TDD Cycle (Red-Green-Refactor)
+
+1. **Red:** Write a failing test that describes the desired behavior
+2. **Green:** Write the minimal code to make the test pass
+3. **Refactor:** Improve code quality while keeping tests green
+
+#### TDD Implementation Rules
+
+- **No Production Code:** Write no production code without a failing test
+- **Minimal Test Code:** Write only enough test code to demonstrate a failure
+- **Minimal Production Code:** Write only enough production code to pass the failing test
+- **Test First:** Always write tests before implementation code
+- **Full Test Suite:** The complete test suite MUST be passing before marking any task as complete
+
+## Things to Avoid:
+
+- Do not run `npm run test:unit` or similar command. This throws an error.
+- Instead run `npm run test *` command.
+
 ## Architecture Guardrails
 
 - **UI**: Shadcn UI (Button, Input, Card, Dialogue, etc) + Tailwind v4 tokens via `@theme`. Use component classes (`btn`, `card`, `form-*`)

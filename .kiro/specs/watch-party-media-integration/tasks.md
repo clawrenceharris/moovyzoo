@@ -2,9 +2,11 @@
 
 ## Task Overview
 
-This implementation plan transforms streaming session creation from basic text-based events into rich, media-driven experiences by integrating TMDB movie and TV show search. The tasks are organized to build incrementally from database foundation through UI components to final integration.
+This implementation plan transforms streaming sessions into comprehensive watch party experiences with media integration, participant management, real-time video synchronization, and interactive features. The tasks build incrementally from database foundation through UI components to complete watch party functionality including join/leave actions, video player, and real-time chat.
 
 ## Implementation Tasks
+
+**Note:** Tasks 1-14 focus on media integration and search functionality. Tasks 15-26 add participant management, video player, and real-time features. Some tasks can be worked on in parallel, but database tasks (1, 15) should be completed before dependent service and UI tasks.
 
 - [x] 1. Database schema updates for media storage
 
@@ -135,10 +137,127 @@ This implementation plan transforms streaming session creation from basic text-b
   - Ensure backward compatibility with existing streaming sessions
   - _Requirements: All requirements - end-to-end validation_
 
-- [ ] 15. Documentation and cleanup
+- [ ] 15. Implement stream participants database layer
+
+  - Create migration script for stream_participants table
+  - Add stream_messages table for chat functionality
+  - Update habitat_watch_parties table with playback state columns
+  - Create repository methods for participant management (join, leave, list)
+  - Implement chat message storage and retrieval methods
+  - Add proper indexes and foreign key constraints
+  - _Requirements: 6.2, 6.5, 9.4, 9.5_
+
+- [ ] 16. Implement stream join/leave functionality
+
+  - Create service methods for joining and leaving streams
+  - Add participant validation and duplicate prevention
+  - Implement host assignment logic for first participant
+  - Create reminder toggle functionality
+  - Add real-time participant updates using Supabase realtime
+  - Handle edge cases like stream deletion while user is participant
+  - _Requirements: 6.1, 6.2, 6.5, 7.5_
+
+- [ ] 17. Update StreamCard with join functionality and menu
+
+  - Add Join button for non-participants with loading states
+  - Implement three-dots menu button using Shadcn DropdownMenu component
+  - Create menu options based on user participation status
+  - Add participant count display and visual indicators
+  - Implement join/leave actions with optimistic updates
+  - Add reminder toggle functionality in menu
+  - Style components according to design system guidelines
+  - _Requirements: 6.1, 6.3, 6.4, 7.1, 7.2, 7.3, 7.4, 7.6_
+
+- [ ] 18. Create video player component
+
+  - Build StreamingVideoPlayer component with HTML5 video element
+  - Implement custom video controls with play/pause/seek functionality
+  - Add fullscreen support and responsive design
+  - Create loading and error states for media playback
+  - Implement playback synchronization logic for multiple participants
+  - Add host-only controls and participant view-only mode
+  - Handle different media types (movie vs TV show episodes)
+  - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7_
+
+- [ ] 19. Implement stream page layout
+
+  - Create new stream page layout with video player and sidebar
+  - Build responsive design that works on desktop, tablet, and mobile
+  - Implement collapsible sidebar for mobile devices
+  - Add proper spacing and visual hierarchy
+  - Ensure video player takes appropriate screen real estate
+  - Handle different screen orientations and sizes
+  - _Requirements: 9.1, 9.6, 9.7, 10.6, 10.7_
+
+- [ ] 20. Create participants sidebar component
+
+  - Build ParticipantsSidebar component with real-time participant list
+  - Display participant avatars, names, and host indicators
+  - Implement real-time updates when participants join/leave
+  - Add host controls for managing participants (if needed)
+  - Style component according to design system
+  - Handle empty states and loading states
+  - _Requirements: 9.2, 9.4_
+
+- [ ] 21. Implement stream chat functionality
+
+  - Create StreamChat component with message input and display
+  - Implement real-time messaging using Supabase realtime subscriptions
+  - Add message history loading and pagination
+  - Create message bubbles with user avatars and timestamps
+  - Add typing indicators and message status
+  - Implement proper error handling for message sending
+  - Style chat interface according to design system
+  - _Requirements: 9.3, 9.5_
+
+- [ ] 22. Add playback synchronization
+
+  - Implement real-time playback state synchronization
+  - Create host controls that broadcast to all participants
+  - Add participant sync when joining mid-session
+  - Handle network issues and reconnection scenarios
+  - Implement buffering coordination across participants
+  - Add conflict resolution for simultaneous control actions
+  - _Requirements: 8.4, 8.5, 8.6, 8.7_
+
+- [ ] 23. Update stream service layer for new functionality
+
+  - Add service methods for participant management
+  - Implement chat message handling in service layer
+  - Create playback state management methods
+  - Add validation for join/leave operations
+  - Implement business logic for host assignment and permissions
+  - Add error handling for all new service operations
+  - _Requirements: 6.2, 6.5, 7.5, 8.4, 9.4, 9.5_
+
+- [ ] 24. Mobile optimization and responsive design
+
+  - Optimize video player for mobile touch controls
+  - Implement mobile-friendly sidebar (bottom sheet or overlay)
+  - Ensure join/leave functionality works well on touch devices
+  - Test menu interactions on mobile devices
+  - Optimize chat interface for mobile keyboards
+  - Add proper viewport handling for video fullscreen
+  - Test across different mobile screen sizes and orientations
+  - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7_
+
+- [ ] 25. Comprehensive testing for new features
+
+  - Write unit tests for participant management functionality
+  - Create tests for video player component and playback sync
+  - Add integration tests for join/leave workflow
+  - Test chat functionality with real-time updates
+  - Create tests for responsive design and mobile interactions
+  - Add error scenario testing for network failures
+  - Test concurrent user interactions and edge cases
+  - _Requirements: All new requirements - comprehensive testing coverage_
+
+- [ ] 26. Documentation and cleanup
   - Update component documentation with new media functionality
   - Create Storybook stories for MediaSearchField and enhanced StreamCard
   - Document TMDB service usage and configuration
+  - Add documentation for video player and chat components
+  - Document participant management and playback sync features
   - Clean up any unused imports or temporary code
   - Update README with new environment variable requirements
   - _Requirements: Supporting documentation for all implemented features_

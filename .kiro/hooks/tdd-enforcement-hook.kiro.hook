@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "TDD Enforcement",
+  "description": "Enforces Test-Driven Development practices when files are created, ensuring Red-Green-Refactor cycle compliance and no production code without failing tests",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.{ts",
+      "tsx",
+      "js",
+      "jsx}"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A new file has been created. Please ensure TDD practices are followed:\n\n1. **Red:** Create failing test that describes the desired behavior for the feature\n2. **Green:** Write the minimal code to make the test pass  \n3. **Refactor:** Improve code quality while keeping tests green\n\n**Rules:**\n- **No Production Code:** Write no production code without a failing test\n- **Minimal Test Code:** Write only enough test code to demonstrate a failure\n- **Minimal Production Code:** Write only enough production code to pass the failing test\n- **Test First:** Always write tests before implementation code\n- **Full Test Suite:** The complete test suite MUST be passing before marking any task as complete\n\nPlease review the created file and ensure it follows these TDD principles. If it's a production file without corresponding tests, create the failing tests first."
+  }
+}
