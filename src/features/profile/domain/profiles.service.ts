@@ -25,7 +25,24 @@ export class ProfilesService {
       }
 
       // Check if profile already exists
-      const exists = await profilesRepository.existsByUserId(data.userId);
+      let exists = false;
+      try {
+        exists = await profilesRepository.existsByUserId(data.userId);
+      } catch (err: any) {
+        // Supabase returns PGRST116 when .single() finds no rows.
+        // Treat that as "does not exist" instead of a hard failure.
+        const code = (err?.code || err?.status || "").toString();
+        if (code === "PGRST116") {
+          exists = false;
+        } else {
+          // Any other error should be surfaced via failure result
+          console.error("Error checking profile existence:", err);
+          return {
+            success: false,
+            errorCode: "CREATE_PROFILE_FAILED",
+          };
+        }
+      }
       if (exists) {
         return {
           success: false,
@@ -155,6 +172,38 @@ export class ProfilesService {
         success: false,
         errorCode: "UPDATE_LAST_ACTIVE_FAILED",
       };
+    }
+  }
+
+  /**
+   * Delete user profile by user ID
+   */
+  async deleteProfile(userId: string): Promise<ProfileServiceResult<void>> {
+    try {
+      if (!userId) {
+        return { success: false, errorCode: "INVALID_USER_ID" };
+      }
+      await profilesRepository.deleteByUserId(userId);
+      return { success: true };
+    } catch (error) {
+      console.error("Error deleting profile:", error);
+      return { success: false, errorCode: "DELETE_PROFILE_FAILED" };
+    }
+  }
+
+  /**
+   * Check whether a profile exists for a given user ID
+   */
+  async profileExists(userId: string): Promise<boolean> {
+    try {
+      return await profilesRepository.existsByUserId(userId);
+    } catch (err: any) {
+      const code = (err?.code || err?.status || "").toString();
+      if (code === "PGRST116" || code === "406") {
+        // No rows found
+        return false;
+      }
+      throw err;
     }
   }
 }

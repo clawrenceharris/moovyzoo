@@ -70,6 +70,13 @@ export enum AppErrorCode {
   SUBSCRIPTION_FAILED = "SUBSCRIPTION_FAILED",
   REALTIME_ERROR = "REALTIME_ERROR",
 
+  // Friend Operations
+  FRIEND_REQUEST_ALREADY_EXISTS = "FRIEND_REQUEST_ALREADY_EXISTS",
+  FRIEND_REQUEST_NOT_FOUND = "FRIEND_REQUEST_NOT_FOUND",
+  CANNOT_FRIEND_SELF = "CANNOT_FRIEND_SELF",
+  PROFILE_NOT_PUBLIC = "PROFILE_NOT_PUBLIC",
+  WATCH_HISTORY_INVALID = "WATCH_HISTORY_INVALID",
+
   // Generic Errors
   UNKNOWN_ERROR = "UNKNOWN_ERROR",
   INTERNAL_ERROR = "INTERNAL_ERROR",
@@ -467,6 +474,43 @@ export const errorMetadata: Record<AppErrorCode, ErrorMetadata> = {
     category: ErrorCategory.REALTIME,
     severity: ErrorSeverity.MEDIUM,
     retryable: true,
+    userFacing: true,
+  },
+
+  // Friend Operations
+  [AppErrorCode.FRIEND_REQUEST_ALREADY_EXISTS]: {
+    code: AppErrorCode.FRIEND_REQUEST_ALREADY_EXISTS,
+    category: ErrorCategory.BUSINESS_LOGIC,
+    severity: ErrorSeverity.LOW,
+    retryable: false,
+    userFacing: true,
+  },
+  [AppErrorCode.FRIEND_REQUEST_NOT_FOUND]: {
+    code: AppErrorCode.FRIEND_REQUEST_NOT_FOUND,
+    category: ErrorCategory.BUSINESS_LOGIC,
+    severity: ErrorSeverity.LOW,
+    retryable: false,
+    userFacing: true,
+  },
+  [AppErrorCode.CANNOT_FRIEND_SELF]: {
+    code: AppErrorCode.CANNOT_FRIEND_SELF,
+    category: ErrorCategory.BUSINESS_LOGIC,
+    severity: ErrorSeverity.LOW,
+    retryable: false,
+    userFacing: true,
+  },
+  [AppErrorCode.PROFILE_NOT_PUBLIC]: {
+    code: AppErrorCode.PROFILE_NOT_PUBLIC,
+    category: ErrorCategory.BUSINESS_LOGIC,
+    severity: ErrorSeverity.LOW,
+    retryable: false,
+    userFacing: true,
+  },
+  [AppErrorCode.WATCH_HISTORY_INVALID]: {
+    code: AppErrorCode.WATCH_HISTORY_INVALID,
+    category: ErrorCategory.VALIDATION,
+    severity: ErrorSeverity.LOW,
+    retryable: false,
     userFacing: true,
   },
 

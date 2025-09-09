@@ -1,14 +1,15 @@
 "use client";
 
 import { Card, CardContent, Avatar, AvatarFallback, AvatarImage, Badge, Button } from "@/components/ui";
-import { MessageCircle, UserPlus } from "lucide-react";
-import type { UserProfile } from "../domain/profiles.types";
+import { MessageCircle, UserPlus, UserCheck, Clock } from "lucide-react";
+import type { UserProfile, ProfileWithFriendStatus } from "../domain/profiles.types";
 
 interface ProfileCardProps {
-  profile: UserProfile;
+  profile: UserProfile | ProfileWithFriendStatus;
   onViewProfile?: () => void;
   onSendMessage?: () => void;
   onAddFriend?: () => void;
+  onFriendAction?: (action: 'add' | 'accept' | 'decline', profileId: string) => void;
   showActions?: boolean;
 }
 
@@ -17,6 +18,7 @@ export function ProfileCard({
   onViewProfile, 
   onSendMessage, 
   onAddFriend,
+  onFriendAction,
   showActions = true 
 }: ProfileCardProps) {
   const displayName = profile.displayName || profile.username || "Anonymous User";
@@ -26,6 +28,103 @@ export function ProfileCard({
     .join("")
     .toUpperCase()
     .slice(0, 2);
+
+  // Check if profile has friend status (ProfileWithFriendStatus)
+  const friendStatus = 'friendStatus' in profile ? profile.friendStatus : null;
+
+  const handleFriendAction = (action: 'add' | 'accept' | 'decline') => {
+    if (onFriendAction) {
+      onFriendAction(action, profile.userId);
+    } else if (action === 'add' && onAddFriend) {
+      // Fallback to legacy onAddFriend prop
+      onAddFriend();
+    }
+  };
+
+  const renderFriendButton = () => {
+    if (!friendStatus) {
+      // Legacy behavior - show add friend button
+      return (
+        <Button 
+          size="sm" 
+          variant="outline" 
+          onClick={() => handleFriendAction('add')}
+          className="gap-1"
+        >
+          <UserPlus className="w-3 h-3" />
+        </Button>
+      );
+    }
+
+    switch (friendStatus.status) {
+      case 'none':
+        return (
+          <Button 
+            size="sm" 
+            variant="outline" 
+            onClick={() => handleFriendAction('add')}
+            className="gap-1"
+          >
+            <UserPlus className="w-3 h-3" />
+            Add Friend
+          </Button>
+        );
+      
+      case 'pending_sent':
+        return (
+          <Button 
+            size="sm" 
+            variant="outline" 
+            disabled
+            className="gap-1 opacity-60"
+          >
+            <Clock className="w-3 h-3" />
+            Request Sent
+          </Button>
+        );
+      
+      case 'pending_received':
+        return (
+          <div className="flex gap-1 shrink-0">
+            <Button 
+              size="sm" 
+              onClick={() => handleFriendAction('accept')}
+              className="gap-1 whitespace-nowrap"
+            >
+              <UserCheck className="w-3 h-3" />
+              Accept
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => handleFriendAction('decline')}
+              className="whitespace-nowrap"
+            >
+              Decline
+            </Button>
+          </div>
+        );
+      
+      case 'friends':
+        return (
+          <Button 
+            size="sm" 
+            variant="outline" 
+            disabled
+            className="gap-1 opacity-60"
+          >
+            <UserCheck className="w-3 h-3" />
+            Friends
+          </Button>
+        );
+      
+      case 'blocked':
+        return null; // Don't show any button for blocked users
+      
+      default:
+        return null;
+    }
+  };
 
   return (
     <Card className="hover:scale-[1.02] transition-transform duration-200 cursor-pointer">
@@ -64,30 +163,27 @@ export function ProfileCard({
             )}
 
             {showActions && (
-              <div className="flex gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Button 
                   size="sm" 
                   onClick={onViewProfile}
-                  className="flex-1"
+                  className="text-gray-400 font-normal whitespace-nowrap"
+                  variant="outline"
+                  
                 >
                   View Profile
                 </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={onSendMessage}
-                  className="gap-1"
-                >
-                  <MessageCircle className="w-3 h-3" />
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={onAddFriend}
-                  className="gap-1"
-                >
-                  <UserPlus className="w-3 h-3" />
-                </Button>
+                {onSendMessage && (
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={onSendMessage}
+                    className="gap-1"
+                  >
+                    <MessageCircle className="w-3 h-3" />
+                  </Button>
+                )}
+                {renderFriendButton()}
               </div>
             )}
           </div>

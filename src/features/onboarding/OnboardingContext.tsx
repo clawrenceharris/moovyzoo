@@ -53,6 +53,7 @@ export function OnboardingProvider({
   const [currentStep, setCurrentStep] = useState(1);
 
   const updateData = useCallback((updates: Partial<OnboardingData>) => {
+    console.log("Updating data:", updates);
     setData((prev) => ({ ...prev, ...updates }));
   }, []);
 

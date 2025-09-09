@@ -5,12 +5,13 @@ import { ProfileHeader } from "./ProfileHeader";
 import { ProfileStats } from "./ProfileStats";
 import { FavoriteTitles } from "./FavoriteTitles";
 import { RecentActivity } from "./RecentActivity";
+import { WatchHistory } from "./WatchHistory";
 import { LoadingState } from "@/components/states";
 import { ErrorState } from "@/components/states";
-import type { UserProfile } from "../domain/profiles.types";
+import type { UserProfile, ProfileWithFriendStatus, FriendStatus } from "../domain/profiles.types";
 
 interface ProfilePageProps {
-  profile: UserProfile | null;
+  profile: ProfileWithFriendStatus | UserProfile | null;
   isLoading?: boolean;
   error?: string;
   isOwnProfile?: boolean;
@@ -18,6 +19,13 @@ interface ProfilePageProps {
 
 export function ProfilePage({ profile, isLoading, error, isOwnProfile = false }: ProfilePageProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [friendStatus, setFriendStatus] = useState<FriendStatus | undefined>(
+    profile && 'friendStatus' in profile ? profile.friendStatus : undefined
+  );
+
+  // Check if profile has friend status (ProfileWithFriendStatus)
+  const profileWithFriendStatus = profile && 'friendStatus' in profile ? profile as ProfileWithFriendStatus : null;
+  const watchHistory = profileWithFriendStatus?.recentWatchHistory;
 
   if (isLoading) {
     return (
@@ -52,6 +60,8 @@ export function ProfilePage({ profile, isLoading, error, isOwnProfile = false }:
         profile={profile}
         isOwnProfile={isOwnProfile}
         onEditClick={() => setIsEditModalOpen(true)}
+        friendStatus={friendStatus}
+        onFriendStatusChange={setFriendStatus}
       />
 
       {/* Stats Section */}
@@ -73,12 +83,20 @@ export function ProfilePage({ profile, isLoading, error, isOwnProfile = false }:
           {/* Favorite Titles */}
           <FavoriteTitles titles={profile.favoriteTitles} />
 
+          {/* Watch History - only show if available */}
+          {watchHistory && watchHistory.length > 0 && (
+            <WatchHistory 
+              watchHistory={watchHistory} 
+              isOwnProfile={isOwnProfile}
+            />
+          )}
+
           {/* Recent Activity */}
           <RecentActivity />
         </div>
       </div>
 
-      {/* Edit Profile Modal - TODO: Implement */}
+      {/* Edit Profile Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-card border rounded-xl p-6 max-w-md w-full">

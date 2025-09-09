@@ -1,17 +1,26 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage, Button, Badge } from "@/components/ui";
-import { Edit, Globe, Lock } from "lucide-react";
+import { Edit, Globe, Lock, UserPlus, Users, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
-import type { UserProfile } from "../domain/profiles.types";
+import type { UserProfile, FriendStatus } from "../domain/profiles.types";
+import { useFriendActions } from "../hooks/use-friend-actions";
 
 interface ProfileHeaderProps {
   profile: UserProfile;
   isOwnProfile?: boolean;
   onEditClick?: () => void;
+  friendStatus?: FriendStatus;
+  onFriendStatusChange?: (newStatus: FriendStatus) => void;
 }
 
-export function ProfileHeader({ profile, isOwnProfile = false, onEditClick }: ProfileHeaderProps) {
+export function ProfileHeader({ 
+  profile, 
+  isOwnProfile = false, 
+  onEditClick, 
+  friendStatus,
+  onFriendStatusChange 
+}: ProfileHeaderProps) {
   const router = useRouter();
   const displayName = profile.displayName || profile.username || "Anonymous User";
   const initials = displayName
@@ -20,6 +29,13 @@ export function ProfileHeader({ profile, isOwnProfile = false, onEditClick }: Pr
     .join("")
     .toUpperCase()
     .slice(0, 2);
+
+  // Friend actions hook (only for other users' profiles)
+  const friendActions = !isOwnProfile && friendStatus ? useFriendActions({
+    userId: profile.userId,
+    initialFriendStatus: friendStatus,
+    onStatusChange: onFriendStatusChange,
+  }) : null;
 
   return (
     <div className="bg-card border border-border/50 rounded-xl p-8">
@@ -64,7 +80,7 @@ export function ProfileHeader({ profile, isOwnProfile = false, onEditClick }: Pr
                 )}
               </Badge>
               
-              {isOwnProfile && (
+              {isOwnProfile ? (
                 <Button 
                   onClick={() => router.push("/profile/edit")} 
                   variant="outline" 
@@ -74,6 +90,27 @@ export function ProfileHeader({ profile, isOwnProfile = false, onEditClick }: Pr
                   <Edit className="w-4 h-4" />
                   Edit Profile
                 </Button>
+              ) : friendActions && (
+                <Button
+                  onClick={friendActions.handleButtonClick}
+                  variant={friendActions.getButtonVariant()}
+                  size="sm"
+                  disabled={friendActions.isButtonDisabled()}
+                  className="gap-2"
+                >
+                  {friendActions.friendStatus.status === 'friends' ? (
+                    <Users className="w-4 h-4" />
+                  ) : friendActions.friendStatus.status === 'pending_sent' ? (
+                    <Clock className="w-4 h-4" />
+                  ) : (
+                    <UserPlus className="w-4 h-4" />
+                  )}
+                  {friendActions.getButtonText()}
+                </Button>
+              )}
+              
+              {friendActions?.error && (
+                <p className="text-sm text-red-500">{friendActions.error}</p>
               )}
             </div>
           </div>

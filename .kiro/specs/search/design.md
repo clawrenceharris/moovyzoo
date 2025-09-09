@@ -173,7 +173,7 @@ export interface UserSearchResult {
   avatarUrl?: string;
   quote?: string;
   favoriteGenres?: string[];
-  lastActiveAt: Date;
+  createdAt: Date;
 }
 
 export interface ContentSearchResult {

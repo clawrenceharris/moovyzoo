@@ -30,7 +30,6 @@ export interface UserProfileDocument {
   created_at: string;
   updated_at: string;
   onboarding_completed: boolean;
-  last_active_at?: string;
   user_id: string;
 }
 
@@ -60,7 +59,6 @@ export interface UserProfile {
   onboardingCompleted: boolean;
   createdAt: Date;
   updatedAt: Date;
-  lastActiveAt?: Date;
 }
 
 export interface CreateProfileData {
@@ -94,7 +92,7 @@ export interface PublicProfile {
   displayName: string;
   avatarUrl?: string;
   favoriteGenres?: string[]; // Only if showFavoriteGenres is true
-  lastActiveAt: Date;
+  createdAt: Date;
 }
 
 export interface PrivacySettingsDocument {
@@ -109,7 +107,52 @@ export interface PublicProfileDocument {
   display_name: string;
   avatar_url?: string;
   favorite_genres?: string[]; // Only if showFavoriteGenres is true
-  last_active_at: Date;
+  created_at: string;
+}
+
+// Friend relationship types
+export interface Friend {
+  id: string;
+  requesterId: string;
+  receiverId: string;
+  status: 'pending' | 'accepted' | 'blocked';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface FriendRequest {
+  id: string;
+  requester: {
+    id: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
+  createdAt: Date;
+}
+
+export interface FriendStatus {
+  status: 'none' | 'pending_sent' | 'pending_received' | 'friends' | 'blocked';
+  friendshipId?: string;
+}
+
+// Watch history types
+export interface WatchHistoryEntry {
+  id: string;
+  userId: string;
+  movieId: string;
+  title: string;
+  posterUrl?: string;
+  mediaType: 'movie' | 'tv';
+  status: 'watched' | 'watching' | 'dropped';
+  rating?: number;
+  watchedAt: Date;
+}
+
+// Enhanced profile types
+export interface ProfileWithFriendStatus extends UserProfile {
+  friendStatus: FriendStatus;
+  recentWatchHistory?: WatchHistoryEntry[];
+  mutualFriendsCount?: number;
 }
 
 // Service layer results

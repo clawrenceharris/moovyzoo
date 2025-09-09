@@ -1,5 +1,9 @@
+import { ProfileDiscovery } from "@/features/profile/components/ProfileDiscovery";
 import { EmptyState } from "@/components/states";
+import { createClient } from "@/utils/supabase/server";
+import { profilesServerRepository } from "@/features/profile/data/profiles.server";
 import type { Metadata } from "next";
+import { ProfileWithFriendStatus } from "@/features/profile/domain/profiles.types";
 
 export const metadata: Metadata = {
   title: "Discover Profiles | Zoovie",
@@ -8,20 +12,50 @@ export const metadata: Metadata = {
 
 export default async function ProfileDiscoverPage() {
   try {
-    // This would normally fetch public profiles from the server
-    // For now, we'll show a placeholder
+    const supabase = await createClient();
+    
+    // Get current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      return (
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          <EmptyState
+            title="Authentication Required"
+            description="Please sign in to discover and connect with other users."
+            variant="card"
+          />
+        </div>
+      );
+    }
+
+    // Fetch initial profiles directly from the server repository
+    let initialProfiles: ProfileWithFriendStatus[] | undefined = [];
+    let initialPagination = { limit: 20, offset: 0, hasMore: false };
+
+    try {
+      const profiles = await profilesServerRepository.getPublicProfilesWithFriendStatus(
+        user.id,
+        20,
+        0
+      );
+      
+      initialProfiles = profiles;
+      initialPagination = {
+        limit: 20,
+        offset: 0,
+        hasMore: profiles.length === 20, // If we got full limit, there might be more
+      };
+    } catch (error) {
+      console.error("Error fetching initial profiles:", error);
+      // Continue with empty profiles - the client component will handle loading
+    }
 
     return (
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Discover Profiles</h1>
-          <p className="text-muted-foreground">Connect with other movie and TV enthusiasts</p>
-        </div>
-
-        <EmptyState
-          title="Profile Discovery Coming Soon"
-          description="We're working on a way for you to discover and connect with other users who share your interests."
-          variant="card"
+        <ProfileDiscovery 
+          initialProfiles={initialProfiles}
+          initialPagination={initialPagination}
         />
       </div>
     );

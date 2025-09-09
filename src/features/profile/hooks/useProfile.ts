@@ -22,8 +22,15 @@ export function useProfile(userId?: string) {
         const profileData = await profilesRepository.getByUserId(userId);
         setProfile(profileData);
       } catch (err) {
-        console.error("Error fetching profile:", err);
-        setError("Failed to load profile");
+        // Treat Supabase "no rows" as no profile instead of an error
+        const code = (err as any)?.code || (err as any)?.status;
+        if (code === "PGRST116" || code === 406) {
+          setProfile(null);
+          setError(null);
+        } else {
+          console.error("Error fetching profile:", err);
+          setError("Failed to load profile");
+        }
       } finally {
         setIsLoading(false);
       }

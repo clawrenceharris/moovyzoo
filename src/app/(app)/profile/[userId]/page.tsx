@@ -1,7 +1,7 @@
-import { profilesServerRepository } from "@/features/profile/data/profiles.server";
 import { ProfilePage } from "@/features/profile/components/ProfilePage";
 import { createClient } from "@/utils/supabase/server";
 import type { Metadata } from "next";
+import type { ProfileWithFriendStatus } from "@/features/profile/domain/profiles.types";
 
 interface ProfilePageProps {
   params: Promise<{ userId: string }>;
@@ -21,37 +21,50 @@ export default async function UserProfilePage({ params }: ProfilePageProps) {
     // Get current user to check if viewing own profile
     const { data: { user: currentUser } } = await supabase.auth.getUser();
     
-    // Get the profile for the requested user
-    const profile = await profilesServerRepository.getProfileByUserId(userId);
-    
-    if (!profile) {
+    if (!currentUser) {
       return (
         <ProfilePage 
           profile={null} 
-          error="Profile not found"
+          error="Please log in to view profiles"
           isOwnProfile={false}
         />
       );
     }
 
-    // Check if profile is public or if it's the user's own profile
-    const isOwnProfile = currentUser?.id === userId;
-    const canViewProfile = profile.isPublic || isOwnProfile;
-    
-    if (!canViewProfile) {
+    const isOwnProfile = currentUser.id === userId;
+
+    // If viewing own profile, use the simple profile endpoint
+    if (isOwnProfile) {
+      // For own profile, we can use the existing server repository
+      const { profilesServerRepository } = await import("@/features/profile/data/profiles.server");
+      const profile = await profilesServerRepository.getProfileByUserId(userId);
+      
+      if (!profile) {
+        return (
+          <ProfilePage 
+            profile={null} 
+            error="Profile not found"
+            isOwnProfile={true}
+          />
+        );
+      }
+
       return (
         <ProfilePage 
-          profile={null} 
-          error="This profile is private"
-          isOwnProfile={false}
+          profile={profile} 
+          isOwnProfile={true}
         />
       );
     }
+
+    // For other users' profiles, use the server repository that includes friend status
+    const { profilesServerRepository } = await import("@/features/profile/data/profiles.server");
+    const profile = await profilesServerRepository.getProfileWithFriendStatus(userId, currentUser.id);
 
     return (
       <ProfilePage 
         profile={profile} 
-        isOwnProfile={isOwnProfile}
+        isOwnProfile={false}
       />
     );
   } catch (error) {
