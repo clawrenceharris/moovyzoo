@@ -1,77 +1,145 @@
-# Playback Synchronization Migration
+# Playback Synchronization Migration - Enhanced Sync State
 
-This migration adds real-time playback synchronization functionality to the streaming feature.
+This migration adds comprehensive real-time playback synchronization functionality with enhanced sync state management, event logging, and automatic cleanup procedures.
 
 ## Overview
 
-The playback synchronization system enables synchronized video playback across multiple participants in a streaming session. Only hosts can control playback (play, pause, seek), and all participants automatically sync to the host's actions.
+The enhanced playback synchronization system enables synchronized video playback across multiple participants in a streaming session with advanced features including:
+
+- Event logging and recovery capabilities
+- Network lag compensation with configurable tolerance
+- Automatic cleanup of old sync data
+- Comprehensive indexing for optimal performance
+- Robust error handling and state recovery
 
 ## Database Changes
 
-### New Columns Added to `streams` table:
+### Enhanced `streams` table columns:
 
 - `current_time` (INTEGER): Current playback position in seconds
 - `is_playing` (BOOLEAN): Whether the stream is currently playing
 - `last_sync_at` (TIMESTAMP): Timestamp of last playback state sync
 - `video_url` (TEXT): URL to the actual video content for playback
+- `sync_enabled` (BOOLEAN): Whether synchronization is enabled for this stream
+- `sync_tolerance` (INTEGER): Sync tolerance in milliseconds for lag compensation
 
-### New Index:
+### New `playback_events` table:
+
+- `id` (UUID): Primary key
+- `stream_id` (UUID): Reference to streams table
+- `host_user_id` (UUID): User who triggered the event
+- `event_type` (TEXT): Type of playback event (play, pause, seek, sync_request, buffer_start, buffer_end)
+- `event_id` (TEXT): Unique identifier for event deduplication
+- `timestamp_ms` (BIGINT): Unix timestamp in milliseconds when event occurred
+- `current_time` (INTEGER): Video position in seconds at time of event
+- `metadata` (JSONB): Additional event data (seek positions, buffer reasons, etc.)
+- `created_at` (TIMESTAMP): Record creation timestamp
+
+### New Indexes for Performance:
 
 - `idx_streams_playback_sync`: Optimizes playback state queries for active streams
+- `idx_streams_sync_enabled`: Optimizes queries for sync-enabled active streams
+- `idx_playback_events_stream_timestamp`: Efficient event queries by stream and time
+- `idx_playback_events_event_id`: Fast event deduplication lookups
+- `idx_playback_events_cleanup`: Optimizes cleanup operations
+- `idx_playback_events_stream_type`: Efficient queries by stream and event type
+
+### Cleanup Functions:
+
+- `cleanup_old_playback_events()`: Removes events older than 7 days
+- `cleanup_inactive_stream_sync_state()`: Resets sync state for inactive streams
+- `maintain_playback_sync_data()`: Comprehensive maintenance function
 
 ## Implementation Components
 
-### 1. Playback Sync Hook (`use-playback-sync.ts`)
+### 1. Enhanced Playback Sync Hook (`use-playback-sync.ts`)
 
-- Manages real-time playback state synchronization
-- Handles Supabase realtime subscriptions
-- Implements sync tolerance to prevent micro-adjustments
-- Provides connection status monitoring
+- Manages real-time playback state synchronization with YouTube Player API
+- Handles Supabase realtime subscriptions for event broadcasting
+- Implements configurable sync tolerance to prevent micro-adjustments
+- Provides connection status monitoring and quality assessment
+- Integrates with lag compensation engine for network delay handling
 
-### 2. Enhanced StreamVideoPlayer Component
+### 2. Event Logging and Recovery System
 
-- Integrates with playback sync hook
-- Host-only controls with real-time broadcasting
-- Participant view-only mode with automatic sync
-- Connection status indicators
-- Network resilience and reconnection handling
+- **Event Storage**: All playback events stored in `playback_events` table
+- **Deduplication**: Unique event IDs prevent duplicate event processing
+- **Recovery**: Event history enables state recovery after connection issues
+- **Metadata**: Rich event metadata for debugging and analytics
 
-### 3. Repository Layer Updates
+### 3. Automatic Cleanup Procedures
 
-- `updatePlaybackState()`: Updates playback state in database
-- `getPlaybackState()`: Retrieves current playback state
-- Proper error handling and validation
+- **Old Events**: Automatic removal of events older than 7 days
+- **Inactive Streams**: Reset sync state for streams inactive > 24 hours
+- **Maintenance**: Scheduled cleanup functions prevent database bloat
+- **Logging**: Cleanup operations logged for monitoring
 
-### 4. Service Layer Updates
+### 4. Enhanced StreamVideoPlayer Component
 
-- `updatePlaybackState()`: Business logic with host validation
-- `getPlaybackState()`: Service-level playback state retrieval
-- `subscribeToPlaybackChanges()`: Real-time subscription management
+- Integrates with enhanced sync system and YouTube Player API
+- Host-only controls with event broadcasting to all participants
+- Participant view-only mode with automatic sync and lag compensation
+- Connection status indicators and manual resync controls
+- Network resilience with automatic reconnection and state recovery
+
+### 5. Repository Layer Updates
+
+- `updatePlaybackState()`: Updates playback state with event logging
+- `getPlaybackState()`: Retrieves current playback state with caching
+- `logPlaybackEvent()`: Records events for recovery and analytics
+- `getPlaybackEvents()`: Retrieves event history for debugging
+- Proper error handling, validation, and performance optimization
+
+### 6. Service Layer Updates
+
+- `updatePlaybackState()`: Business logic with host validation and event logging
+- `getPlaybackState()`: Service-level playback state retrieval with caching
+- `subscribeToPlaybackChanges()`: Enhanced real-time subscription management
+- `processPlaybackEvent()`: Event processing with deduplication and validation
 
 ## Key Features
 
-### Sync Tolerance
+### Enhanced Sync Tolerance and Lag Compensation
 
-- Prevents constant micro-adjustments by ignoring time differences < 0.5 seconds
+- Configurable sync tolerance (default 500ms) stored per stream
+- Network delay measurement and adaptive tolerance adjustment
+- Prevents constant micro-adjustments while maintaining sync accuracy
 - Reduces network traffic and improves user experience
 
-### Host-Only Controls
+### Event Logging and Recovery
 
-- Only hosts can play, pause, or seek
-- Participants see "View Only" indicator
-- Host actions broadcast to all participants in real-time
+- Complete event history stored in `playback_events` table
+- Event deduplication prevents duplicate processing
+- State recovery capabilities for connection interruptions
+- Rich metadata for debugging and analytics
 
-### Connection Management
+### Host-Only Controls with Event Broadcasting
 
-- Visual connection status indicators
-- Automatic reconnection on network issues
-- Graceful handling of connection failures
+- Only hosts can play, pause, or seek with full event logging
+- Participants see "View Only" indicator with sync status
+- Host actions broadcast to all participants via real-time events
+- Event validation and rate limiting prevent spam
 
-### Network Resilience
+### Advanced Connection Management
 
-- Handles network interruptions gracefully
-- Automatic state recovery on reconnection
-- Conflict resolution (host actions take precedence)
+- Visual connection status indicators with quality metrics
+- Automatic reconnection with state recovery from event history
+- Graceful handling of connection failures with fallback strategies
+- Manual resync controls for participants
+
+### Network Resilience and Performance
+
+- Handles network interruptions with automatic recovery
+- Event queue management for offline/online transitions
+- Conflict resolution with host authority and event ordering
+- Optimized database queries with comprehensive indexing
+
+### Automatic Data Management
+
+- Cleanup functions prevent database bloat from old events
+- Automatic reset of sync state for inactive streams
+- Scheduled maintenance procedures with logging
+- Performance monitoring and optimization
 
 ## Running the Migration
 
@@ -123,22 +191,44 @@ function StreamPage({ streamId, media, isHost, currentUserId }) {
       media={media}
       isHost={isHost}
       currentUserId={currentUserId}
+      syncEnabled={true} // Enable synchronization
       onPlaybackChange={(state) => {
-        // Handle playback state changes
+        // Handle playback state changes with enhanced sync data
         console.log("Playback state:", state);
+        console.log("Sync status:", state.syncStatus);
+        console.log("Last sync:", state.lastSyncAt);
+      }}
+      onSyncStatusChange={(status) => {
+        // Handle sync status changes
+        console.log("Connection:", status.connected);
+        console.log("Syncing:", status.syncing);
+        console.log("Error:", status.error);
       }}
     />
   );
 }
+
+// Manual cleanup example (typically run as scheduled job)
+async function runMaintenanceCleanup() {
+  const result = await supabase.rpc("maintain_playback_sync_data");
+  console.log(
+    `Cleaned up ${result.events_deleted} events and reset ${result.streams_reset} streams`
+  );
+}
 ```
 
-## Real-time Synchronization Flow
+## Enhanced Real-time Synchronization Flow
 
-1. **Host Action**: Host plays/pauses/seeks video
-2. **Broadcast**: Action broadcasts to database via `updatePlaybackState()`
-3. **Real-time Update**: Supabase realtime triggers update to all participants
-4. **Participant Sync**: Participants receive update and sync their video players
-5. **Conflict Resolution**: Host actions always take precedence
+1. **Host Action**: Host plays/pauses/seeks video with YouTube Player API
+2. **Event Creation**: Unique event created with deduplication ID and metadata
+3. **Event Logging**: Event stored in `playback_events` table with full context
+4. **State Update**: Stream playback state updated in `streams` table
+5. **Real-time Broadcast**: Supabase realtime triggers event to all participants
+6. **Event Processing**: Participants receive and validate events for deduplication
+7. **Lag Compensation**: Network delay calculated and sync tolerance applied
+8. **Participant Sync**: YouTube players sync with lag-compensated timing
+9. **Conflict Resolution**: Host events take precedence with timestamp ordering
+10. **Recovery**: Event history enables state recovery after connection issues
 
 ## Performance Considerations
 

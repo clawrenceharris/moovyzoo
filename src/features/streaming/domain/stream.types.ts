@@ -114,6 +114,49 @@ export interface PlaybackState {
   isFullscreen: boolean;
 }
 
+// Extended interface for detailed playback state with YouTube-specific information
+export interface DetailedPlaybackState extends PlaybackState {
+  playerState: number;
+  videoLoadedFraction: number;
+  availableQualityLevels: string[];
+  playbackQuality: string;
+  bufferedTimeRanges: TimeRanges;
+}
+
+// Enhanced sync types for YouTube integration
+export interface PlaybackEvent {
+  type:
+    | "play"
+    | "pause"
+    | "seek"
+    | "sync_request"
+    | "buffer_start"
+    | "buffer_end";
+  timestamp: number;
+  currentTime: number;
+  hostUserId: string;
+  eventId: string; // For deduplication
+  metadata?: {
+    seekFrom?: number; // For seek events
+    bufferReason?: string; // For buffer events
+  };
+}
+
+export type SyncStatus = "connected" | "disconnected" | "syncing" | "error";
+export type ConnectionQuality = "good" | "poor" | "unstable";
+
+// YouTube Player API types
+export interface YouTubePlayer {
+  playVideo(): void;
+  pauseVideo(): void;
+  seekTo(seconds: number, allowSeekAhead?: boolean): void;
+  getCurrentTime(): number;
+  getPlayerState(): number;
+  getDuration(): number;
+  addEventListener(event: string, listener: (event: any) => void): void;
+  removeEventListener(event: string, listener: (event: any) => void): void;
+}
+
 // Form-specific interface for streaming session creation
 export interface CreateStreamFormData {
   title: string;
