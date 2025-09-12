@@ -12,3 +12,4 @@ export { WatchHistory } from "./WatchHistory";
 export { ProfileDiscovery } from "./ProfileDiscovery";
 export { WatchHistoryTracker, QuickRating } from "./WatchHistoryTracker";
 export { MediaWithTracking, MediaSearchResultWithTracking, BulkMediaTracking } from "./MediaWithTracking";
+export { MockWatchHistoryDemo } from "./MockWatchHistoryDemo";

@@ -90,6 +90,7 @@ export function ProfileCard({
               size="sm" 
               onClick={() => handleFriendAction('accept')}
               className="gap-1 whitespace-nowrap"
+              variant={"primary"}
             >
               <UserCheck className="w-3 h-3" />
               Accept

@@ -9,6 +9,7 @@ import { WatchHistory } from "./WatchHistory";
 import { LoadingState } from "@/components/states";
 import { ErrorState } from "@/components/states";
 import type { UserProfile, ProfileWithFriendStatus, FriendStatus } from "../domain/profiles.types";
+import { useRecentWatchActivity } from "../hooks/use-watch-history";
 
 interface ProfilePageProps {
   profile: ProfileWithFriendStatus | UserProfile | null;
@@ -18,7 +19,6 @@ interface ProfilePageProps {
 }
 
 export function ProfilePage({ profile, isLoading, error, isOwnProfile = false }: ProfilePageProps) {
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [friendStatus, setFriendStatus] = useState<FriendStatus | undefined>(
     profile && 'friendStatus' in profile ? profile.friendStatus : undefined
   );
@@ -26,6 +26,13 @@ export function ProfilePage({ profile, isLoading, error, isOwnProfile = false }:
   // Check if profile has friend status (ProfileWithFriendStatus)
   const profileWithFriendStatus = profile && 'friendStatus' in profile ? profile as ProfileWithFriendStatus : null;
   const watchHistory = profileWithFriendStatus?.recentWatchHistory;
+
+  // Also fetch recent watch activity for the profile user (helps show own history)
+  const { data: recentActivity = [] } = useRecentWatchActivity(profile?.userId, 5);
+  const renderWatchHistory = (watchHistory && watchHistory.length > 0)
+    ? watchHistory
+    : (recentActivity && recentActivity.length > 0 ? recentActivity : undefined);
+
 
   if (isLoading) {
     return (
@@ -59,7 +66,6 @@ export function ProfilePage({ profile, isLoading, error, isOwnProfile = false }:
       <ProfileHeader
         profile={profile}
         isOwnProfile={isOwnProfile}
-        onEditClick={() => setIsEditModalOpen(true)}
         friendStatus={friendStatus}
         onFriendStatusChange={setFriendStatus}
       />
@@ -83,10 +89,10 @@ export function ProfilePage({ profile, isLoading, error, isOwnProfile = false }:
           {/* Favorite Titles */}
           <FavoriteTitles titles={profile.favoriteTitles} />
 
-          {/* Watch History - only show if available */}
-          {watchHistory && watchHistory.length > 0 && (
+          {/* Watch History - show server-provided if present, else fall back to recent activity */}
+          {renderWatchHistory && (
             <WatchHistory 
-              watchHistory={watchHistory} 
+              watchHistory={renderWatchHistory}
               isOwnProfile={isOwnProfile}
             />
           )}
@@ -96,21 +102,7 @@ export function ProfilePage({ profile, isLoading, error, isOwnProfile = false }:
         </div>
       </div>
 
-      {/* Edit Profile Modal */}
-      {isEditModalOpen && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-card border rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold mb-4">Edit Profile</h3>
-            <p className="text-muted-foreground mb-4">Profile editing coming soon...</p>
-            <button
-              onClick={() => setIsEditModalOpen(false)}
-              className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }

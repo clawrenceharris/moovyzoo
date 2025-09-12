@@ -76,8 +76,8 @@ function MovieCard({ movie }: { movie: TMDBMovie }) {
         media={movie}
         mediaType="movie"
         variant="full"
-        onStatusChange={(status) => console.log('Status:', status)}
-        onRatingChange={(rating) => console.log('Rating:', rating)}
+        onStatusChange={(status) => {}}
+        onRatingChange={(rating) => {}}
       />
     </div>
   );
@@ -153,7 +153,6 @@ function EnhancedMediaSearch() {
           mediaType={media.media_type}
           onSelect={(selectedMedia) => {
             // Handle selection
-            console.log('Selected:', selectedMedia);
           }}
         />
       ))}

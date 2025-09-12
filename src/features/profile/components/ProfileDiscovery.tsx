@@ -93,7 +93,6 @@ export function ProfileDiscovery({ initialProfiles = [], initialPagination }: Pr
   };
 
   const handleViewProfile = (profileId: string) => {
-    console.log('Viewing profile:', profileId);
     router.push(`/profile/${profileId}`);
   };
 
@@ -149,8 +148,6 @@ export function ProfileDiscovery({ initialProfiles = [], initialPagination }: Pr
 
     } catch (err) {
       // For other errors, we could revert optimistic change, but prefer to avoid flicker.
-      // Optionally, log non-conflict errors.
-      console.error(`Error ${action}ing friend:`, err);
       // You might want to show a toast notification here
     }
   };

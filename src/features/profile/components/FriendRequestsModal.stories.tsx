@@ -61,9 +61,9 @@ const meta: Meta<typeof FriendRequestsModal> = {
         },
     },
     args: {
-        onClose: () => console.log('Modal closed'),
-        onAccept: (requestId: string) => console.log('Accepted request:', requestId),
-        onDecline: (requestId: string) => console.log('Declined request:', requestId),
+        onClose: () => {},
+        onAccept: (requestId: string) => {},
+        onDecline: (requestId: string) => {},
     },
 };
 

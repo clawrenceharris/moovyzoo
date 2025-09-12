@@ -3,21 +3,33 @@
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/badge";
-import { useFriendRequests } from "../hooks/use-friend-requests";
 
 interface FriendRequestNotificationProps {
+  count: number;
+  loading: boolean;
   onOpenRequests: () => void;
+  onRefresh: () => Promise<void>;
 }
 
-export function FriendRequestNotification({ onOpenRequests }: FriendRequestNotificationProps) {
-  const { count, loading } = useFriendRequests();
+export function FriendRequestNotification({ 
+  count, 
+  loading, 
+  onOpenRequests, 
+  onRefresh 
+}: FriendRequestNotificationProps) {
+  const handleClick = async () => {
+    // Refresh friend requests when button is clicked
+    await onRefresh();
+    onOpenRequests();
+  };
 
   return (
     <div className="relative">
       <Button
         variant="ghost"
         size="icon"
-        onClick={onOpenRequests}
+        onClick={handleClick}
+        disabled={loading}
         className="relative hover:bg-background/50"
         aria-label={count > 0 ? `${count} pending friend request${count === 1 ? '' : 's'}` : 'Open friend requests'}
       >

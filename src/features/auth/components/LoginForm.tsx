@@ -9,7 +9,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from "@/components/ui/form";
+} from "@/components/ui";
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -114,7 +114,7 @@ export default function LoginForm({
           <p className="text-sm text-gray-600">
             Don&apos;t have an account?{" "}
             <button
-              className="text-primary-500"
+              className="text-primary cursor-pointer"
               type="button"
               onClick={onSwitchToSignup}
             >

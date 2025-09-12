@@ -203,7 +203,6 @@ export function BulkMediaTracking({
     try {
       // This would use the batchTrack function from useTMDBTracking
       // Implementation would depend on specific requirements
-      console.log('Bulk tracking:', mediaItems.length, 'items as', status);
       onTrackingComplete?.();
     } catch (error) {
       console.error('Bulk tracking failed:', error);

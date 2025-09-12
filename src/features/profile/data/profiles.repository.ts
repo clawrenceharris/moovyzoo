@@ -83,8 +83,6 @@ export class ProfilesRepository {
         .eq("user_id", userId)
         .single();
 
-      console.log("Retrieved data:", data);
-
       if (checkError || !existingProfile) {
         throw new Error("Profile not found");
       }
@@ -125,8 +123,6 @@ export class ProfilesRepository {
         .eq("user_id", userId)
         .select()
         .single();
-
-      console.log("Updated data:", data);
 
       if (error) {
         throw error;

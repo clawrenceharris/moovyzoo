@@ -33,12 +33,7 @@ export interface UserProfileDocument {
   user_id: string;
 }
 
-export interface ProfileUpdateData {
-  displayName?: string;
-  avatarUrl?: string;
-  favoriteGenres?: string[];
-  isPublic?: boolean;
-}
+
 
 export interface PrivacySettings {
   isPublic: boolean;

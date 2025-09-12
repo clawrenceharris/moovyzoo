@@ -16,7 +16,7 @@ const statusConfig = {
     icon: Eye,
     color: "bg-green-500",
     label: "Watched",
-    variant: "default" as const,
+    variant: "outline" as const,
   },
   watching: {
     icon: Play,

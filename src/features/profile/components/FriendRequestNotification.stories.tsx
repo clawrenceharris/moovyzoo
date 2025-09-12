@@ -43,7 +43,7 @@ const meta: Meta<typeof MockFriendRequestNotification> = {
     },
   },
   args: {
-    onOpenRequests: () => console.log("Opening friend requests modal"),
+    onOpenRequests: () => {},
   },
   argTypes: {
     count: {

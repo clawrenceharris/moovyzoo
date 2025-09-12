@@ -51,7 +51,7 @@ export function FavoriteTitles({ titles }: FavoriteTitlesProps) {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-foreground truncate">{title}</p>
-                <Badge variant="secondary" className="text-xs mt-1">
+                <Badge variant="secondary" className="text-xs mt-1 bg-brand-black-20">
                   {index % 2 === 0 ? "Movie" : "TV Show"}
                 </Badge>
               </div>

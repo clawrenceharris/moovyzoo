@@ -173,7 +173,7 @@ export function WatchHistoryTracker({
             {isLoading && currentStatus === 'watching' ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Play className="h-4 w-4" />
+              <Play className="h-4 w-4 " />
             )}
             Watching
           </Button>

@@ -13,10 +13,10 @@ const createWatchHistorySchema = z.object({
   title: z.string().min(1, 'Title is required'),
   posterUrl: z.string().optional(),
   mediaType: z.enum(['movie', 'tv'], {
-    errorMap: () => ({ message: 'Media type must be either "movie" or "tv"' })
+    message: 'Media type must be either "movie" or "tv"'
   }),
   status: z.enum(['watched', 'watching', 'dropped'], {
-    errorMap: () => ({ message: 'Status must be "watched", "watching", or "dropped"' })
+    message: 'Status must be "watched", "watching", or "dropped"'
   }),
   rating: z.number().min(1).max(10).optional(),
   watchedAt: z.string().datetime().optional(),
@@ -33,9 +33,9 @@ export async function GET(request: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json(
-        { 
+        {
           error: getUserErrorMessage(AppErrorCode.UNAUTHORIZED),
-          code: AppErrorCode.UNAUTHORIZED 
+          code: AppErrorCode.UNAUTHORIZED
         },
         { status: 401 }
       );
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     // Validate limit
     if (limit < 1 || limit > 100) {
       return NextResponse.json(
-        { 
+        {
           error: getUserErrorMessage(AppErrorCode.VALIDATION_ERROR),
           code: AppErrorCode.VALIDATION_ERROR,
           details: { message: 'Limit must be between 1 and 100' }
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch watch history using repository
-    const entries = isRecent 
+    const entries = isRecent
       ? await watchHistoryServerRepository.getRecentActivity(userId, limit)
       : await watchHistoryServerRepository.getUserWatchHistory(userId, limit);
 
@@ -80,13 +80,13 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Watch history fetch error:', error);
-    
+
     const normalizedError = normalizeError(error);
-    
+
     return NextResponse.json(
-      { 
+      {
         error: getUserErrorMessage(normalizedError),
-        code: normalizedError.code 
+        code: normalizedError.code
       },
       { status: 500 }
     );
@@ -104,9 +104,9 @@ export async function POST(request: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json(
-        { 
+        {
           error: getUserErrorMessage(AppErrorCode.UNAUTHORIZED),
-          code: AppErrorCode.UNAUTHORIZED 
+          code: AppErrorCode.UNAUTHORIZED
         },
         { status: 401 }
       );
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: getUserErrorMessage(AppErrorCode.VALIDATION_ERROR),
           code: AppErrorCode.VALIDATION_ERROR,
           details: validationResult.error.issues
@@ -157,21 +157,21 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Watch history creation error:', error);
-    
+
     const normalizedError = normalizeError(error);
-    
+
     // Handle specific TMDB validation errors
     if (error instanceof Error) {
       const message = error.message.toLowerCase();
       if (
-        message.includes('tmdb') || 
+        message.includes('tmdb') ||
         message.includes('valid title') ||
         message.includes('media type') ||
         message.includes('rating must be') ||
         message.includes('poster url')
       ) {
         return NextResponse.json(
-          { 
+          {
             error: getUserErrorMessage(AppErrorCode.WATCH_HISTORY_INVALID),
             code: AppErrorCode.WATCH_HISTORY_INVALID,
             details: { message: error.message }
@@ -183,9 +183,9 @@ export async function POST(request: NextRequest) {
 
     // Generic error response
     return NextResponse.json(
-      { 
+      {
         error: getUserErrorMessage(normalizedError),
-        code: normalizedError.code 
+        code: normalizedError.code
       },
       { status: 500 }
     );
