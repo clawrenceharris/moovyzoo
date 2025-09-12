@@ -1,29 +1,33 @@
+"use client";
 import React from "react";
 import Image from "next/image";
-import { Clock, Users, Calendar } from "lucide-react";
-import type { StreamWithParticipants } from "../domain/stream.types";
+import { Clock, Users, Calendar, Play } from "lucide-react";
+import type {
+  StreamWithParticipants,
+  UserParticipationStatus,
+} from "../domain/stream.types";
 import { getImageUrl } from "@/features/ai-chat";
+import { Button } from "@/components";
+import { StreamActions } from "./StreamActions";
 
 /**
  * Props for the StreamHero component
  */
 export interface StreamHeroProps {
-  /** The streaming session data to display */
+  /** The Stream data to display */
   stream: StreamWithParticipants;
-  /** Whether to show back button */
+  userId: string;
+  userParticipation: UserParticipationStatus;
   showBackButton?: boolean;
-  /** Custom back URL */
-  backUrl?: string;
-  /** Custom back button label */
-  backLabel?: string;
+  onPlayClick?: () => void;
 }
 
 /**
- * StreamHero component displays the main hero section for a streaming session page.
+ * StreamHero component displays the main hero section for a Stream page.
  *
  * Features:
  * - Large media poster with fallback handling
- * - Streaming session title, description, and scheduling information
+ * - Stream title, description, and scheduling information
  * - Live/upcoming/ended status indicators with proper styling
  * - Countdown timer for upcoming streams
  * - Media information (title, year, type) with proper formatting
@@ -31,11 +35,11 @@ export interface StreamHeroProps {
  */
 export function StreamHero({
   stream,
-  showBackButton = false,
-  backUrl,
-  backLabel,
+  userId,
+  userParticipation,
+  onPlayClick,
 }: StreamHeroProps) {
-  // Calculate streaming session status
+  // Calculate Stream status
   const getStreamStatus = () => {
     const scheduledTime = new Date(stream.scheduled_time);
     const now = new Date();
@@ -116,12 +120,19 @@ export function StreamHero({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-xl bg-card border border-border/50">
+    <div className="flex-1 relative overflow-hidden rounded-xl bg-card border border-border/50">
       {/* Hero Background with Poster */}
+
       <div className="relative aspect-[21/9] sm:aspect-[16/6] overflow-hidden">
+        <Button
+          onClick={onPlayClick}
+          className="w-[50px] h-[50px] z-99 absolute left-[50%] top-[50%] translate-[-50%] backdrop-blur-xl bg-primary-surface/50 rounded-full flex items-center justify-center"
+        >
+          <Play color="white" />
+        </Button>
         {stream.poster_path ? (
           <Image
-            src={getImageUrl(stream.poster_path)!}
+            src={getImageUrl(stream.poster_path, "original")!}
             alt={`${stream.media_title} poster`}
             fill
             className="object-cover"
@@ -170,6 +181,7 @@ export function StreamHero({
       <div className="relative p-6 -mt-20 z-10">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Media Poster (Mobile/Tablet) */}
+
           <div className="flex-shrink-0">
             {stream.poster_path ? (
               <div className="w-32 h-48 rounded-lg overflow-hidden shadow-lg">
@@ -263,12 +275,12 @@ export function StreamHero({
               >
                 <Users className="w-5 h-5 text-accent" />
                 <span className="text-white/90">
-                  {stream.participant_count} participants
+                  {stream.participants.length} participants
                 </span>
               </div>
             </div>
 
-            {/* Countdown Timer for Upcoming Streaming Sessions */}
+            {/* Countdown Timer for Upcoming Streams */}
             {status === "upcoming" && timeUntilStart && timeUntilStart > 0 && (
               <div
                 className="flex items-center gap-2 mb-4"
@@ -280,7 +292,11 @@ export function StreamHero({
                 </span>
               </div>
             )}
-
+            <StreamActions
+              userId={userId}
+              stream={stream}
+              userParticipation={userParticipation}
+            />
             {/* Participant Avatars Preview */}
             {stream.participants && stream.participants.length > 0 && (
               <div
@@ -288,12 +304,14 @@ export function StreamHero({
                 data-testid="participant-avatars"
               >
                 <div className="flex -space-x-2">
-                  {stream.participants.slice(0, 5).map((participant) => (
+                  {stream.participants.slice(0, 8).map((participant) => (
                     <div
                       key={participant.user_id}
                       className="w-8 h-8 rounded-full bg-accent/20 border-2 border-card flex items-center justify-center text-xs font-medium text-accent"
                     >
-                      {participant.user_id.charAt(0).toUpperCase()}
+                      {participant.profile?.display_name
+                        .charAt(0)
+                        .toUpperCase()}
                     </div>
                   ))}
                   {stream.participants.length > 5 && (

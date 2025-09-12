@@ -284,6 +284,7 @@ export async function searchMovie(title: string): Promise<TMDBMovie[]> {
   const response = await apiCall<{ movies: TMDBMovie[] }>(`/api/tmdb/search/movies?${params}`);
   console.log("⚙️ searchMovie called");
   return response.movies;
+
 }
 
 /**

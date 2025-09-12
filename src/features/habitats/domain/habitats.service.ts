@@ -43,8 +43,7 @@ export class HabitatsService {
 
       return await habitatsRepository.getUserJoinedHabitats(userId);
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -81,8 +80,7 @@ export class HabitatsService {
 
       return habitat;
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -155,8 +153,7 @@ export class HabitatsService {
 
       return member;
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -222,8 +219,7 @@ export class HabitatsService {
         }
       });
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -258,8 +254,7 @@ export class HabitatsService {
         offset
       );
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -293,8 +288,7 @@ export class HabitatsService {
         sanitizedContent
       );
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -313,8 +307,8 @@ export class HabitatsService {
       return stream;
     } catch (error) {
       console.log(error);
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+
+      throw error;
     }
   }
   /**
@@ -371,8 +365,7 @@ export class HabitatsService {
 
       await habitatsRepository.deleteMessage(messageId, userId);
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -404,8 +397,7 @@ export class HabitatsService {
 
       return await habitatsRepository.getMessagesAfter(habitatId, timestamp);
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -445,8 +437,7 @@ export class HabitatsService {
         offset
       );
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -492,8 +483,7 @@ export class HabitatsService {
         sanitizedContent
       );
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -533,8 +523,7 @@ export class HabitatsService {
         timestamp
       );
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -573,8 +562,7 @@ export class HabitatsService {
       const habitat = await habitatsRepository.getHabitatById(habitatId);
       return habitat.member_count;
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -590,8 +578,7 @@ export class HabitatsService {
 
       return await habitatsRepository.getHabitatMembers(habitatId);
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -618,8 +605,7 @@ export class HabitatsService {
 
       return await habitatsRepository.getDiscussionsByHabitat(habitatId);
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -644,8 +630,7 @@ export class HabitatsService {
 
       return discussion;
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -676,8 +661,7 @@ export class HabitatsService {
 
       return discussion;
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -714,8 +698,7 @@ export class HabitatsService {
 
       return poll;
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -769,8 +752,7 @@ export class HabitatsService {
 
       return habitat;
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -806,8 +788,7 @@ export class HabitatsService {
 
       return processedData;
     } catch (error) {
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -946,11 +927,17 @@ export class HabitatsService {
   ): StreamWithParticipants[] {
     return streams.map((stream) => ({
       ...stream,
+
       participants: members.map((member) => ({
         ...member,
+        user_id: userId,
+        reminder_enabled: false,
+        is_host: false,
         is_active: false,
+
         stream_id: stream.id,
       })),
+
       is_participant: members.some((member) => member.user_id === userId),
     }));
   }
@@ -1011,8 +998,7 @@ export class HabitatsService {
         timestamp: new Date().toISOString(),
       });
 
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -1043,8 +1029,7 @@ export class HabitatsService {
         timestamp: new Date().toISOString(),
       });
 
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 
@@ -1093,8 +1078,7 @@ export class HabitatsService {
         timestamp: new Date().toISOString(),
       });
 
-      const normalizedError = normalizeError(error);
-      throw normalizedError;
+      throw error;
     }
   }
 

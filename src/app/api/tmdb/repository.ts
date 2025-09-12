@@ -1,9 +1,11 @@
 // TMDB API Configuration - Server-side only
-const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
+const TMDB_BASE_URL = "https://api.themoviedb.org/3";
+const NEXT_PUBLIC_TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 
-if (!TMDB_API_KEY) {
-  throw new Error('TMDB_API_KEY is required. Please set it in your environment variables.');
+if (!NEXT_PUBLIC_TMDB_API_KEY) {
+  throw new Error(
+    "NEXT_PUBLIC_TMDB_API_KEY is required. Please set it in your environment variables."
+  );
 }
 
 // Types for TMDB API responses
@@ -29,9 +31,18 @@ export interface TMDBMovieDetails extends TMDBMovie {
   budget: number;
   revenue: number;
   genres: Array<{ id: number; name: string }>;
-  production_companies: Array<{ id: number; name: string; logo_path?: string; origin_country: string }>;
+  production_companies: Array<{
+    id: number;
+    name: string;
+    logo_path?: string;
+    origin_country: string;
+  }>;
   production_countries: Array<{ iso_3166_1: string; name: string }>;
-  spoken_languages: Array<{ english_name: string; iso_639_1: string; name: string }>;
+  spoken_languages: Array<{
+    english_name: string;
+    iso_639_1: string;
+    name: string;
+  }>;
   status: string;
   tagline?: string;
   credits?: {
@@ -102,8 +113,18 @@ export interface TMDBTVShowDetails extends TMDBTVShow {
   episode_run_time: number[];
   genres: Array<{ id: number; name: string }>;
   created_by: Array<{ id: number; name: string; profile_path?: string }>;
-  networks: Array<{ id: number; name: string; logo_path?: string; origin_country: string }>;
-  production_companies: Array<{ id: number; name: string; logo_path?: string; origin_country: string }>;
+  networks: Array<{
+    id: number;
+    name: string;
+    logo_path?: string;
+    origin_country: string;
+  }>;
+  production_companies: Array<{
+    id: number;
+    name: string;
+    logo_path?: string;
+    origin_country: string;
+  }>;
   seasons: Array<{
     id: number;
     name: string;
@@ -245,7 +266,10 @@ export interface TMDBEpisode {
 }
 
 // Helper function to make API calls
-async function tmdbFetch<T>(endpoint: string, params: Record<string, string | number | boolean> = {}): Promise<T> {
+async function tmdbFetch<T>(
+  endpoint: string,
+  params: Record<string, string | number | boolean> = {}
+): Promise<T> {
   const url = new URL(`${TMDB_BASE_URL}${endpoint}`);
 
   // Add query parameters
@@ -256,23 +280,25 @@ async function tmdbFetch<T>(endpoint: string, params: Record<string, string | nu
   });
 
   const options = {
-    method: 'GET',
+    method: "GET",
     headers: {
-      accept: 'application/json',
-      Authorization: `Bearer ${TMDB_API_KEY}`
-    }
+      accept: "application/json",
+      Authorization: `Bearer ${NEXT_PUBLIC_TMDB_API_KEY}`,
+    },
   };
 
   try {
     const response = await fetch(url.toString(), options);
-    
+
     if (!response.ok) {
-      throw new Error(`TMDB API error: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `TMDB API error: ${response.status} ${response.statusText}`
+      );
     }
-    
+
     return await response.json();
   } catch (error) {
-    console.error('TMDB API fetch error:', error);
+    console.error("TMDB API fetch error:", error);
     throw error;
   }
 }
@@ -283,14 +309,14 @@ async function tmdbFetch<T>(endpoint: string, params: Record<string, string | nu
  */
 export async function searchMovie(title: string): Promise<TMDBMovie[]> {
   if (!title.trim()) {
-    throw new Error('Movie title is required');
+    throw new Error("Movie title is required");
   }
 
-  const response = await tmdbFetch<TMDBSearchResponse>('/search/movie', {
+  const response = await tmdbFetch<TMDBSearchResponse>("/search/movie", {
     query: title.trim(),
     include_adult: false,
-    language: 'en-US',
-    page: 1
+    language: "en-US",
+    page: 1,
   });
 
   return response.results;
@@ -300,16 +326,19 @@ export async function searchMovie(title: string): Promise<TMDBMovie[]> {
  * Search for TV shows by title
  * Uses /search/tv endpoint
  */
-export async function searchTVShow(title: string, year?: number): Promise<TMDBTVShow[]> {
+export async function searchTVShow(
+  title: string,
+  year?: number
+): Promise<TMDBTVShow[]> {
   if (!title.trim()) {
-    throw new Error('TV show title is required');
+    throw new Error("TV show title is required");
   }
 
   const params: Record<string, string | number | boolean> = {
     query: title.trim(),
     include_adult: false,
-    language: 'en-US',
-    page: 1
+    language: "en-US",
+    page: 1,
   };
 
   // Add optional year filter if provided
@@ -317,7 +346,7 @@ export async function searchTVShow(title: string, year?: number): Promise<TMDBTV
     params.first_air_date_year = year;
   }
 
-  const response = await tmdbFetch<TMDBTVSearchResponse>('/search/tv', params);
+  const response = await tmdbFetch<TMDBTVSearchResponse>("/search/tv", params);
 
   return response.results;
 }
@@ -326,14 +355,16 @@ export async function searchTVShow(title: string, year?: number): Promise<TMDBTV
  * Get detailed movie information by ID
  * Uses /movie/{movie_id}?append_to_response=credits,videos
  */
-export async function getMovieDetails(movieId: number): Promise<TMDBMovieDetails> {
+export async function getMovieDetails(
+  movieId: number
+): Promise<TMDBMovieDetails> {
   if (!movieId || movieId <= 0) {
-    throw new Error('Valid movie ID is required');
+    throw new Error("Valid movie ID is required");
   }
 
   const movieDetails = await tmdbFetch<TMDBMovieDetails>(`/movie/${movieId}`, {
-    append_to_response: 'credits,videos',
-    language: 'en-US'
+    append_to_response: "credits,videos",
+    language: "en-US",
   });
 
   return movieDetails;
@@ -343,14 +374,16 @@ export async function getMovieDetails(movieId: number): Promise<TMDBMovieDetails
  * Get detailed TV show information by ID
  * Uses /tv/{tv_id}?append_to_response=credits,videos,content_ratings,external_ids
  */
-export async function getTVShowDetails(tvId: number): Promise<TMDBTVShowDetails> {
+export async function getTVShowDetails(
+  tvId: number
+): Promise<TMDBTVShowDetails> {
   if (!tvId || tvId <= 0) {
-    throw new Error('Valid TV show ID is required');
+    throw new Error("Valid TV show ID is required");
   }
 
   const tvShowDetails = await tmdbFetch<TMDBTVShowDetails>(`/tv/${tvId}`, {
-    append_to_response: 'credits,videos,content_ratings,external_ids',
-    language: 'en-US'
+    append_to_response: "credits,videos,content_ratings,external_ids",
+    language: "en-US",
   });
 
   return tvShowDetails;
@@ -367,34 +400,36 @@ export async function getSeasonOrEpisode(
   episodeNumber?: number
 ): Promise<TMDBSeason | TMDBEpisode> {
   if (!tvId || tvId <= 0) {
-    throw new Error('Valid TV show ID is required');
+    throw new Error("Valid TV show ID is required");
   }
 
   if (!seasonNumber || seasonNumber < 0) {
-    throw new Error('Valid season number is required');
+    throw new Error("Valid season number is required");
   }
 
   if (episodeNumber !== undefined && episodeNumber <= 0) {
-    throw new Error('Valid episode number is required');
+    throw new Error("Valid episode number is required");
   }
 
   // Determine endpoint based on whether episode number is provided
-  const endpoint = episodeNumber !== undefined
-    ? `/tv/${tvId}/season/${seasonNumber}/episode/${episodeNumber}`
-    : `/tv/${tvId}/season/${seasonNumber}`;
+  const endpoint =
+    episodeNumber !== undefined
+      ? `/tv/${tvId}/season/${seasonNumber}/episode/${episodeNumber}`
+      : `/tv/${tvId}/season/${seasonNumber}`;
 
   const params: Record<string, string | number | boolean> = {
-    language: 'en-US'
+    language: "en-US",
   };
 
   // Add videos to episode requests
   if (episodeNumber !== undefined) {
-    params.append_to_response = 'videos';
+    params.append_to_response = "videos";
   }
 
-  const result = episodeNumber !== undefined
-    ? await tmdbFetch<TMDBEpisode>(endpoint, params)
-    : await tmdbFetch<TMDBSeason>(endpoint, params);
+  const result =
+    episodeNumber !== undefined
+      ? await tmdbFetch<TMDBEpisode>(endpoint, params)
+      : await tmdbFetch<TMDBSeason>(endpoint, params);
 
   return result;
 }
@@ -405,21 +440,21 @@ export async function getSeasonOrEpisode(
  */
 export async function getSimilarOrRecommendationsTV(
   tvId: number,
-  type: 'similar' | 'recommendations' = 'similar'
+  type: "similar" | "recommendations" = "similar"
 ): Promise<TMDBTVShow[]> {
   if (!tvId || tvId <= 0) {
-    throw new Error('Valid TV show ID is required');
+    throw new Error("Valid TV show ID is required");
   }
 
-  if (!['similar', 'recommendations'].includes(type)) {
+  if (!["similar", "recommendations"].includes(type)) {
     throw new Error('Type must be either "similar" or "recommendations"');
   }
 
   const endpoint = `/tv/${tvId}/${type}`;
 
   const response = await tmdbFetch<TMDBTVSearchResponse>(endpoint, {
-    language: 'en-US',
-    page: 1
+    language: "en-US",
+    page: 1,
   });
 
   return response.results;
@@ -431,13 +466,16 @@ export async function getSimilarOrRecommendationsTV(
  */
 export async function getSimilarMovies(movieId: number): Promise<TMDBMovie[]> {
   if (!movieId || movieId <= 0) {
-    throw new Error('Valid movie ID is required');
+    throw new Error("Valid movie ID is required");
   }
 
-  const response = await tmdbFetch<TMDBSearchResponse>(`/movie/${movieId}/similar`, {
-    language: 'en-US',
-    page: 1
-  });
+  const response = await tmdbFetch<TMDBSearchResponse>(
+    `/movie/${movieId}/similar`,
+    {
+      language: "en-US",
+      page: 1,
+    }
+  );
 
   return response.results;
 }
@@ -447,28 +485,30 @@ export async function getSimilarMovies(movieId: number): Promise<TMDBMovie[]> {
  * Uses different endpoints based on type
  */
 export async function getTrendingNowOrUpcoming(
-  type: 'trending' | 'now_playing' | 'upcoming'
+  type: "trending" | "now_playing" | "upcoming"
 ): Promise<TMDBMovie[]> {
   let endpoint: string;
 
   switch (type) {
-    case 'trending':
-      endpoint = '/trending/movie/day';
+    case "trending":
+      endpoint = "/trending/movie/day";
       break;
-    case 'now_playing':
-      endpoint = '/movie/now_playing';
+    case "now_playing":
+      endpoint = "/movie/now_playing";
       break;
-    case 'upcoming':
-      endpoint = '/movie/upcoming';
+    case "upcoming":
+      endpoint = "/movie/upcoming";
       break;
     default:
-      throw new Error('Invalid type. Must be "trending", "now_playing", or "upcoming"');
+      throw new Error(
+        'Invalid type. Must be "trending", "now_playing", or "upcoming"'
+      );
   }
 
   const response = await tmdbFetch<TMDBSearchResponse>(endpoint, {
-    language: 'en-US',
+    language: "en-US",
     page: 1,
-    region: 'US'
+    region: "US",
   });
 
   return response.results;
@@ -479,34 +519,36 @@ export async function getTrendingNowOrUpcoming(
  * Uses different endpoints based on kind parameter
  */
 export async function getTrendingOrAiringTV(
-  kind: 'trending' | 'on_the_air' | 'airing_today' | 'popular' | 'top_rated',
+  kind: "trending" | "on_the_air" | "airing_today" | "popular" | "top_rated",
   region?: string
 ): Promise<TMDBTVShow[]> {
   let endpoint: string;
 
   switch (kind) {
-    case 'trending':
-      endpoint = '/trending/tv/day';
+    case "trending":
+      endpoint = "/trending/tv/day";
       break;
-    case 'on_the_air':
-      endpoint = '/tv/on_the_air';
+    case "on_the_air":
+      endpoint = "/tv/on_the_air";
       break;
-    case 'airing_today':
-      endpoint = '/tv/airing_today';
+    case "airing_today":
+      endpoint = "/tv/airing_today";
       break;
-    case 'popular':
-      endpoint = '/tv/popular';
+    case "popular":
+      endpoint = "/tv/popular";
       break;
-    case 'top_rated':
-      endpoint = '/tv/top_rated';
+    case "top_rated":
+      endpoint = "/tv/top_rated";
       break;
     default:
-      throw new Error('Invalid kind. Must be "trending", "on_the_air", "airing_today", "popular", or "top_rated"');
+      throw new Error(
+        'Invalid kind. Must be "trending", "on_the_air", "airing_today", "popular", or "top_rated"'
+      );
   }
 
   const params: Record<string, string | number | boolean> = {
-    language: 'en-US',
-    page: 1
+    language: "en-US",
+    page: 1,
   };
 
   // Add region parameter if provided (for regional content like airing today)
@@ -526,25 +568,28 @@ export async function getTrendingOrAiringTV(
 export async function discoverByGenre(
   genreIds: string,
   year?: number,
-  sortBy: string = 'popularity.desc'
+  sortBy: string = "popularity.desc"
 ): Promise<TMDBMovie[]> {
   if (!genreIds.trim()) {
-    throw new Error('Genre IDs are required');
+    throw new Error("Genre IDs are required");
   }
 
   const params: Record<string, string | number | boolean> = {
     with_genres: genreIds.trim(),
     sort_by: sortBy,
     include_adult: false,
-    language: 'en-US',
-    page: 1
+    language: "en-US",
+    page: 1,
   };
 
   if (year && year > 1900 && year <= new Date().getFullYear() + 5) {
     params.year = year;
   }
 
-  const response = await tmdbFetch<TMDBSearchResponse>('/discover/movie', params);
+  const response = await tmdbFetch<TMDBSearchResponse>(
+    "/discover/movie",
+    params
+  );
 
   return response.results;
 }
@@ -553,68 +598,83 @@ export async function discoverByGenre(
  * Get movie genres list for reference
  * Uses /genre/movie/list endpoint
  */
-export async function getMovieGenres(): Promise<Array<{ id: number; name: string }>> {
-  const response = await tmdbFetch<{ genres: Array<{ id: number; name: string }> }>('/genre/movie/list', {
-    language: 'en-US'
+export async function getMovieGenres(): Promise<
+  Array<{ id: number; name: string }>
+> {
+  const response = await tmdbFetch<{
+    genres: Array<{ id: number; name: string }>;
+  }>("/genre/movie/list", {
+    language: "en-US",
   });
 
   return response.genres;
 }
 
 // Helper function to format movie data for display
-export function formatMovieForDisplay(movie: TMDBMovie | TMDBMovieDetails): string {
-  const year = movie.release_date ? new Date(movie.release_date).getFullYear() : 'Unknown year';
-  const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
-  
+export function formatMovieForDisplay(
+  movie: TMDBMovie | TMDBMovieDetails
+): string {
+  const year = movie.release_date
+    ? new Date(movie.release_date).getFullYear()
+    : "Unknown year";
+  const rating = movie.vote_average ? movie.vote_average.toFixed(1) : "N/A";
+
   let result = `**${movie.title}** (${year}) - Rating: ${rating}/10\n`;
   result += `ID: ${movie.id}\n`;
-  
+
   if (movie.overview) {
     result += `Overview: ${movie.overview}\n`;
   }
-  
-  if ('runtime' in movie && movie.runtime) {
+
+  if ("runtime" in movie && movie.runtime) {
     result += `Runtime: ${movie.runtime} minutes\n`;
   }
-  
-  if ('genres' in movie && movie.genres) {
-    const genres = movie.genres.map(g => g.name).join(', ');
+
+  if ("genres" in movie && movie.genres) {
+    const genres = movie.genres.map((g) => g.name).join(", ");
     result += `Genres: ${genres}\n`;
   }
-  
+
   return result;
 }
 
 // Helper function to format TV show data for display
-export function formatTVShowForDisplay(tvShow: TMDBTVShow | TMDBTVShowDetails): string {
-  const year = tvShow.first_air_date ? new Date(tvShow.first_air_date).getFullYear() : 'Unknown year';
-  const rating = tvShow.vote_average ? tvShow.vote_average.toFixed(1) : 'N/A';
-  
+export function formatTVShowForDisplay(
+  tvShow: TMDBTVShow | TMDBTVShowDetails
+): string {
+  const year = tvShow.first_air_date
+    ? new Date(tvShow.first_air_date).getFullYear()
+    : "Unknown year";
+  const rating = tvShow.vote_average ? tvShow.vote_average.toFixed(1) : "N/A";
+
   let result = `**${tvShow.name}** (${year}) - Rating: ${rating}/10\n`;
   result += `ID: ${tvShow.id}\n`;
-  
+
   if (tvShow.overview) {
     result += `Overview: ${tvShow.overview}\n`;
   }
-  
-  if ('number_of_seasons' in tvShow && tvShow.number_of_seasons) {
+
+  if ("number_of_seasons" in tvShow && tvShow.number_of_seasons) {
     result += `Seasons: ${tvShow.number_of_seasons}\n`;
   }
-  
-  if ('number_of_episodes' in tvShow && tvShow.number_of_episodes) {
+
+  if ("number_of_episodes" in tvShow && tvShow.number_of_episodes) {
     result += `Episodes: ${tvShow.number_of_episodes}\n`;
   }
-  
-  if ('genres' in tvShow && tvShow.genres) {
-    const genres = tvShow.genres.map(g => g.name).join(', ');
+
+  if ("genres" in tvShow && tvShow.genres) {
+    const genres = tvShow.genres.map((g) => g.name).join(", ");
     result += `Genres: ${genres}\n`;
   }
-  
+
   return result;
 }
 
 // Helper function to get image URLs
-export function getImageUrl(path: string | null | undefined, size: 'w185' | 'w300' | 'w500' | 'original' = 'w300'): string | null {
+export function getImageUrl(
+  path: string | null | undefined,
+  size: "w185" | "w300" | "w500" | "original" = "w300"
+): string | null {
   if (!path) return null;
   return `https://image.tmdb.org/t/p/${size}${path}`;
 }

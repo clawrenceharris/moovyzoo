@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { StreamService } from "../domain/stream.service";
+import { streamService, StreamService } from "../domain/stream.service";
 import type {
   StreamWithParticipants,
   StreamParticipant,
@@ -40,8 +40,8 @@ export const streamQueryKeys = {
 export function useStream(id: string) {
   return useQuery({
     queryKey: streamQueryKeys.stream(id),
-    queryFn: () => createStreamingService().getStream(id),
-    enabled: !!id && typeof id === "string" && id.length > 0,
+    queryFn: () => streamService.getStream(id),
+    enabled: !!id,
     staleTime: 30 * 1000, // 30 seconds
     refetchInterval: 60 * 1000, // Refetch every minute for live updates
   });
@@ -53,8 +53,8 @@ export function useStream(id: string) {
 export function useStreamParticipants(streamId: string) {
   return useQuery({
     queryKey: streamQueryKeys.participants(streamId),
-    queryFn: () => createStreamingService().getParticipants(streamId),
-    enabled: !!streamId && typeof streamId === "string" && streamId.length > 0,
+    queryFn: () => streamService.getParticipants(streamId),
+    enabled: !!streamId,
     staleTime: 10 * 1000, // 10 seconds for more frequent updates
     refetchInterval: 30 * 1000, // Refetch every 30 seconds for participant changes
   });
@@ -74,8 +74,7 @@ export function usePublicStreams(
 ) {
   return useQuery({
     queryKey: streamQueryKeys.publicStreams(options),
-    queryFn: () =>
-      userId ? createStreamingService().getPublicStreams(options) : null,
+    queryFn: () => (userId ? streamService.getPublicStreams(options) : null),
     staleTime: 30 * 1000, // 30 seconds
     refetchInterval: 60 * 1000, // Refetch every minute for live updates
   });
@@ -95,7 +94,7 @@ export function useUserStreams(
 ) {
   return useQuery({
     queryKey: streamQueryKeys.userStreams(userId, options),
-    queryFn: () => createStreamingService().getUserStreams(userId, options),
+    queryFn: () => streamService.getUserStreams(userId, options),
     enabled: !!userId && typeof userId === "string" && userId.length > 0,
     staleTime: 30 * 1000, // 30 seconds
     refetchInterval: 60 * 1000, // Refetch every minute for live updates

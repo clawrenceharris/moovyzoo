@@ -18,6 +18,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import { Button } from "@/components/ui";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useJoinStream, useLeaveStream } from "@/features/streaming";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -63,6 +64,8 @@ export default function StreamsPage() {
   const streams = streamsData?.streams || [];
   const totalStreams = streamsData?.total || 0;
   const totalPages = Math.ceil(totalStreams / ITEMS_PER_PAGE);
+  const { mutate: joinStream } = useJoinStream();
+  const { mutate: leaveStream } = useLeaveStream();
 
   const handleStreamNavigation = (streamId: string) => {
     router.push(`/streams/${streamId}`);
@@ -94,12 +97,12 @@ export default function StreamsPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">Streaming Sessions</h1>
+          <h1 className="text-3xl font-bold">Streams</h1>
         </div>
 
         <ErrorState
-          title="Failed to load streaming sessions"
-          message="We couldn't load the streaming sessions. Please check your connection and try again."
+          title="Failed to load Streams"
+          message="We couldn't load the Streams. Please check your connection and try again."
           onRetry={refetch}
           variant="card"
         />
@@ -112,7 +115,7 @@ export default function StreamsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Streaming Sessions</h1>
+          <h1 className="text-3xl font-bold">Streams</h1>
           <p className="text-muted-foreground mt-1">
             {totalStreams} {totalStreams === 1 ? "session" : "sessions"}{" "}
             available
@@ -130,7 +133,7 @@ export default function StreamsPage() {
           <SearchInput
             value={searchQuery}
             onChange={setSearchQuery}
-            placeholder="Search streaming sessions..."
+            placeholder="Search Streams..."
             onClear={handleSearchClear}
           />
         </div>
@@ -144,7 +147,7 @@ export default function StreamsPage() {
       {isLoading ? (
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold">Streaming Sessions</h1>
+            <h1 className="text-3xl font-bold">Streams</h1>
           </div>
 
           {/* Filters skeleton */}
@@ -167,7 +170,7 @@ export default function StreamsPage() {
       ) : streams.length === 0 && !isLoading ? (
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold">Streaming Sessions</h1>
+            <h1 className="text-3xl font-bold">Streams</h1>
             <Button onClick={handleCreateStream} className="gap-2">
               <Plus className="h-4 w-4" />
               Create Stream
@@ -180,7 +183,7 @@ export default function StreamsPage() {
               <SearchInput
                 value={searchQuery}
                 onChange={setSearchQuery}
-                placeholder="Search streaming sessions..."
+                placeholder="Search Streams..."
                 onClear={handleSearchClear}
               />
             </div>
@@ -191,15 +194,11 @@ export default function StreamsPage() {
           </div>
 
           <EmptyState
-            title={
-              isFiltered
-                ? "No streaming sessions found"
-                : "No streaming sessions yet"
-            }
+            title={isFiltered ? "No Streams found" : "No Streams yet"}
             description={
               isFiltered
-                ? "Try adjusting your search or filters to find streaming sessions."
-                : "Be the first to create a streaming session and watch together with friends."
+                ? "Try adjusting your search or filters to find Streams."
+                : "Be the first to create a Stream and watch together with friends."
             }
             actionLabel={isFiltered ? "Clear filters" : "Create Stream"}
             onAction={
@@ -219,18 +218,15 @@ export default function StreamsPage() {
             <StreamCard
               key={stream.id}
               stream={stream}
-              navigationContext="streams"
               onJoinClick={() => {
+                joinStream({ streamId: stream.id, userId: user.id });
                 // Handle join action - this would typically use mutation hooks
-                console.log("Join stream:", stream.id);
               }}
               onLeaveClick={() => {
-                // Handle leave action
-                console.log("Leave stream:", stream.id);
+                leaveStream({ streamId: stream.id, userId: user.id });
               }}
               onWatchClick={() => handleStreamNavigation(stream.id)}
-              showDescription={true}
-              showMediaInfo={true}
+              userId={user.id}
             />
           ))}
         </div>
