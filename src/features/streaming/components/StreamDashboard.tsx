@@ -7,6 +7,7 @@ import {
 import { Button, LoadingState, ErrorState } from "@/components";
 import { StreamService } from "../domain/stream.service";
 import { cn } from "@/lib/utils";
+import { ParticipantsList } from "./ParticipantsList";
 
 const streamService = new StreamService();
 
@@ -20,7 +21,7 @@ interface StreamDashboardProps {
 }
 
 /**
- * StreamDashboard component displays streaming session information and controls
+ * StreamDashboard component displays Stream information and controls
  */
 export function StreamDashboard({
   streamId,
@@ -57,8 +58,8 @@ export function StreamDashboard({
     return (
       <div className={cn("container mx-auto px-4 py-8", className)}>
         <ErrorState
-          title="Failed to load streaming session"
-          message="We couldn't load this streaming session. Please try again."
+          title="Failed to load Stream"
+          message="We couldn't load this Stream. Please try again."
           onRetry={() => refetch()}
           variant="card"
         />
@@ -139,7 +140,7 @@ export function StreamDashboard({
         {/* Main Content */}
         <div className="bg-card border border-border rounded-lg p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Streaming Session Details */}
+            {/* Stream Details */}
             <div>
               <h2 className="text-xl font-semibold mb-4">Stream Details</h2>
               <div className="space-y-3">
@@ -151,7 +152,7 @@ export function StreamDashboard({
                 </div>
                 <div>
                   <span className="text-muted-foreground">Participants:</span>
-                  <span className="ml-2">{stream.participant_count}</span>
+                  <span className="ml-2">{stream.participants.length}</span>
                   {stream.max_participants && (
                     <span className="text-muted-foreground">
                       /{stream.max_participants}
@@ -223,29 +224,7 @@ export function StreamDashboard({
             </h2>
             <div className="bg-card border border-border rounded-lg p-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                {dashboardData.participants.map((participant) => (
-                  <div
-                    key={participant.user_id}
-                    className="flex items-center gap-2 p-2 rounded-md bg-muted/50"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                      <span className="text-xs font-medium">
-                        {participant.user_id.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">
-                        {participant.user_id === userId
-                          ? "You"
-                          : `User ${participant.user_id.slice(0, 8)}`}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Joined{" "}
-                        {new Date(participant.joined_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                <ParticipantsList participants={dashboardData.participants} />
               </div>
             </div>
           </div>

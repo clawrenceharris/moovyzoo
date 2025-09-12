@@ -1,3 +1,7 @@
+---
+inclusion: always
+---
+
 # Testing Standards - Zoovie
 
 ## Testing Architecture
@@ -87,7 +91,7 @@ npx vitest run src/components/states/__tests__/LoadingState.test.tsx
 
 ## Testing Practices
 
-### Test-Driven Development (TDD) - MANDATORY
+### Important!! Test-Driven Development (TDD) - MANDATORY
 
 **Requirement:** All code must be developed using strict Test-Driven Development practices.
 

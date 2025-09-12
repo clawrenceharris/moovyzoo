@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { StreamService } from "../domain/stream.service";
+import { streamService, StreamService } from "../domain/stream.service";
 import type { StreamDashboardData } from "../domain/stream.types";
 import { streamQueryKeys } from "./use-stream-queries";
 
@@ -28,7 +28,7 @@ export function useJoinStream() {
 
   return useMutation({
     mutationFn: ({ streamId, userId }: { streamId: string; userId: string }) =>
-      createStreamingService().joinStream(streamId, userId),
+      streamService.joinStream(streamId, userId),
     onSuccess: (_, { streamId, userId }) => {
       // Invalidate and refetch streaming session data
       queryClient.invalidateQueries({

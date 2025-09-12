@@ -81,7 +81,10 @@ export function ParticipantsList({
       return "You";
     }
     // In real app, this would use actual username from user profile
-    return `User ${participant.user_id.slice(0, 8)}`;
+    return (
+      participant.profile?.display_name ||
+      `User ${participant.user_id.slice(0, 8)}`
+    );
   };
 
   // Initialize positions for participants
@@ -232,7 +235,7 @@ export function ParticipantsList({
         </div>
         <p className="text-muted-foreground">No participants yet</p>
         <p className="text-sm text-muted-foreground/70 mt-1">
-          Be the first to join this streaming session!
+          Be the first to join this Stream!
         </p>
       </Card>
     );
@@ -249,7 +252,7 @@ export function ParticipantsList({
 
       <div
         ref={containerRef}
-        className="relative h-64 sm:h-80 md:h-96 bg-gradient-to-br from-background/50 to-muted/30"
+        className="relative h-64 sm:h-80 md:h-96"
         style={{ minHeight: "256px" }}
       >
         {positions.map((pos) => (

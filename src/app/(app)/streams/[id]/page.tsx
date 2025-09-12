@@ -29,14 +29,14 @@ interface StreamVisibility {
   allowedParticipants?: string[];
 }
 
-// Validate streaming session ID format (UUID)
+// Validate Stream ID format (UUID)
 const isValidUUID = (id: string): boolean => {
   const uuidRegex =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   return uuidRegex.test(id);
 };
 
-// Get streaming session visibility (mock implementation for now)
+// Get Stream visibility (mock implementation for now)
 const getStreamVisibility = (
   stream: StreamWithParticipants
 ): StreamVisibility => {
@@ -91,7 +91,7 @@ async function getStreamData(id: string): Promise<StreamPageData | null> {
       hasViewPermission: checkViewPermission(visibility),
     };
   } catch (error) {
-    console.error("Error fetching streaming session data:", error);
+    console.error("Error fetching Stream data:", error);
     return null;
   }
 }
@@ -104,8 +104,8 @@ export async function generateMetadata({
 
   if (!data?.stream) {
     return {
-      title: "Streaming Session Not Found - Zoovie",
-      description: "This streaming session could not be found.",
+      title: "Stream Not Found - Zoovie",
+      description: "This Stream could not be found.",
     };
   }
 
@@ -115,17 +115,16 @@ export async function generateMetadata({
   // For private sessions, use generic metadata to protect privacy
   if (visibility.type === "private") {
     return {
-      title: "Private Streaming Session - Zoovie",
-      description:
-        "Join your friends for a private streaming session on Zoovie.",
+      title: "Private Stream - Zoovie",
+      description: "Join your friends for a private Stream on Zoovie.",
       robots: "noindex, nofollow",
     };
   }
 
-  const title = `${stream.media_title} - Streaming Session`;
+  const title = `${stream.media_title} - Stream`;
   const description =
     stream.description ||
-    `Join the streaming session for ${stream.media_title} on Zoovie.`;
+    `Join the Stream for ${stream.media_title} on Zoovie.`;
 
   const metadata: Metadata = {
     title,
@@ -234,8 +233,8 @@ function StreamError({ error }: { error: Error }) {
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="container mx-auto px-4 py-8 max-w-md text-center">
         <ErrorState
-          title="Failed to Load Streaming Session"
-          message="We encountered an error while loading this streaming session. Please try again."
+          title="Failed to Load Stream"
+          message="We encountered an error while loading this Stream. Please try again."
           onRetry={() => window.location.reload()}
         />
       </div>
@@ -264,7 +263,7 @@ export default async function StreamingPage({ params }: StreamingPageProps) {
         <div className="container mx-auto px-4 py-8 max-w-md text-center">
           <ErrorState
             title="Access Denied"
-            message="You don't have permission to view this streaming session."
+            message="You don't have permission to view this Stream."
             action={
               <button
                 onClick={() => (window.location.href = "/streams")}

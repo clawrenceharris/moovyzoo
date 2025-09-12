@@ -130,7 +130,6 @@ const baseMediaSchema = createMediaSchema();
 
 export const streamMediaSchema = baseMediaSchema
   .extend({
-    // Rename tmdbId to tmdb_id for API compatibility
     tmdb_id: baseMediaSchema.shape.tmdbId,
     media_type: baseMediaSchema.shape.mediaType,
     media_title: baseMediaSchema.shape.media_title,
@@ -149,7 +148,7 @@ export const streamMediaSchema = baseMediaSchema
 
 export const mediaTypeSchema = z.enum(["movie", "tv"]);
 
-// Streaming session validation schemas
+// Stream validation schemas
 export const createStreamSchema = z.object({
   description: streamDescriptionSchema,
   scheduledTime: scheduledTimeSchema,
@@ -195,9 +194,13 @@ export const createStreamFormSchema = z
     (data) => {
       // Validate that scheduled date/time is in the future
       const scheduledDateTime = new Date(
-        `${data.scheduledDate}T${data.scheduledTime}`
+        `${data.scheduledDate.split("T")[0]}T${data.scheduledTime}`
       );
-
+      console.log({
+        date: data.scheduledDate,
+        time: data.scheduledTime,
+        dateTime: scheduledDateTime,
+      });
       return scheduledDateTime > new Date();
     },
     {

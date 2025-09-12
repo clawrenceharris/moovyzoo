@@ -8,7 +8,10 @@ import {
 } from "@/features/habitats/components";
 import { useUser } from "@/hooks/use-user";
 import { useUserHabitats } from "@/hooks/queries/use-habitat-queries";
-import { ErrorState } from "@/components";
+import { EmptyState, ErrorState } from "@/components";
+import { getErrorMessage } from "@/utils/error-map";
+import { getUserErrorMessage } from "@/utils/normalize-error";
+import { AppErrorCode } from "@/utils/error-codes";
 
 export default function HabitatsPage() {
   const router = useRouter();
@@ -29,19 +32,19 @@ export default function HabitatsPage() {
   };
 
   // Show loading state while user is being fetched
-  if (!error) {
+  if (error) {
     return (
       <ErrorState
-        message="Something went wrong while finding your habitats"
+        message={getUserErrorMessage(error.message)}
         onRetry={refetch}
       />
     );
   }
-  if (habitats === undefined) {
+  if (!habitats?.length) {
     return (
-      <ErrorState
-        message="Something went wrong while finding your habitats"
-        onRetry={refetch}
+      <EmptyState
+        description="Doesn't look like you are a part of any Habitats."
+        onAction={refetch}
       />
     );
   }
@@ -64,7 +67,6 @@ export default function HabitatsPage() {
         <HabitatList
           habitats={habitats}
           loading={isLoading}
-          error={error.message}
           onRetry={refetch}
         />
       </main>
