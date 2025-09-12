@@ -54,7 +54,7 @@ export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
       <div
         ref={sidebarRef}
         className={cn(
-          'absolute right-0 top-0 h-full z-10',
+          'absolute right-0 top-0 h-full z-50',
           'bg-brand-black-08 border-l border-brand-black-15',
           'shadow-2xl shadow-brand-black-06/50',
           'transition-transform duration-300 ease-in-out',

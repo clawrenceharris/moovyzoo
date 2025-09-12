@@ -61,6 +61,8 @@ export const tavilySearchTool = tool(async (input) => {
 
         formattedResults += results;
 
+        console.log(formattedResults);
+
         return formattedResults;
     } catch (error) {
         console.error('Tavily search error:', error);

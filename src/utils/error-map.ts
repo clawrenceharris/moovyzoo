@@ -233,6 +233,28 @@ export const errorMap: Record<AppErrorCode, ErrorMessage> = {
     message: "Real-time updates are experiencing issues. Please refresh.",
   },
 
+  // Friend Operations
+  [AppErrorCode.FRIEND_REQUEST_ALREADY_EXISTS]: {
+    title: "Already Connected",
+    message: "You've already sent a friend request to this user.",
+  },
+  [AppErrorCode.FRIEND_REQUEST_NOT_FOUND]: {
+    title: "Request Not Found",
+    message: "This friend request doesn't exist or has already been handled.",
+  },
+  [AppErrorCode.CANNOT_FRIEND_SELF]: {
+    title: "Invalid Request",
+    message: "You can't send a friend request to yourself.",
+  },
+  [AppErrorCode.PROFILE_NOT_PUBLIC]: {
+    title: "Private Profile",
+    message: "This user's profile is private and not available for viewing.",
+  },
+  [AppErrorCode.WATCH_HISTORY_INVALID]: {
+    title: "Invalid Watch Data",
+    message: "The watch history data is invalid. Please check and try again.",
+  },
+
   // Generic Errors
   [AppErrorCode.UNKNOWN_ERROR]: {
     title: "Unknown Error",

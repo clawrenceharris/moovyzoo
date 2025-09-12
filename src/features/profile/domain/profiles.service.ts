@@ -1,46 +1,68 @@
 import { profilesRepository } from "../data/profiles.repository";
-import { updateProfileSchema } from "./profiles.schema";
-import type {
-  UserProfile,
-  CreateProfileData,
+import type { 
+  UserProfile, 
+  CreateProfileData, 
   UpdateProfileData,
-  PublicProfile,
+  ProfileServiceResult 
 } from "./profiles.types";
-import { normalizeError } from "@/utils/normalize-error";
-import { AppErrorCode } from "@/types/error";
 
 /**
  * Service layer for profile business logic
- * Handles validation, business rules, and error normalization
+ * Orchestrates repository calls and applies business rules
  */
 export class ProfilesService {
   /**
    * Create a new user profile with validation
    */
-  async createProfile(data: CreateProfileData): Promise<UserProfile> {
+  async createProfile(data: CreateProfileData): Promise<ProfileServiceResult<UserProfile>> {
     try {
-      // Sanitize and process data
-      const sanitizedData = this.sanitizeProfileData(data);
-
-      // Create profile
-      return await profilesRepository.create(sanitizedData);
-    } catch (error) {
-      throw normalizeError(error);
-    }
-  }
-
-  /**
-   * Get user profile by user ID
-   */
-  async getProfile(userId: string): Promise<UserProfile> {
-    try {
-      if (!userId) {
-        throw new Error(AppErrorCode.DATABASE_PERMISSION_DENIED);
+      // Validate required fields
+      if (!data.email || !data.userId) {
+        return {
+          success: false,
+          errorCode: "VALIDATION_ERROR",
+        };
       }
 
-      return await profilesRepository.getByUserId(userId);
+      // Check if profile already exists
+      let exists = false;
+      try {
+        exists = await profilesRepository.existsByUserId(data.userId);
+      } catch (err: any) {
+        // Supabase returns PGRST116 when .single() finds no rows.
+        // Treat that as "does not exist" instead of a hard failure.
+        const code = (err?.code || err?.status || "").toString();
+        if (code === "PGRST116") {
+          exists = false;
+        } else {
+          // Any other error should be surfaced via failure result
+          console.error("Error checking profile existence:", err);
+          return {
+            success: false,
+            errorCode: "CREATE_PROFILE_FAILED",
+          };
+        }
+      }
+      if (exists) {
+        return {
+          success: false,
+          errorCode: "PROFILE_ALREADY_EXISTS",
+        };
+      }
+
+      // Create profile
+      const profile = await profilesRepository.create(data);
+      
+      return {
+        success: true,
+        data: profile,
+      };
     } catch (error) {
-      throw normalizeError(error);
+      console.error("Error creating profile:", error);
+      return {
+        success: false,
+        errorCode: "CREATE_PROFILE_FAILED",
+      };
     }
   }
 
@@ -48,108 +70,141 @@ export class ProfilesService {
    * Update user profile with validation
    */
   async updateProfile(
-    userId: string,
+    userId: string, 
     data: UpdateProfileData
-  ): Promise<UserProfile> {
+  ): Promise<ProfileServiceResult<UserProfile>> {
     try {
-      // Validate input data
-      const validationResult = updateProfileSchema.safeParse(data);
-      if (!validationResult.success) {
-        throw validationResult.error;
+      // Validate user ID
+      if (!userId) {
+        return {
+          success: false,
+          errorCode: "INVALID_USER_ID",
+        };
       }
 
-      // Sanitize and process data
-      const sanitizedData = this.sanitizeProfileData(validationResult.data);
+      // Validate display name length if provided
+      if (data.displayName !== undefined && data.displayName.length > 100) {
+        return {
+          success: false,
+          errorCode: "DISPLAY_NAME_TOO_LONG",
+        };
+      }
+
+      // Validate bio length if provided
+      if (data.bio !== undefined && data.bio.length > 500) {
+        return {
+          success: false,
+          errorCode: "BIO_TOO_LONG",
+        };
+      }
+
+      // Validate quote length if provided
+      if (data.quote !== undefined && data.quote.length > 200) {
+        return {
+          success: false,
+          errorCode: "QUOTE_TOO_LONG",
+        };
+      }
 
       // Update profile
-      const updateResult = await profilesRepository.updateByUserId(
-        userId,
-        sanitizedData
-      );
-
-      return updateResult;
+      const profile = await profilesRepository.updateByUserId(userId, data);
+      
+      return {
+        success: true,
+        data: profile,
+      };
     } catch (error) {
-      throw normalizeError(error);
+      console.error("Error updating profile:", error);
+      return {
+        success: false,
+        errorCode: "UPDATE_PROFILE_FAILED",
+      };
+    }
+  }
+
+  /**
+   * Get user profile by ID
+   */
+  async getProfile(userId: string): Promise<ProfileServiceResult<UserProfile>> {
+    try {
+      if (!userId) {
+        return {
+          success: false,
+          errorCode: "INVALID_USER_ID",
+        };
+      }
+
+      const profile = await profilesRepository.getByUserId(userId);
+      
+      return {
+        success: true,
+        data: profile,
+      };
+    } catch (error) {
+      console.error("Error getting profile:", error);
+      return {
+        success: false,
+        errorCode: "GET_PROFILE_FAILED",
+      };
     }
   }
 
   /**
    * Update last active timestamp
    */
-  async updateLastActive(userId: string): Promise<void> {
+  async updateLastActive(userId: string): Promise<ProfileServiceResult<void>> {
     try {
+      if (!userId) {
+        return {
+          success: false,
+          errorCode: "INVALID_USER_ID",
+        };
+      }
+
       await profilesRepository.updateLastActive(userId);
+      
+      return {
+        success: true,
+      };
     } catch (error) {
-      throw normalizeError(error);
+      console.error("Error updating last active:", error);
+      return {
+        success: false,
+        errorCode: "UPDATE_LAST_ACTIVE_FAILED",
+      };
     }
   }
 
   /**
-   * Check if profile exists for user
+   * Delete user profile by user ID
+   */
+  async deleteProfile(userId: string): Promise<ProfileServiceResult<void>> {
+    try {
+      if (!userId) {
+        return { success: false, errorCode: "INVALID_USER_ID" };
+      }
+      await profilesRepository.deleteByUserId(userId);
+      return { success: true };
+    } catch (error) {
+      console.error("Error deleting profile:", error);
+      return { success: false, errorCode: "DELETE_PROFILE_FAILED" };
+    }
+  }
+
+  /**
+   * Check whether a profile exists for a given user ID
    */
   async profileExists(userId: string): Promise<boolean> {
     try {
       return await profilesRepository.existsByUserId(userId);
-    } catch (error) {
-      throw normalizeError(error);
-    }
-  }
-
-  /**
-   * Get public profiles for discovery
-   */
-  async getPublicProfiles(limit = 20, offset = 0): Promise<PublicProfile[]> {
-    try {
-      return await profilesRepository.getPublicProfiles(limit, offset);
-    } catch (error) {
-      throw normalizeError(error);
-    }
-  }
-
-  /**
-   * Delete user profile
-   */
-  async deleteProfile(userId: string): Promise<void> {
-    try {
-      await profilesRepository.deleteByUserId(userId);
-    } catch (error) {
-      throw normalizeError(error);
-    }
-  }
-
-  /**
-   * Sanitize profile data to prevent XSS and ensure data integrity
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private sanitizeProfileData(data: any): any {
-    const sanitized = { ...data };
-
-    // Sanitize display name
-    if (sanitized.displayName) {
-      sanitized.displayName = sanitized.displayName.trim();
-    }
-
-    // Sanitize avatar URL
-    if (sanitized.avatarUrl) {
-      sanitized.avatarUrl = sanitized.avatarUrl.trim();
-      // Remove empty string URLs
-      if (sanitized.avatarUrl === "") {
-        sanitized.avatarUrl = undefined;
+    } catch (err: any) {
+      const code = (err?.code || err?.status || "").toString();
+      if (code === "PGRST116" || code === "406") {
+        // No rows found
+        return false;
       }
+      throw err;
     }
-
-    // Sanitize favorite genres
-    if (sanitized.favoriteGenres) {
-      sanitized.favoriteGenres = [
-        ...new Set(
-          sanitized.favoriteGenres
-            .filter((genre: string) => genre && typeof genre === "string")
-            .map((genre: string) => genre.trim())
-        ),
-      ];
-    }
-
-    return sanitized;
   }
 }
 
