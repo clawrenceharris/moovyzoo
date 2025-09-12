@@ -1260,7 +1260,6 @@ export class HabitatsRepository {
       habitat_id: dbStream.habitat_id,
       description: dbStream.description,
       scheduled_time: dbStream.scheduled_time,
-      participant_count: dbStream.participant_count,
       max_participants: dbStream.max_participants || 0,
       created_by: dbStream.created_by,
       created_at: dbStream.created_at,
