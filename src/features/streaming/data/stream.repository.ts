@@ -271,7 +271,7 @@ export class StreamingRepository {
       search?: string;
       status?: "upcoming" | "live" | "ended";
     } = {}
-  ): Promise<{ streams: StreamWithParticipants[]; total: number }> {
+  ): Promise<{ streams: Stream[]; total: number }> {
     try {
       const { limit = 20, offset = 0, search, status } = options;
 
@@ -324,16 +324,7 @@ export class StreamingRepository {
         return { streams: [], total: 0 };
       }
 
-      // Transform the data to match our interface
-      const transformedStreams: StreamWithParticipants[] = (streams || []).map(
-        (stream) => ({
-          ...stream,
-          participants: stream.participants || [],
-          is_participant: false, // Will be determined based on user context
-        })
-      );
-
-      return { streams: transformedStreams, total: count || 0 };
+      return { streams, total: count || 0 };
     } catch (error) {
       console.error("Error in getPublicStreams:", error);
       return { streams: [], total: 0 };
@@ -446,13 +437,11 @@ export class StreamingRepository {
    */
   private transformParticipantData(data: any): StreamParticipant {
     return {
-      id: data.id,
       stream_id: data.stream_id,
       user_id: data.user_id,
       joined_at: data.joined_at,
       is_host: data.is_host,
       reminder_enabled: data.reminder_enabled,
-      created_at: data.created_at,
       profile: data.profiles
         ? {
             display_name: data.profiles.display_name,
@@ -497,13 +486,11 @@ export class StreamingRepository {
       }
 
       return {
-        id: data.id,
         stream_id: data.stream_id,
         user_id: data.user_id,
         joined_at: data.joined_at,
         is_host: data.is_host,
         reminder_enabled: data.reminder_enabled,
-        created_at: data.created_at,
         profile: data.user_profiles
           ? {
               display_name: (data.user_profiles as any).display_name,
@@ -553,13 +540,11 @@ export class StreamingRepository {
       }
 
       return {
-        id: data.id,
         stream_id: data.stream_id,
         user_id: data.user_id,
         joined_at: data.joined_at,
         is_host: data.is_host,
         reminder_enabled: data.reminder_enabled,
-        created_at: data.created_at,
         profile: data.user_profiles
           ? {
               display_name: (data.user_profiles as any).display_name,
@@ -673,13 +658,11 @@ export class StreamingRepository {
       }
 
       return {
-        id: data.id,
         stream_id: data.stream_id,
         user_id: data.user_id,
         joined_at: data.joined_at,
         is_host: data.is_host,
         reminder_enabled: data.reminder_enabled,
-        created_at: data.created_at,
         profile: data.user_profiles
           ? {
               display_name: (data.user_profiles as any).display_name,

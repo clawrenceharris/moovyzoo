@@ -203,7 +203,7 @@ export function normalizeError(error: unknown): NormalizedError {
       return createNormalizedError(AppErrorCode.TIMEOUT_ERROR, error);
     }
 
-    if (message.includes("network") || message.includes("connection")) {
+    if (message.includes("network")) {
       return createNormalizedError(AppErrorCode.NETWORK_ERROR, error);
     }
 

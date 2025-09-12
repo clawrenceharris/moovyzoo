@@ -60,7 +60,7 @@ export const queryKeys = {
 
   // Streaming session-related queries
   streaming: {
-    all: ["streaming"] as const,
+    all: ["streams"] as const,
     byHabitat: (habitatId: string) =>
       [...queryKeys.streaming.all, "habitat", habitatId] as const,
     detail: (id: string) => [...queryKeys.streaming.all, "detail", id] as const,

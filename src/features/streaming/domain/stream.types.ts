@@ -21,12 +21,10 @@ export interface Stream {
 }
 
 export interface StreamParticipant {
-  id: string;
   stream_id: string;
   user_id: string;
   joined_at: string;
   is_host: boolean;
-  created_at: string;
   reminder_enabled: boolean;
   profile?: {
     display_name: string;
@@ -157,30 +155,12 @@ export interface YouTubePlayer {
   removeEventListener(event: string, listener: (event: any) => void): void;
 }
 
-// Form-specific interface for streaming session creation
-export interface CreateStreamFormData {
-  title: string;
-  description?: string;
-  scheduledDate: string;
-  scheduledTime: string;
-  maxParticipants?: string;
-  media: SelectedMedia;
-}
-
 export interface SelectedMedia {
   tmdb_id: number;
   media_type: "movie" | "tv";
   media_title: string;
   poster_path?: string;
   release_date?: string;
-  runtime?: number;
-}
-
-export interface CreateStreamData {
-  description?: string;
-  scheduledTime: string;
-  maxParticipants?: number;
-  media: SelectedMedia;
 }
 
 // Database insert/update types

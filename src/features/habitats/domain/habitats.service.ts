@@ -9,7 +9,6 @@ import type {
   DiscussionWithStats,
   Discussion,
   Poll,
-  CreateStreamData,
 } from "./habitats.types";
 import { normalizeError } from "@/utils/normalize-error";
 import { AppErrorCode } from "@/types/error";
@@ -18,11 +17,13 @@ import { Permission } from "@/services/permission-types";
 import { withTransaction } from "@/utils/database-transaction";
 import {
   Stream,
+  StreamInsert,
   StreamParticipant,
   StreamWithParticipants,
 } from "@/features/streaming";
 import { StreamingRepository } from "@/features/streaming/data/stream.repository";
 import { streamService } from "@/features/streaming/domain/stream.service";
+import { CreateStreamFormInput } from "@/features/streaming/domain/stream.schema";
 
 /**
  * Service layer for habitats feature
@@ -299,7 +300,7 @@ export class HabitatsService {
   async createHabitatStream(
     userId: string,
     habitatId: string,
-    data: CreateStreamData
+    data: StreamInsert
   ): Promise<Stream> {
     try {
       const stream = await streamService.createStream(userId, data);
@@ -927,9 +928,9 @@ export class HabitatsService {
   ): StreamWithParticipants[] {
     return streams.map((stream) => ({
       ...stream,
-
       participants: members.map((member) => ({
         ...member,
+
         user_id: userId,
         reminder_enabled: false,
         is_host: false,

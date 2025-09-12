@@ -1,4 +1,4 @@
-export * from "./Card";
+export * from "./card";
 export * from "./carousel";
 export * from "./Button";
 export * from "./Form";

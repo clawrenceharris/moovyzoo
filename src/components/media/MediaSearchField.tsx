@@ -12,7 +12,7 @@ import { Button, Input } from "@/components/ui";
 import { useMediaSearch } from "@/hooks/use-media-search";
 import { cn } from "@/lib/utils";
 import { TMDBSearchResult } from "@/features/ai-chat/data/tmdb.repository";
-import { SelectedMedia } from "@/features/habitats/domain";
+import { SelectedMedia } from "@/features/streaming";
 
 export interface MediaSearchFieldProps
   extends InputHTMLAttributes<HTMLInputElement> {
@@ -62,10 +62,12 @@ export function MediaSearchField({
       const selectedMedia: SelectedMedia = {
         tmdb_id: result.id,
         media_type: result.media_type,
-        media_title: result.title || result.name || "",
+        media_title: result.media_type === "movie" ? result.title : result.name,
         poster_path: result.poster_path,
-        release_date: result.release_date || result.first_air_date,
-        runtime: result.runtime,
+        release_date:
+          result.media_type === "movie"
+            ? result.release_date
+            : result.first_air_date,
       };
 
       onMediaSelect(selectedMedia);
@@ -248,13 +250,10 @@ const SearchResultItem = React.forwardRef<
   HTMLButtonElement,
   SearchResultItemProps
 >(({ result, isSelected, isFocused, onClick }, ref) => {
-  const title = result.title || result.name || "";
-  const releaseYear =
-    result.release_date || result.first_air_date
-      ? new Date(
-          result.release_date || result.first_air_date || ""
-        ).getFullYear()
-      : null;
+  const title = result.media_type === "movie" ? result.title : result.name;
+  const releaseDate =
+    result.media_type === "movie" ? result.release_date : result.first_air_date;
+  const releaseYear = releaseDate ? new Date(releaseDate).getFullYear() : null;
 
   const posterUrl = result.poster_path
     ? `https://image.tmdb.org/t/p/w92${result.poster_path}`

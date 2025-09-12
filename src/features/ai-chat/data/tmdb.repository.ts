@@ -23,9 +23,18 @@ export interface TMDBMovieDetails extends TMDBMovie {
   budget: number;
   revenue: number;
   genres: Array<{ id: number; name: string }>;
-  production_companies: Array<{ id: number; name: string; logo_path?: string; origin_country: string }>;
+  production_companies: Array<{
+    id: number;
+    name: string;
+    logo_path?: string;
+    origin_country: string;
+  }>;
   production_countries: Array<{ iso_3166_1: string; name: string }>;
-  spoken_languages: Array<{ english_name: string; iso_639_1: string; name: string }>;
+  spoken_languages: Array<{
+    english_name: string;
+    iso_639_1: string;
+    name: string;
+  }>;
   status: string;
   tagline?: string;
   credits?: {
@@ -96,8 +105,18 @@ export interface TMDBTVShowDetails extends TMDBTVShow {
   episode_run_time: number[];
   genres: Array<{ id: number; name: string }>;
   created_by: Array<{ id: number; name: string; profile_path?: string }>;
-  networks: Array<{ id: number; name: string; logo_path?: string; origin_country: string }>;
-  production_companies: Array<{ id: number; name: string; logo_path?: string; origin_country: string }>;
+  networks: Array<{
+    id: number;
+    name: string;
+    logo_path?: string;
+    origin_country: string;
+  }>;
+  production_companies: Array<{
+    id: number;
+    name: string;
+    logo_path?: string;
+    origin_country: string;
+  }>;
   seasons: Array<{
     id: number;
     name: string;
@@ -243,21 +262,22 @@ async function apiCall<T>(endpoint: string): Promise<T> {
   try {
     // Construct absolute URL - handle both server and client environments
     let url: string;
-    if (endpoint.startsWith('http')) {
+    if (endpoint.startsWith("http")) {
       url = endpoint;
     } else {
       // Check if we're in a browser environment
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         url = `${window.location.origin}${endpoint}`;
       } else {
         // Server-side: use environment variable or default localhost
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL 
-          ? `https://${process.env.VERCEL_URL}` 
-          : 'http://localhost:3000';
+        const baseUrl =
+          process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL
+            ? `https://${process.env.VERCEL_URL}`
+            : "http://localhost:3000";
         url = `${baseUrl}${endpoint}`;
       }
     }
-    
+
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -266,7 +286,48 @@ async function apiCall<T>(endpoint: string): Promise<T> {
 
     return await response.json();
   } catch (error) {
-    console.error('API call error:', error);
+    console.error("API call error:", error);
+    throw error;
+  }
+}
+
+// Extended types with media_type for search results
+export type TMDBMovieWithType = TMDBMovie & { media_type: "movie" };
+export type TMDBTVShowWithType = TMDBTVShow & { media_type: "tv" };
+export type TMDBSearchResult = TMDBMovieWithType | TMDBTVShowWithType;
+
+/**
+ * Search for both movies and TV shows
+ * Combines results from both movie and TV search endpoints
+ */
+export async function searchMulti(query: string): Promise<TMDBSearchResult[]> {
+  if (!query.trim()) {
+    throw new Error("Search query is required");
+  }
+
+  try {
+    // Search both movies and TV shows in parallel
+    const [movies, tvShows] = await Promise.all([
+      searchMovie(query.trim()).catch(() => []), // Return empty array on error
+      searchTVShow(query.trim()).catch(() => []), // Return empty array on error
+    ]);
+
+    // Add media_type to results and combine
+    const movieResults: TMDBMovieWithType[] = movies.map((movie) => ({
+      ...movie,
+      media_type: "movie" as const,
+    }));
+
+    const tvResults: TMDBTVShowWithType[] = tvShows.map((tvShow) => ({
+      ...tvShow,
+      media_type: "tv" as const,
+    }));
+
+    // Combine and sort by popularity
+    const allResults = [...movieResults, ...tvResults];
+    return allResults.sort((a, b) => b.popularity - a.popularity);
+  } catch (error) {
+    console.error("Multi search error:", error);
     throw error;
   }
 }
@@ -277,32 +338,38 @@ async function apiCall<T>(endpoint: string): Promise<T> {
  */
 export async function searchMovie(title: string): Promise<TMDBMovie[]> {
   if (!title.trim()) {
-    throw new Error('Movie title is required');
+    throw new Error("Movie title is required");
   }
 
   const params = new URLSearchParams({ title: title.trim() });
-  const response = await apiCall<{ movies: TMDBMovie[] }>(`/api/tmdb/search/movies?${params}`);
+  const response = await apiCall<{ movies: TMDBMovie[] }>(
+    `/api/tmdb/search/movies?${params}`
+  );
   console.log("⚙️ searchMovie called");
   return response.movies;
-
 }
 
 /**
  * Search for TV shows by title
  * Uses our /api/tmdb/search/tv endpoint
  */
-export async function searchTVShow(title: string, year?: number): Promise<TMDBTVShow[]> {
+export async function searchTVShow(
+  title: string,
+  year?: number
+): Promise<TMDBTVShow[]> {
   if (!title.trim()) {
-    throw new Error('TV show title is required');
+    throw new Error("TV show title is required");
   }
 
   const params = new URLSearchParams({ title: title.trim() });
   if (year) {
-    params.append('year', year.toString());
+    params.append("year", year.toString());
   }
   console.log("⚙️ searchTVShow called");
 
-  const response = await apiCall<{ tvShows: TMDBTVShow[] }>(`/api/tmdb/search/tv?${params}`);
+  const response = await apiCall<{ tvShows: TMDBTVShow[] }>(
+    `/api/tmdb/search/tv?${params}`
+  );
   return response.tvShows;
 }
 
@@ -310,13 +377,17 @@ export async function searchTVShow(title: string, year?: number): Promise<TMDBTV
  * Get detailed movie information by ID
  * Uses our /api/tmdb/movie/[id] endpoint
  */
-export async function getMovieDetails(movieId: number): Promise<TMDBMovieDetails> {
+export async function getMovieDetails(
+  movieId: number
+): Promise<TMDBMovieDetails> {
   if (!movieId || movieId <= 0) {
-    throw new Error('Valid movie ID is required');
+    throw new Error("Valid movie ID is required");
   }
 
   console.log("⚙️ getMovieDetails called");
-  const response = await apiCall<{ movieDetails: TMDBMovieDetails }>(`/api/tmdb/movie/${movieId}`);
+  const response = await apiCall<{ movieDetails: TMDBMovieDetails }>(
+    `/api/tmdb/movie/${movieId}`
+  );
   return response.movieDetails;
 }
 
@@ -324,13 +395,17 @@ export async function getMovieDetails(movieId: number): Promise<TMDBMovieDetails
  * Get detailed TV show information by ID
  * Uses our /api/tmdb/tv/[id] endpoint
  */
-export async function getTVShowDetails(tvId: number): Promise<TMDBTVShowDetails> {
+export async function getTVShowDetails(
+  tvId: number
+): Promise<TMDBTVShowDetails> {
   if (!tvId || tvId <= 0) {
-    throw new Error('Valid TV show ID is required');
+    throw new Error("Valid TV show ID is required");
   }
 
   console.log("⚙️ getTVShowDetails called");
-  const response = await apiCall<{ tvShowDetails: TMDBTVShowDetails }>(`/api/tmdb/tv/${tvId}`);
+  const response = await apiCall<{ tvShowDetails: TMDBTVShowDetails }>(
+    `/api/tmdb/tv/${tvId}`
+  );
   return response.tvShowDetails;
 }
 
@@ -344,19 +419,24 @@ export async function getSeasonOrEpisode(
   episodeNumber?: number
 ): Promise<TMDBSeason | TMDBEpisode> {
   if (!tvId || tvId <= 0) {
-    throw new Error('Valid TV show ID is required');
+    throw new Error("Valid TV show ID is required");
   }
 
   if (!seasonNumber || seasonNumber < 0) {
-    throw new Error('Valid season number is required');
+    throw new Error("Valid season number is required");
   }
 
   if (episodeNumber !== undefined && episodeNumber <= 0) {
-    throw new Error('Valid episode number is required');
+    throw new Error("Valid episode number is required");
   }
 
-  const params = episodeNumber !== undefined ? new URLSearchParams({ episode: episodeNumber.toString() }) : new URLSearchParams();
-  const url = `/api/tmdb/tv/${tvId}/season/${seasonNumber}${params.toString() ? `?${params}` : ''}`;
+  const params =
+    episodeNumber !== undefined
+      ? new URLSearchParams({ episode: episodeNumber.toString() })
+      : new URLSearchParams();
+  const url = `/api/tmdb/tv/${tvId}/season/${seasonNumber}${
+    params.toString() ? `?${params}` : ""
+  }`;
   console.log("⚙️ getSeasonOrEpisode called");
 
   if (episodeNumber !== undefined) {
@@ -374,19 +454,21 @@ export async function getSeasonOrEpisode(
  */
 export async function getSimilarOrRecommendationsTV(
   tvId: number,
-  type: 'similar' | 'recommendations' = 'similar'
+  type: "similar" | "recommendations" = "similar"
 ): Promise<TMDBTVShow[]> {
   if (!tvId || tvId <= 0) {
-    throw new Error('Valid TV show ID is required');
+    throw new Error("Valid TV show ID is required");
   }
 
-  if (!['similar', 'recommendations'].includes(type)) {
+  if (!["similar", "recommendations"].includes(type)) {
     throw new Error('Type must be either "similar" or "recommendations"');
   }
   console.log("⚙️ getSimilarOrRecommendationsTV called");
 
   const params = new URLSearchParams({ type });
-  const response = await apiCall<{ tvShows: TMDBTVShow[] }>(`/api/tmdb/tv/${tvId}/similar?${params}`);
+  const response = await apiCall<{ tvShows: TMDBTVShow[] }>(
+    `/api/tmdb/tv/${tvId}/similar?${params}`
+  );
   return response.tvShows;
 }
 
@@ -396,10 +478,12 @@ export async function getSimilarOrRecommendationsTV(
  */
 export async function getSimilarMovies(movieId: number): Promise<TMDBMovie[]> {
   if (!movieId || movieId <= 0) {
-    throw new Error('Valid movie ID is required');
+    throw new Error("Valid movie ID is required");
   }
 
-  const response = await apiCall<{ similarMovies: TMDBMovie[] }>(`/api/tmdb/movie/${movieId}/similar`);
+  const response = await apiCall<{ similarMovies: TMDBMovie[] }>(
+    `/api/tmdb/movie/${movieId}/similar`
+  );
   console.log("⚙️ getSimilarMovies called");
   return response.similarMovies;
 }
@@ -409,14 +493,18 @@ export async function getSimilarMovies(movieId: number): Promise<TMDBMovie[]> {
  * Uses our /api/tmdb/trending/movies endpoint
  */
 export async function getTrendingNowOrUpcoming(
-  type: 'trending' | 'now_playing' | 'upcoming'
+  type: "trending" | "now_playing" | "upcoming"
 ): Promise<TMDBMovie[]> {
-  if (!['trending', 'now_playing', 'upcoming'].includes(type)) {
-    throw new Error('Invalid type. Must be "trending", "now_playing", or "upcoming"');
+  if (!["trending", "now_playing", "upcoming"].includes(type)) {
+    throw new Error(
+      'Invalid type. Must be "trending", "now_playing", or "upcoming"'
+    );
   }
 
   const params = new URLSearchParams({ type });
-  const response = await apiCall<{ movies: TMDBMovie[] }>(`/api/tmdb/trending/movies?${params}`);
+  const response = await apiCall<{ movies: TMDBMovie[] }>(
+    `/api/tmdb/trending/movies?${params}`
+  );
   console.log("⚙️ getTrendingNowOrUpcoming called");
   return response.movies;
 }
@@ -426,20 +514,32 @@ export async function getTrendingNowOrUpcoming(
  * Uses our /api/tmdb/trending/tv endpoint
  */
 export async function getTrendingOrAiringTV(
-  kind: 'trending' | 'on_the_air' | 'airing_today' | 'popular' | 'top_rated',
+  kind: "trending" | "on_the_air" | "airing_today" | "popular" | "top_rated",
   region?: string
 ): Promise<TMDBTVShow[]> {
-  if (!['trending', 'on_the_air', 'airing_today', 'popular', 'top_rated'].includes(kind)) {
-    throw new Error('Invalid kind. Must be "trending", "on_the_air", "airing_today", "popular", or "top_rated"');
+  if (
+    ![
+      "trending",
+      "on_the_air",
+      "airing_today",
+      "popular",
+      "top_rated",
+    ].includes(kind)
+  ) {
+    throw new Error(
+      'Invalid kind. Must be "trending", "on_the_air", "airing_today", "popular", or "top_rated"'
+    );
   }
 
   const params = new URLSearchParams({ kind });
   if (region) {
-    params.append('region', region);
+    params.append("region", region);
   }
   console.log("⚙️ getTrendingOrAiringTV called");
 
-  const response = await apiCall<{ tvShows: TMDBTVShow[] }>(`/api/tmdb/trending/tv?${params}`);
+  const response = await apiCall<{ tvShows: TMDBTVShow[] }>(
+    `/api/tmdb/trending/tv?${params}`
+  );
   return response.tvShows;
 }
 
@@ -450,24 +550,26 @@ export async function getTrendingOrAiringTV(
 export async function discoverByGenre(
   genreIds: string,
   year?: number,
-  sortBy: string = 'popularity.desc'
+  sortBy: string = "popularity.desc"
 ): Promise<TMDBMovie[]> {
   if (!genreIds.trim()) {
-    throw new Error('Genre IDs are required');
+    throw new Error("Genre IDs are required");
   }
 
   const params = new URLSearchParams({
     genreIds: genreIds.trim(),
-    sortBy
+    sortBy,
   });
 
   if (year) {
-    params.append('year', year.toString());
+    params.append("year", year.toString());
   }
 
   console.log("⚙️ discoverByGenre called");
 
-  const response = await apiCall<{ movies: TMDBMovie[] }>(`/api/tmdb/discover?${params}`);
+  const response = await apiCall<{ movies: TMDBMovie[] }>(
+    `/api/tmdb/discover?${params}`
+  );
   return response.movies;
 }
 
@@ -475,15 +577,23 @@ export async function discoverByGenre(
  * Get movie genres list for reference
  * Uses our /api/tmdb/genres endpoint
  */
-export async function getMovieGenres(): Promise<Array<{ id: number; name: string }>> {
-  const response = await apiCall<{ genres: Array<{ id: number; name: string }> }>('/api/tmdb/genres');
+export async function getMovieGenres(): Promise<
+  Array<{ id: number; name: string }>
+> {
+  const response = await apiCall<{
+    genres: Array<{ id: number; name: string }>;
+  }>("/api/tmdb/genres");
   return response.genres;
 }
 
 // Helper function to format movie data for display
-export function formatMovieForDisplay(movie: TMDBMovie | TMDBMovieDetails): string {
-  const year = movie.release_date ? new Date(movie.release_date).getFullYear() : 'Unknown year';
-  const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
+export function formatMovieForDisplay(
+  movie: TMDBMovie | TMDBMovieDetails
+): string {
+  const year = movie.release_date
+    ? new Date(movie.release_date).getFullYear()
+    : "Unknown year";
+  const rating = movie.vote_average ? movie.vote_average.toFixed(1) : "N/A";
 
   let result = `**${movie.title}** (${year}) - Rating: ${rating}/10\n`;
   result += `ID: ${movie.id}\n`;
@@ -492,12 +602,12 @@ export function formatMovieForDisplay(movie: TMDBMovie | TMDBMovieDetails): stri
     result += `Overview: ${movie.overview}\n`;
   }
 
-  if ('runtime' in movie && movie.runtime) {
+  if ("runtime" in movie && movie.runtime) {
     result += `Runtime: ${movie.runtime} minutes\n`;
   }
 
-  if ('genres' in movie && movie.genres) {
-    const genres = movie.genres.map(g => g.name).join(', ');
+  if ("genres" in movie && movie.genres) {
+    const genres = movie.genres.map((g) => g.name).join(", ");
     result += `Genres: ${genres}\n`;
   }
 
@@ -507,9 +617,13 @@ export function formatMovieForDisplay(movie: TMDBMovie | TMDBMovieDetails): stri
 }
 
 // Helper function to format TV show data for display
-export function formatTVShowForDisplay(tvShow: TMDBTVShow | TMDBTVShowDetails): string {
-  const year = tvShow.first_air_date ? new Date(tvShow.first_air_date).getFullYear() : 'Unknown year';
-  const rating = tvShow.vote_average ? tvShow.vote_average.toFixed(1) : 'N/A';
+export function formatTVShowForDisplay(
+  tvShow: TMDBTVShow | TMDBTVShowDetails
+): string {
+  const year = tvShow.first_air_date
+    ? new Date(tvShow.first_air_date).getFullYear()
+    : "Unknown year";
+  const rating = tvShow.vote_average ? tvShow.vote_average.toFixed(1) : "N/A";
 
   let result = `**${tvShow.name}** (${year}) - Rating: ${rating}/10\n`;
   result += `ID: ${tvShow.id}\n`;
@@ -518,16 +632,16 @@ export function formatTVShowForDisplay(tvShow: TMDBTVShow | TMDBTVShowDetails): 
     result += `Overview: ${tvShow.overview}\n`;
   }
 
-  if ('number_of_seasons' in tvShow && tvShow.number_of_seasons) {
+  if ("number_of_seasons" in tvShow && tvShow.number_of_seasons) {
     result += `Seasons: ${tvShow.number_of_seasons}\n`;
   }
 
-  if ('number_of_episodes' in tvShow && tvShow.number_of_episodes) {
+  if ("number_of_episodes" in tvShow && tvShow.number_of_episodes) {
     result += `Episodes: ${tvShow.number_of_episodes}\n`;
   }
 
-  if ('genres' in tvShow && tvShow.genres) {
-    const genres = tvShow.genres.map(g => g.name).join(', ');
+  if ("genres" in tvShow && tvShow.genres) {
+    const genres = tvShow.genres.map((g) => g.name).join(", ");
     result += `Genres: ${genres}\n`;
   }
 
@@ -535,10 +649,12 @@ export function formatTVShowForDisplay(tvShow: TMDBTVShow | TMDBTVShowDetails): 
 }
 
 // Helper function to get image URLs
-export function getImageUrl(path: string | null | undefined, size: 'w185' | 'w300' | 'w500' | 'original' = 'w300'): string | null {
+export function getImageUrl(
+  path: string | null | undefined,
+  size: "w185" | "w300" | "w500" | "original" = "w300"
+): string | null {
   if (!path) return null;
 
   console.log("⚙️ getImageUrl called");
   return `https://image.tmdb.org/t/p/${size}${path}`;
-
 }
