@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { MoreVertical, UserPlus, UserMinus, Bell, BellOff } from "lucide-react";
+import { useJoinStream, useLeaveStream } from "@/features/streaming";
 
 /**
  * Props for the StreamCard component
@@ -35,26 +36,30 @@ export function StreamCard({
   onToggleReminder,
 }: StreamCardProps) {
   // Local state for loading, error handling, and optimistic updates
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [optimisticParticipantCount, setOptimisticParticipantCount] = useState<
-    number | null
-  >(null);
-  const [optimisticIsParticipant, setOptimisticIsParticipant] = useState<
-    boolean | null
-  >(null);
+
   const [isReminderLoading, setIsReminderLoading] = useState(false);
-  const [reminderError, setReminderError] = useState<string | null>(null);
-  const [optimisticReminderEnabled, setOptimisticReminderEnabled] = useState<
-    boolean | null
-  >(null);
 
   const scheduledTime = new Date(stream.scheduled_time);
   const now = new Date();
   const isUpcoming = scheduledTime > now;
+
+  const { mutate: joinStream, isPending: isJoining } = useJoinStream();
+  const { mutate: leaveStream, isPending: isLeaving } = useLeaveStream();
+
+  const isLoading = isJoining || isLeaving;
+
+  const handleJoinStream = () => {
+    joinStream({ streamId: stream.id, userId });
+    onJoinClick();
+  };
+
+  const handleLeaveClick = () => {
+    leaveStream({ streamId: stream.id, userId });
+    onLeaveClick();
+  };
+
   const isLive =
     Math.abs(scheduledTime.getTime() - now.getTime()) <= 30 * 60 * 1000; // Within 30 minutes (inclusive)
-
   const getStatus = () => {
     if (isLive)
       return {
@@ -76,28 +81,15 @@ export function StreamCard({
   };
 
   const isParticipant = useMemo(() => {
-    // Use optimistic state if available, otherwise use actual data
-    if (optimisticIsParticipant !== null) {
-      return optimisticIsParticipant;
-    }
     return stream.participants
       .map((participant) => participant.user_id)
       .includes(userId);
-  }, [stream.participants, userId, optimisticIsParticipant]);
+  }, [stream.participants, userId]);
 
   const userParticipant = useMemo(() => {
     return stream.participants.find((p) => p.user_id === userId);
   }, [stream.participants, userId]);
 
-  const reminderEnabled = useMemo(() => {
-    if (optimisticReminderEnabled !== null) {
-      return optimisticReminderEnabled;
-    }
-    return userParticipant?.reminder_enabled ?? false;
-  }, [userParticipant, optimisticReminderEnabled]);
-
-  const participantCount =
-    optimisticParticipantCount ?? stream.participants.length;
   const status = getStatus();
 
   const getPosterUrl = () => {
@@ -110,101 +102,29 @@ export function StreamCard({
     return new Date(stream.release_date).getFullYear().toString();
   };
 
-  // Enhanced join functionality with loading states and error handling
-  const handleJoinClick = useCallback(async () => {
-    if (isLoading) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    // Optimistic update
-    setOptimisticIsParticipant(true);
-    setOptimisticParticipantCount(stream.participants.length + 1);
-
-    try {
-      await onJoinClick();
-      // Success - optimistic state will be replaced by real data
-      setOptimisticIsParticipant(null);
-      setOptimisticParticipantCount(null);
-    } catch (err) {
-      // Rollback optimistic update
-      setOptimisticIsParticipant(null);
-      setOptimisticParticipantCount(null);
-      setError("Failed to join stream. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isLoading, onJoinClick, stream.participants.length]);
-
-  // Enhanced leave functionality with loading states and error handling
-  const handleLeaveClick = useCallback(async () => {
-    if (isLoading) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    // Optimistic update
-    setOptimisticIsParticipant(false);
-    setOptimisticParticipantCount(stream.participants.length - 1);
-
-    try {
-      await onLeaveClick();
-      // Success - optimistic state will be replaced by real data
-      setOptimisticIsParticipant(null);
-      setOptimisticParticipantCount(null);
-    } catch (err) {
-      // Rollback optimistic update
-      setOptimisticIsParticipant(null);
-      setOptimisticParticipantCount(null);
-      setError("Failed to leave stream. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isLoading, onLeaveClick, stream.participants.length]);
-
   // Enhanced reminder toggle functionality with loading states and error handling
   const handleToggleReminder = useCallback(async () => {
     if (!onToggleReminder || isReminderLoading) return;
 
     setIsReminderLoading(true);
-    setReminderError(null);
 
-    const newReminderState = !reminderEnabled;
+    const newReminderState = !userParticipant?.reminder_enabled;
 
     // Optimistic update
-    setOptimisticReminderEnabled(newReminderState);
 
     try {
       await onToggleReminder(stream.id, newReminderState);
       // Success - optimistic state will be replaced by real data
-      setOptimisticReminderEnabled(null);
-    } catch (err) {
-      // Rollback optimistic update
-      setOptimisticReminderEnabled(null);
-      setReminderError("Failed to update reminder. Please try again.");
+    } catch {
     } finally {
       setIsReminderLoading(false);
     }
-  }, [onToggleReminder, isReminderLoading, reminderEnabled, stream.id]);
-
-  // Retry functionality
-  const handleRetry = useCallback(() => {
-    setError(null);
-    if (isParticipant) {
-      handleLeaveClick();
-    } else {
-      handleJoinClick();
-    }
-  }, [isParticipant, handleJoinClick, handleLeaveClick]);
-
-  // Menu action handlers
-  const handleMenuJoin = useCallback(() => {
-    handleJoinClick();
-  }, [handleJoinClick]);
-
-  const handleMenuLeave = useCallback(() => {
-    handleLeaveClick();
-  }, [handleLeaveClick]);
+  }, [
+    onToggleReminder,
+    isReminderLoading,
+    userParticipant?.reminder_enabled,
+    stream.id,
+  ]);
 
   const handleMenuToggleReminder = useCallback(() => {
     handleToggleReminder();
@@ -213,9 +133,7 @@ export function StreamCard({
   const handleCardClick = (event: React.MouseEvent) => {
     // Prevent navigation if clicking on action button, retry button, or dropdown menu
     if (
-      (event.target as HTMLElement).closest(
-        '[data-testid="streaming-action"]'
-      ) ||
+      (event.target as HTMLElement).closest('[data-testid="stream-action"]') ||
       (event.target as HTMLElement).closest('[data-testid="retry-button"]') ||
       (event.target as HTMLElement).closest('[data-testid="stream-menu"]')
     ) {
@@ -230,42 +148,10 @@ export function StreamCard({
   return (
     <Card
       onClick={handleCardClick}
-      className="media-card p-4 min-h-md min-w-md"
+      className="media-card w-full"
       data-testid="media-card"
     >
-      <CardHeader className="space-y-4 px-3">
-        {/* Title */}
-        <div>
-          <h4 className="font-medium text-foreground group-hover:text-primary transition-colors line-clamp-1 text-ellipsis">
-            {stream.media_title}{" "}
-            {getReleaseYear() && (
-              <span
-                className="text-xs text-muted-foreground"
-                data-testid="streaming-release-year"
-              >
-                ({getReleaseYear()})
-              </span>
-            )}
-          </h4>
-        </div>
-        {/* Stream Details */}
-        <div className="text-xs text-muted-foreground flex justify-between items-center gap-2">
-          <div>
-            <span data-testid="streaming-date">
-              {scheduledTime.toLocaleDateString()}
-            </span>
-            <span data-testid="streaming-time">
-              {scheduledTime.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </span>
-          </div>
-          <span data-testid="streaming-participants">
-            {participantCount} joined
-          </span>
-        </div>
-
+      <CardHeader className="space-y-3 p-3">
         {/* Banner Image */}
         <div className="media-card-banner">
           {getImageUrl(stream.poster_path) ? (
@@ -282,7 +168,7 @@ export function StreamCard({
 
           {/* Fallback placeholder */}
           <div
-            className={`w-16 h-24 sm:w-20 sm:h-30 bg-muted rounded-md flex items-center justify-center ${
+            className={`w-full h-full bg-muted rounded-md flex items-center justify-center ${
               getPosterUrl() ? "hidden" : ""
             }`}
             data-testid="streaming-poster-fallback"
@@ -302,35 +188,57 @@ export function StreamCard({
             </svg>
           </div>
         </div>
+
+        {/* Title */}
+        <div>
+          <h4 className="font-medium text-foreground group-hover:text-primary transition-colors line-clamp-1 text-sm">
+            {stream.media_title}{" "}
+            {getReleaseYear() && (
+              <span
+                className="text-xs text-muted-foreground"
+                data-testid="streaming-release-year"
+              >
+                ({getReleaseYear()})
+              </span>
+            )}
+          </h4>
+        </div>
+
+        {/* Stream Details */}
+        <div className="text-xs text-muted-foreground space-y-1">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+            <div className="flex flex-col sm:flex-row sm:gap-2">
+              <span data-testid="streaming-date">
+                {scheduledTime.toLocaleDateString()}
+              </span>
+              <span data-testid="streaming-time">
+                {scheduledTime.toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            </div>
+            <span
+              data-testid="streaming-participants"
+              className="flex-shrink-0"
+            >
+              {stream.participants.length} joined
+            </span>
+          </div>
+        </div>
       </CardHeader>
 
       {/* Streaming Actions */}
-      <CardFooter className="flex mt-4 justify-between">
-        <div className="flex flex-col gap-2">
-          {error ? (
-            <div className="flex gap-2 items-center">
-              <span className="text-xs text-red-500">{error}</span>
-              <Button
-                variant="outline"
-                size="sm"
-                data-testid="retry-button"
-                onClick={handleRetry}
-                disabled={isLoading}
-              >
-                Try Again
-              </Button>
-            </div>
-          ) : reminderError ? (
-            <div className="flex gap-2 items-center">
-              <span className="text-xs text-red-500">{reminderError}</span>
-            </div>
-          ) : (
+      <CardFooter className="flex flex-col sm:flex-row gap-3 sm:gap-2 sm:justify-between p-3">
+        <div className="flex flex-col gap-2 flex-1">
+          {
             <Button
               variant={"primary"}
-              size={"lg"}
-              data-testid="streaming-action"
+              size={"default"}
+              data-testid="stream-action"
               disabled={isParticipant || isLoading}
-              onClick={handleJoinClick}
+              onClick={handleJoinStream}
+              className="w-full sm:w-auto"
             >
               {isLoading
                 ? "Joining..."
@@ -338,17 +246,24 @@ export function StreamCard({
                 ? "Joined"
                 : "Join Stream"}
             </Button>
-          )}
+          }
         </div>
+        <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+          {/* Status Badge */}
+          <div
+            className={`px-2 py-1 rounded-full text-xs font-medium ${status.color} ${status.bgColor} flex-shrink-0`}
+            data-testid="streaming-status"
+          >
+            {status.text}
+          </div>
 
-        <div className="flex items-center gap-2">
           {/* Dropdown Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 flex-shrink-0"
                 data-testid="stream-menu-trigger"
                 aria-haspopup="menu"
               >
@@ -359,7 +274,7 @@ export function StreamCard({
             <DropdownMenuContent align="end" data-testid="stream-menu">
               {!isParticipant ? (
                 <DropdownMenuItem
-                  onClick={handleMenuJoin}
+                  onClick={onJoinClick}
                   disabled={isLoading}
                   data-testid="menu-join"
                 >
@@ -369,7 +284,7 @@ export function StreamCard({
               ) : (
                 <>
                   <DropdownMenuItem
-                    onClick={handleMenuLeave}
+                    onClick={handleLeaveClick}
                     disabled={isLoading}
                     data-testid="menu-leave"
                   >
@@ -382,7 +297,7 @@ export function StreamCard({
                       disabled={isReminderLoading}
                       data-testid="menu-reminder"
                     >
-                      {reminderEnabled ? (
+                      {userParticipant?.reminder_enabled ? (
                         <>
                           <BellOff className="mr-2 h-4 w-4" />
                           {isReminderLoading
@@ -403,14 +318,6 @@ export function StreamCard({
               )}
             </DropdownMenuContent>
           </DropdownMenu>
-
-          {/* Status Badge */}
-          <div
-            className={`px-2 py-1 rounded-full text-xs font-medium ${status.color} ${status.bgColor} flex-shrink-0`}
-            data-testid="streaming-status"
-          >
-            {status.text}
-          </div>
         </div>
       </CardFooter>
     </Card>

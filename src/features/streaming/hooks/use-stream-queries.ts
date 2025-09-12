@@ -12,11 +12,11 @@ const createStreamingService = () => new StreamService();
  * Query keys for streaming session queries
  */
 export const streamQueryKeys = {
-  all: ["streaming"] as const,
+  all: ["streams"] as const,
   stream: (id: string) => ["stream", id] as const,
   participants: (streamId: string) => ["streamParticipants", streamId] as const,
   dashboard: (id: string, userId: string) =>
-    ["streaming", "dashboard", id, userId] as const,
+    ["streams", "dashboard", id, userId] as const,
   publicStreams: (options: {
     limit?: number;
     offset?: number;

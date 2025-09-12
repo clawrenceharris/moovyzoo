@@ -112,36 +112,6 @@ export interface PollUpdate {
   is_active?: boolean;
 }
 
-export interface StreamInsert {
-  description?: string;
-  scheduled_time: string;
-  participant_count?: number;
-  max_participants?: number;
-  created_by: string;
-  tmdb_id?: number;
-  media_type?: "movie" | "tv";
-  media_title?: string;
-  poster_path?: string;
-  release_date?: string;
-  runtime?: number;
-}
-
-export interface StreamUpdate {
-  title?: string;
-  description?: string;
-  scheduled_time?: string;
-  participant_count?: number;
-  max_participants?: number;
-  is_active?: boolean;
-  // Media integration fields
-  tmdb_id?: number;
-  media_type?: "movie" | "tv";
-  media_title?: string;
-  poster_path?: string;
-  release_date?: string;
-  runtime?: number;
-}
-
 // Response types for API/service layer
 export interface HabitatWithMembership extends Habitat {
   is_member: boolean;
@@ -205,40 +175,4 @@ export interface HabitatActivity {
   activity_data: Record<string, unknown>;
   created_by: string;
   created_at: string;
-}
-
-// Media integration types
-export interface StreamMedia {
-  tmdb_id: number;
-  media_type: "movie" | "tv";
-  media_title: string;
-  poster_path?: string;
-  release_date?: string;
-  runtime?: number;
-}
-
-// Selected media type for UI components (matches TMDB service interface)
-export interface SelectedMedia {
-  tmdb_id: number;
-  media_type: "movie" | "tv";
-  media_title: string;
-  poster_path?: string;
-  release_date?: string;
-  runtime?: number;
-}
-
-export interface CreateStreamData {
-  description?: string;
-  scheduledTime: string;
-  maxParticipants?: number;
-  media: StreamMedia;
-}
-
-// Form-specific interface for streaming session creation
-export interface CreateStreamFormData {
-  description?: string;
-  scheduledDate: string;
-  scheduledTime: string;
-  maxParticipants?: string;
-  media: SelectedMedia;
 }
