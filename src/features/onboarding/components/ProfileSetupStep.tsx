@@ -1,14 +1,14 @@
 "use client";
 
-import { Input } from "@/components/ui/Input";
 import {
+  FormLayout,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import FormLayout from "@/components/FormLayout";
+  Input,
+} from "@/components";
 import { onboardingProfileDataSchema } from "@/features/auth/domain/auth.schema";
 import { useOnboarding } from "../OnboardingContext";
 import { zodResolver } from "@hookform/resolvers/zod";

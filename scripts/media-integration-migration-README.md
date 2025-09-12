@@ -1,12 +1,12 @@
-# Watch Party Media Integration Migration
+# Streaming Session Media Integration Migration
 
-This migration adds TMDB (The Movie Database) media integration support to the existing `habitat_watch_parties` table, enabling watch parties to be associated with specific movies and TV shows.
+This migration adds TMDB (The Movie Database) media integration support to the existing `habitat_watch_parties` table, enabling streaming sessions to be associated with specific movies and TV shows.
 
 ## Overview
 
 The migration adds the following capabilities:
 
-- Associate watch parties with TMDB movies and TV shows
+- Associate streaming sessions with TMDB movies and TV shows
 - Store media metadata (title, poster, release date, runtime)
 - Validate media data consistency
 - Provide helper functions for TMDB image URLs
@@ -40,11 +40,11 @@ The migration adds the following capabilities:
 
 ### New Indexes
 
-- `idx_habitat_watch_parties_tmdb_id` - For TMDB ID lookups
-- `idx_habitat_watch_parties_media_type` - For filtering by media type
-- `idx_habitat_watch_parties_media_title` - For title searches
-- `idx_habitat_watch_parties_release_date` - For date-based queries
-- `idx_habitat_watch_parties_media_composite` - Composite index for media queries
+- `idx_habitat_streams_tmdb_id` - For TMDB ID lookups
+- `idx_habitat_streams_media_type` - For filtering by media type
+- `idx_habitat_streams_media_title` - For title searches
+- `idx_habitat_streams_release_date` - For date-based queries
+- `idx_habitat_streams_media_composite` - Composite index for media queries
 
 ### New Functions
 
@@ -54,8 +54,8 @@ The migration adds the following capabilities:
 ### Updated Views
 
 - `upcoming_watch_parties` - Now includes media columns
-- `habitat_dashboard_data` - Includes media watch party count
-- `watch_parties_with_media` - New view with media information and poster URLs
+- `habitat_dashboard_data` - Includes media streaming session count
+- `streams_with_media` - New view with media information and poster URLs
 
 ## Migration Process
 
@@ -103,7 +103,7 @@ If you need to undo the migration:
 
 ## Usage Examples
 
-### Creating a Watch Party with Media
+### Creating a Streaming Session with Media
 
 ```sql
 INSERT INTO habitat_watch_parties (
@@ -133,14 +133,14 @@ INSERT INTO habitat_watch_parties (
 );
 ```
 
-### Querying Watch Parties with Media
+### Querying Streaming Sessions with Media
 
 ```sql
--- Get all watch parties with media information
-SELECT * FROM watch_parties_with_media
+-- Get all streaming sessions with media information
+SELECT * FROM streams_with_media
 WHERE habitat_id = 'habitat-uuid-here';
 
--- Get poster URL for a watch party
+-- Get poster URL for a streaming session
 SELECT
   title,
   get_tmdb_poster_url(poster_path) as poster_url,
@@ -156,7 +156,7 @@ WHERE tmdb_id IS NOT NULL;
 SELECT * FROM habitat_dashboard_data
 WHERE habitat_id = 'habitat-uuid-here';
 
--- Get upcoming watch parties with media
+-- Get upcoming streaming sessions with media
 SELECT * FROM upcoming_watch_parties
 WHERE habitat_id = 'habitat-uuid-here';
 ```
@@ -165,18 +165,18 @@ WHERE habitat_id = 'habitat-uuid-here';
 
 The migration includes automatic validation:
 
-- **Valid:** Watch party with complete media information
-- **Valid:** Watch party without any media information
-- **Invalid:** Watch party with `tmdb_id` but missing `media_type` or `media_title`
-- **Invalid:** Watch party with media fields but missing `tmdb_id`
-- **Invalid:** Watch party with `media_type` other than 'movie' or 'tv'
+- **Valid:** Streaming session with complete media information
+- **Valid:** Streaming session without any media information
+- **Invalid:** Streaming session with `tmdb_id` but missing `media_type` or `media_title`
+- **Invalid:** Streaming session with media fields but missing `tmdb_id`
+- **Invalid:** Streaming session with `media_type` other than 'movie' or 'tv'
 
 ## Backward Compatibility
 
-- Existing watch parties continue to work unchanged
+- Existing streaming sessions continue to work unchanged
 - All media columns are nullable
 - Existing queries continue to work
-- Views include both media and non-media watch parties
+- Views include both media and non-media streaming sessions
 
 ## Performance Considerations
 

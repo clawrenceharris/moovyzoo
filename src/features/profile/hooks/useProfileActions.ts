@@ -15,15 +15,19 @@ export function useProfileActions(userId: string) {
   // Mutation for creating profile
   const createProfileMutation = useMutation({
     mutationFn: async (data: CreateProfileData) => {
-      const profile = await profilesService.createProfile(data);
-      return profile;
+      const result = await profilesService.createProfile(data);
+      if (!result.success || !result.data) {
+        const err = new Error(result.errorCode || "CREATE_PROFILE_FAILED");
+        throw err;
+      }
+      return result.data;
     },
     onError: (error) => {
-      console.log(error);
+      console.error("createProfile error:", error);
     },
-    onSuccess: (data) => {
+    onSuccess: (profile) => {
       // Update cache with new profile
-      queryClient.setQueryData(["profile", data.userId], data);
+      queryClient.setQueryData(["profile", profile.userId], profile);
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: ["profiles"] });
     },
@@ -32,11 +36,16 @@ export function useProfileActions(userId: string) {
   // Mutation for updating profile
   const updateProfileMutation = useMutation({
     mutationFn: async (data: UpdateProfileData) => {
-      return await profilesService.updateProfile(userId, data);
+      const result = await profilesService.updateProfile(userId, data);
+      if (!result.success || !result.data) {
+        const err = new Error(result.errorCode || "UPDATE_PROFILE_FAILED");
+        throw err;
+      }
+      return result.data;
     },
-    onSuccess: (data) => {
+    onSuccess: (profile) => {
       // Update cache with updated profile
-      queryClient.setQueryData(["profile", userId], data);
+      queryClient.setQueryData(["profile", userId], profile);
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: ["profiles"] });
     },
@@ -45,7 +54,12 @@ export function useProfileActions(userId: string) {
   // Mutation for deleting profile
   const deleteProfileMutation = useMutation({
     mutationFn: async () => {
-      return await profilesService.deleteProfile(userId);
+      const result = await profilesService.deleteProfile(userId);
+      if (!result.success) {
+        const err = new Error(result.errorCode || "DELETE_PROFILE_FAILED");
+        throw err;
+      }
+      return true;
     },
     onSuccess: () => {
       // Remove from cache

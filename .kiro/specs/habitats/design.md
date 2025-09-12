@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Habitats feature creates themed social spaces where users can engage in discussions, activities, and events around movies and TV shows. The system centers around a dashboard-based approach where each habitat has a central overview page displaying ongoing activities, discussions, watch parties, and events. Users can then navigate to specific chat rooms for focused discussions. The system leverages Supabase's real-time capabilities for chat and PostgreSQL for data persistence.
+The Habitats feature creates themed social spaces where users can engage in discussions, activities, and events around movies and TV shows. The system centers around a dashboard-based approach where each habitat has a central overview page displaying ongoing activities, discussions, streaming sessions, and events. Users can then navigate to specific chat rooms for focused discussions. The system leverages Supabase's real-time capabilities for chat and PostgreSQL for data persistence.
 
 ## Architecture
 
@@ -12,7 +12,7 @@ The Habitats feature creates themed social spaces where users can engage in disc
 graph TB
     A[Habitats Page] --> B[Habitat Dashboard]
     B --> C[Discussions]
-    B --> D[Watch Parties]
+    B --> D[Streaming Sessions]
     B --> E[Polls & Events]
     C --> F[Real-time Chat]
     F --> G[Supabase Realtime]
@@ -22,7 +22,7 @@ graph TB
 ### Data Flow
 
 1. **User Navigation**: Users view their joined habitats → select habitat → view dashboard → navigate to specific activities
-2. **Dashboard Data**: Aggregated data from multiple sources (discussions, events, members, watch parties)
+2. **Dashboard Data**: Aggregated data from multiple sources (discussions, events, members, streaming sessions)
 3. **Real-time Communication**: Messages flow through Supabase Realtime channels per discussion room
 4. **Activity Persistence**: Chat messages, polls, and events stored in PostgreSQL
 
@@ -43,7 +43,7 @@ graph TB
 - **Features**:
   - Hero section with habitat branding and primary actions
   - Popular discussions and polls section
-  - Weekly watch parties section
+  - Weekly streaming sessions section
   - Habitat information sidebar (creation date, tags, members)
   - Ongoing events section
   - Navigation to specific chat rooms
@@ -68,11 +68,11 @@ graph TB
 - **Props**: `discussions: Discussion[]`, `onDiscussionClick: (id: string) => void`
 - **Features**: List of active discussions with vote counts and participant counts
 
-##### Watch Parties (`WatchParties`)
+##### Streaming Sessions (`Streaming`)
 
-- **Purpose**: Display upcoming and active watch parties ordered by start date and time
-- **Props**: `watchParties: WatchParty[]`, `onJoinParty: (id: string) => void`
-- **Features**: Party details, join buttons, participant counts
+- **Purpose**: Display upcoming and active streaming sessions ordered by start date and time
+- **Props**: `streaming: Stream[]`, `onJoinStream: (id: string) => void`
+- **Features**: Stream details, join buttons, participant counts
 
 ##### Habitat Info (`HabitatInfo`)
 
@@ -105,12 +105,12 @@ graph TB
   - Submit and cancel actions
   - Error handling and loading states
 
-##### Watch Party Creation Form (`WatchPartyCreationForm`)
+##### Streaming Session Creation Form (`StreamCreationForm`)
 
-- **Purpose**: Form for creating new watch parties within a habitat
-- **Props**: `habitatId: string`, `onSuccess: (watchParty: WatchParty) => void`, `onCancel: () => void`
+- **Purpose**: Form for creating new streaming sessions within a habitat
+- **Props**: `habitatId: string`, `onSuccess: (stream: Stream) => void`, `onCancel: () => void`
 - **Features**:
-  - Party title input (5-200 characters)
+  - Stream title input (5-200 characters)
   - Optional description textarea (max 500 characters)
   - Date and time picker for scheduling (must be future)
   - Optional maximum participants input
@@ -122,7 +122,7 @@ graph TB
 
 - **DiscussionCreationModal**: Modal wrapper using Shadcn UI Dialog component
 - **PollCreationModal**: Modal wrapper using Shadcn UI Dialog component
-- **WatchPartyCreationModal**: Modal wrapper using Shadcn UI Dialog component
+- **StreamCreationModal**: Modal wrapper using Shadcn UI Dialog component
 - **Features**:
   - Built on Shadcn UI Dialog (`@/components/ui/dialog`)
   - Uses Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter components
@@ -194,10 +194,10 @@ interface Poll {
 }
 ```
 
-#### WatchParty
+#### Stream
 
 ```typescript
-interface WatchParty {
+interface Stream {
   id: string;
   habitat_id: string;
   title: string;
@@ -235,7 +235,7 @@ interface PollCreationData {
   options: string[];
 }
 
-interface WatchPartyCreationData {
+interface StreamCreationData {
   title: string;
   description?: string;
   scheduled_time: Date;
@@ -303,8 +303,8 @@ CREATE TABLE habitat_polls (
   is_active BOOLEAN DEFAULT true
 );
 
--- Watch parties table
-CREATE TABLE habitat_watch_parties (
+-- Streaming parsessions table
+CREATE TABLE habitat_streaming_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   habitat_id UUID REFERENCES habitats(id) ON DELETE CASCADE,
   title VARCHAR(200) NOT NULL,
@@ -383,7 +383,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui";
 ```
 
 ### Modal Structure Pattern
@@ -446,14 +446,14 @@ Each creation modal follows this consistent structure:
 6. On successful creation, poll appears in "Popular in this habitat" section
 7. Modal closes and user sees confirmation
 
-#### Watch Party Creation
+#### Streaming Session Creation
 
-1. User clicks "Start Streaming Party" button in hero section
-2. Modal opens with watch party creation form
+1. User clicks "Start Streaming Stream" button in hero section
+2. Modal opens with streaming session creation form
 3. User enters party title, optional description, and scheduled time
 4. Date/time picker ensures future scheduling
 5. Optional maximum participants can be set
-6. On successful creation, party appears in watch parties section
+6. On successful creation, party appears in streaming sessions section
 7. Creator is automatically added as first participant
 
 ### Form Design Patterns
@@ -491,7 +491,7 @@ Each creation modal follows this consistent structure:
 - Handle connection drops and reconnection gracefully
 - Load recent message history on discussion room entry
 - Simple message pagination for chat history
-- Dashboard updates for new discussions, watch parties, and member activity
+- Dashboard updates for new discussions, streaming sessions, and member activity
 
 ### Creation Architecture
 

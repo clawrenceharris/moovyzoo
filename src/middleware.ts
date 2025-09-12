@@ -48,7 +48,7 @@ export const config = {
   matcher: [
     "/", // All main app routes
     "/profile/:path*", // Profile routes
-    "/parties/:path*", // Party features
+    "/streams/:path*", // Stream features
     "/habitats/:path*", // Group chats
   ],
 };

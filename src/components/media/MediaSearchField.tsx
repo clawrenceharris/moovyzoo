@@ -1,25 +1,30 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Search, X, Film, Tv, AlertCircle, Loader2 } from "lucide-react";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/button";
-import { useMediaSearch } from "@/hooks/useMediaSearch";
-import { TMDBSearchResult, SelectedMedia } from "@/utils/tmdb/service";
-import { cn } from "@/lib/utils";
+"use client";
 
-export interface MediaSearchFieldProps {
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  InputHTMLAttributes,
+} from "react";
+import { Search, X, Film, Tv, AlertCircle, Loader2 } from "lucide-react";
+import { Button, Input } from "@/components/ui";
+import { useMediaSearch } from "@/hooks/use-media-search";
+import { cn } from "@/lib/utils";
+import { TMDBSearchResult } from "@/features/ai-chat/data/tmdb.repository";
+import { SelectedMedia } from "@/features/habitats/domain";
+
+export interface MediaSearchFieldProps
+  extends InputHTMLAttributes<HTMLInputElement> {
   onMediaSelect: (media: SelectedMedia | null) => void;
   selectedMedia?: SelectedMedia | null;
-  placeholder?: string;
-  disabled?: boolean;
-  className?: string;
 }
 
 export function MediaSearchField({
   onMediaSelect,
   selectedMedia,
-  placeholder = "Search for movies and TV shows...",
-  disabled = false,
   className,
+  ...props
 }: MediaSearchFieldProps) {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -81,37 +86,6 @@ export function MediaSearchField({
     inputRef.current?.focus();
   }, [onMediaSelect, clearResults]);
 
-  // Handle keyboard navigation
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (!isOpen || results.length === 0) return;
-
-      switch (e.key) {
-        case "ArrowDown":
-          e.preventDefault();
-          setFocusedIndex((prev) => (prev < results.length - 1 ? prev + 1 : 0));
-          break;
-        case "ArrowUp":
-          e.preventDefault();
-          setFocusedIndex((prev) => (prev > 0 ? prev - 1 : results.length - 1));
-          break;
-        case "Enter":
-          e.preventDefault();
-          if (focusedIndex >= 0 && focusedIndex < results.length) {
-            handleMediaSelect(results[focusedIndex]);
-          }
-          break;
-        case "Escape":
-          e.preventDefault();
-          setIsOpen(false);
-          setFocusedIndex(-1);
-          inputRef.current?.blur();
-          break;
-      }
-    },
-    [isOpen, results, focusedIndex, handleMediaSelect]
-  );
-
   // Focus management for keyboard navigation
   useEffect(() => {
     if (focusedIndex >= 0 && resultRefs.current[focusedIndex]) {
@@ -165,15 +139,13 @@ export function MediaSearchField({
           ref={inputRef}
           type="text"
           value={query}
+          placeholder="Search for movies and TV shows..."
           onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
           onFocus={() => {
             if (results.length > 0 || error) {
               setIsOpen(true);
             }
           }}
-          placeholder={placeholder}
-          disabled={disabled}
           className={cn(
             "pl-10 pr-10",
             selectedMedia && "border-accent/50 bg-accent/5"
@@ -182,10 +154,11 @@ export function MediaSearchField({
           aria-haspopup="listbox"
           aria-autocomplete="list"
           role="combobox"
+          {...props}
         />
 
         {/* Clear Button */}
-        {(query || selectedMedia) && !disabled && (
+        {(query || selectedMedia) && !props.disabled && (
           <Button
             type="button"
             variant="ghost"

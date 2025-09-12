@@ -1,4 +1,4 @@
--- Rollback script for Watch Party Media Integration Migration
+-- Rollback script for Streaming Session Media Integration Migration
 -- Run this to undo the media integration changes if needed
 
 -- Drop the validation trigger
@@ -12,7 +12,7 @@ DROP FUNCTION IF EXISTS get_tmdb_poster_url(TEXT, TEXT);
 DROP FUNCTION IF EXISTS get_tmdb_poster_url(TEXT);
 
 -- Drop the new view
-DROP VIEW IF EXISTS watch_parties_with_media;
+DROP VIEW IF EXISTS streams_with_media;
 
 -- Restore the original upcoming_watch_parties view (without media columns)
 DROP VIEW IF EXISTS upcoming_watch_parties;
@@ -54,7 +54,7 @@ SELECT
   -- Count active polls
   COALESCE(p.poll_count, 0) as active_polls,
   
-  -- Count upcoming watch parties
+  -- Count upcoming streaming sessions
   COALESCE(wp.watch_party_count, 0) as upcoming_watch_parties
   
 FROM habitats h
@@ -81,11 +81,11 @@ LEFT JOIN (
 GRANT SELECT ON habitat_dashboard_data TO authenticated;
 
 -- Drop the media-related indexes
-DROP INDEX IF EXISTS idx_habitat_watch_parties_tmdb_id;
-DROP INDEX IF EXISTS idx_habitat_watch_parties_media_type;
-DROP INDEX IF EXISTS idx_habitat_watch_parties_media_title;
-DROP INDEX IF EXISTS idx_habitat_watch_parties_release_date;
-DROP INDEX IF EXISTS idx_habitat_watch_parties_media_composite;
+DROP INDEX IF EXISTS idx_habitat_streams_tmdb_id;
+DROP INDEX IF EXISTS idx_habitat_streams_media_type;
+DROP INDEX IF EXISTS idx_habitat_streams_media_title;
+DROP INDEX IF EXISTS idx_habitat_streams_release_date;
+DROP INDEX IF EXISTS idx_habitat_streams_media_composite;
 
 -- Remove the media-related columns from habitat_watch_parties table
 -- Note: This will permanently delete any media data that was stored

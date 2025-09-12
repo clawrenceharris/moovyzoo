@@ -1,6 +1,7 @@
 'use client';
 
-import { MessageCircle, X } from 'lucide-react';
+import { X } from 'lucide-react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 interface AIChatFABProps {
@@ -39,8 +40,12 @@ export function AIChatFAB({ isOpen, onClick, className }: AIChatFABProps) {
       aria-expanded={isOpen}
     >
       <div className="relative">
-        {/* Message icon */}
-        <MessageCircle 
+        {/* Sparkle icon */}
+        <Image
+          src="/icons/sparkle-white.svg"
+          alt="AI"
+          width={28}
+          height={28}
           className={cn(
             'w-6 h-6 md:w-7 md:h-7 transition-all duration-200',
             isOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'

@@ -2,12 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { SignupData } from "../../auth/domain/auth.types";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import GenreSelectionStep from "./GenreSelectionStep";
 import ProfileSetupStep from "./ProfileSetupStep";
 import AvatarUploadStep from "./AvatarUploadStep";
-import FormLayout from "@/components/FormLayout";
 import { signupSchema } from "../../auth/domain/auth.schema";
 import { useAuth } from "../../auth/hooks";
 import { OnboardingProvider, useOnboarding } from "../OnboardingContext";
@@ -17,6 +16,7 @@ import { useEffect } from "react";
 import { useProfile } from "@/features/profile/hooks/use-profile";
 import { User } from "@supabase/supabase-js";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FormLayout } from "@/components";
 
 function OnboardingBody({ user }: { user: User }) {
   const router = useRouter();

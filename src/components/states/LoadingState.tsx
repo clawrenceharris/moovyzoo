@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 /**
  * Available variants for state components
  */
-export type StateVariant = "grid" | "list" | "inline" | "card";
+export type StateVariant = "grid" | "list" | "inline" | "card" | "page";
 
 /**
  * Props for the LoadingState component
@@ -48,10 +48,10 @@ export function LoadingState({
   const renderGridItem = (index: number) => (
     <div
       key={index}
-      className="habitat-card animate-pulse"
+      className="media-card animate-pulse"
       data-testid="loading-card"
     >
-      <div className="habitat-card-banner">
+      <div className="media-card-banner">
         <div className="w-full h-full bg-muted" />
       </div>
       <div className="card-content">
@@ -86,6 +86,23 @@ export function LoadingState({
     </div>
   );
 
+  const renderPageItem = (index: number) => (
+    <div
+      key={index}
+      className="flex flex-col p-4 h-full flex-1 border border-border rounded-lg"
+      data-testid="loading-item"
+    >
+      <div className="flex items-start justify-between mb-2">
+        <div className="h-4 bg-muted rounded w-48"></div>
+        <div className="h-3 bg-muted rounded w-12"></div>
+      </div>
+      <div className="h-3 bg-muted rounded w-full mb-2"></div>
+      <div className="flex items-center justify-between">
+        <div className="h-3 bg-muted rounded w-32"></div>
+        <div className="h-3 bg-muted rounded w-20"></div>
+      </div>
+    </div>
+  );
   const renderInlineItem = (index: number) => (
     <div
       key={index}
@@ -116,6 +133,8 @@ export function LoadingState({
         return renderInlineItem(index);
       case "card":
         return renderCardItem(index);
+      case "page":
+        return renderPageItem(index);
       default:
         return renderGridItem(index);
     }

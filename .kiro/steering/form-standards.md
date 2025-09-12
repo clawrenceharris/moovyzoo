@@ -1,64 +1,41 @@
-# Form Standards and Architecture
+# Form Standards – Shortened Version
 
-## CRITICAL REQUIREMENT: ALL FORMS MUST USE FormLayout
+## Core Rules
 
-**Every form in the application MUST use the `FormLayout` wrapper component.** This is non-negotiable for consistency, validation, and error handling.
+1. **All forms must use `FormLayout`**
 
-We are standardizing all forms to use **React Hook Form** (`react-hook-form`) with **Zod** validation to ensure consistent validation, error handling, and submission patterns across the application.
+   - Provides consistent validation, error handling, and UI.
+   - No raw `<form>` tags.
 
-## Core Components
+2. **Use Shadcn UI components + FormLayout**
 
-### FormLayout (MANDATORY WRAPPER)
+   - Inputs, Labels, Buttons, Textareas, Selects.
+   - Do not use raw HTML form elements.
+   - Styles are applied automatically by FormLayout and Shadcn UI
+   - Only use these Shadcn components in the child form component: FormField, FormItem, FormLabel, FormMessage, FormDescription, FormControl, Textarea, Select, Input
 
-- **`FormLayout`** (in `components/forms/FormLayout.tsx`)
-  - **REQUIRED**: Every form must be wrapped in this component
-  - Wraps all form content in `Form` component from Shadcn UI
-  - Handles submission, default values, and optional description text
-  - Provides a single place to manage form-level UI (submit/cancel buttons, loading states, error banners)
-  - Uses Shadcn UI `Form` component internally for consistent styling
+3. **Validation**
 
-### Feature-Specific Form Components
+   - Must use Zod schemas with `zodResolver`.
+   - Form types inferred from schemas.
 
-- **Feature-specific form components** (e.g., `LoginForm`, `SignupForm`)
-  - Children of `FormLayout` that render only the field UI
-  - Use `useFormContext()` to access `register`, `errors`, and other RHF methods
-  - Do not contain their own `<form>` tags or submit logic
-  - Must use Shadcn UI form components (Input, Label, Button, etc.)
+4. **Form state**
 
-### Validation Schemas
+   - No manual `useState` for fields.
+   - Always use `useFormContext()` when necessary.
 
-- **Validation Schemas**
-  - Defined using Zod (`.ts` files ending in `.schema.ts`)
-  - Provide both runtime validation and TypeScript types for form data
+5. **Error handling**
 
-## Key Guidelines
+   - API/auth errors handled in hooks or pages. No error display in forms.
+   - Form-level error display handled by `FormLayout`
 
-1. **MANDATORY FormLayout wrapper**  
-   Every single form must be wrapped in `FormLayout`. No exceptions. This ensures consistent validation, error handling, and UI patterns.
+6. **Separation of concerns**
 
-2. **MANDATORY Shadcn UI components**  
-   All form inputs must use Shadcn UI components (Input, Label, Button, Textarea, Select, etc.). Never use raw HTML form elements.
+   - Keep business logic (API calls, Supabase, etc.) out of form UI components.
+   - Only field rendering inside feature-specific forms.
 
-3. **No manual `useState` for form fields**  
-   All form data must come from `useFormContext()` to ensure consistency and prevent duplication of validation logic.
-
-4. **Validation-first**  
-   All forms must use Zod schemas with `zodResolver` for validation. This ensures that:
-
-   - Validation errors appear automatically in `formState.errors`
-   - TypeScript infers the form type from the schema
-
-5. **Server errors**  
-   API or authentication errors should be caught in the page or hook (`useAuth`, etc.) and passed down to the form component as a prop (`authError`, etc.).
-
-6. **Form reusability**  
-   Keep business logic (e.g., calling Supabase, fetching data) in higher level components or hooks like `useLogin` or in the page component, not inside the form UI component.
-
-7. **Default values**  
-   Pass any `defaultValues` to `FormLayout` so that form fields are pre-populated and reset correctly.
-
-8. **Before unload protection**  
-   `FormLayout` has optional `enableBeforeUnloadProtection` to prevent accidental navigation away from dirty forms.
+7. **Default values**
+   - Pass `defaultValues` into `FormLayout` for pre-population if needed.
 
 ## Example Usage
 
@@ -81,7 +58,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
   />
 </FormLayout>;
 
-// Inside LoginForm component:
+//✅ CORRECT: Inside LoginForm component:
 function LoginForm({ onForgotPassword, onSwitchToSignup }) {
   const {
     register,
@@ -90,7 +67,10 @@ function LoginForm({ onForgotPassword, onSwitchToSignup }) {
 
   return (
     <>
-      <div className="space-y-2">
+      <FormField
+        render={() => (
+
+          <FormItem>
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
@@ -101,30 +81,14 @@ function LoginForm({ onForgotPassword, onSwitchToSignup }) {
         {errors.email && (
           <p className="text-error-status text-sm">{errors.email.message}</p>
         )}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
-        <Input
-          id="password"
-          type="password"
-          {...register("password")}
-          className={errors.password ? "border-red-500" : ""}
-        />
-        {errors.password && (
-          <p className="text-red-500 text-sm">{errors.password.message}</p>
+      </FormItem>
         )}
-      </div>
-
-      <Button type="submit" className="w-full">
-        Sign In
-      </Button>
     </>
   );
 }
 ```
 
-### Incorrect Implementation (FORBIDDEN)
+### Incorrect Implementation
 
 ```tsx
 // ❌ WRONG: No FormLayout wrapper
@@ -134,6 +98,7 @@ function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit}>
+      <label htmlFor="email">Email</label>
       <input
         type="email"
         value={email}
@@ -148,22 +113,8 @@ function LoginForm() {
     </form>
   );
 }
-
-// ❌ WRONG: Using raw HTML elements instead of Shadcn UI
-function BadForm() {
-  return (
-    <FormLayout>
-      <input type="text" /> {/* Should be <Input /> */}
-      <button>Submit</button> {/* Should be <Button /> */}
-    </FormLayout>
-  );
-}
 ```
 
-## Installation Requirements
+## Summary
 
-Before creating any form, ensure Shadcn UI form components are installed:
-
-```bash
-npx shadcn@latest add form input label button textarea select
-```
+Kiro should never worry about layout, styles or accessibility—`FormLayout` and Shadcn handle this internally. Focus only on consistency, and proper use of form architecture.

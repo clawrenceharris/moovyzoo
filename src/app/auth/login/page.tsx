@@ -2,11 +2,11 @@
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/features/auth/hooks/use-auth";
-import FormLayout from "@/components/FormLayout";
 import { LoginData } from "@/features/auth/domain/auth.types";
 import { LoginForm } from "@/features/auth/components";
 import { loginSchema } from "@/features/auth/domain/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FormLayout } from "@/components";
 
 export default function LoginPage() {
   const router = useRouter();

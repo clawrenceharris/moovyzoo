@@ -1,7 +1,8 @@
 import React from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui";
 import type { HabitatWithMembership } from "@/features/habitats/domain/habitats.types";
+import { Card, CardContent, CardDescription } from "../";
 
 /**
  * Extended habitat type with activity metrics
@@ -78,13 +79,13 @@ export function HabitatCard({
     memberCount || habitat.recent_activity?.discussions_count || 24;
 
   return (
-    <div
-      className={`habitat-card ${className || ""}`}
+    <Card
+      className={"media-card"}
       onClick={handleClick}
-      data-testid="habitat-card"
+      data-testid="media-card"
     >
       {/* Banner Image */}
-      <div className="habitat-card-banner">
+      <div className="media-card-banner">
         {habitat.banner_url ? (
           <Image
             src={habitat.banner_url}
@@ -96,42 +97,32 @@ export function HabitatCard({
           // Fallback gradient background
           <div className="w-full h-full bg-gradient-to-br from-primary/20 via-accent/10 to-primary/30" />
         )}
-      </div>
-
-      {/* Tags - positioned absolutely in top right */}
-      {habitat.tags && habitat.tags.length > 0 && (
-        <div className="habitat-card-tags">
-          {habitat.tags.slice(0, 2).map((tag, index) => (
-            <span key={index} className="habitat-card-tag">
-              {tag}
-            </span>
-          ))}
-          {habitat.tags.length > 2 && (
-            <span className="habitat-card-tag">+{habitat.tags.length - 2}</span>
-          )}
-        </div>
-      )}
-
-      {/* Content Overlay */}
-      <div className="flex justify-between p-6 items-center">
-        <h3>{habitat.name}</h3>
-
-        <div className="habitat-card-members">
-          <svg
-            className="habitat-card-members-icon"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-          </svg>
-          {displayMemberCount} online
-        </div>
-      </div>
-      <div className="card-content">
-        {habitat.description && (
-          <p className="card-description">{habitat.description}</p>
+        {habitat.tags && habitat.tags.length > 0 && (
+          <div className="media-card-tags">
+            {habitat.tags.slice(0, 2).map((tag, index) => (
+              <span key={index} className="media-card-tag">
+                {tag}
+              </span>
+            ))}
+            {habitat.tags.length > 2 && (
+              <span className="media-card-tag">+{habitat.tags.length - 2}</span>
+            )}
+          </div>
         )}
       </div>
-    </div>
+      <CardContent className="space-y-4">
+        {/* Content Overlay */}
+        <div className="flex justify-between items-center">
+          <h3>{habitat.name}</h3>
+        </div>
+        {/* Tags */}
+
+        <CardDescription>
+          {habitat.description && (
+            <p className="card-description">{habitat.description}</p>
+          )}
+        </CardDescription>
+      </CardContent>
+    </Card>
   );
 }

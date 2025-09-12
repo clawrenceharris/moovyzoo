@@ -1,12 +1,12 @@
 /**
- * Example usage and validation of media integration in watch party service
+ * Example usage and validation of media integration in streaming session service
  * This file demonstrates the new media validation functionality
  */
 
-import type { WatchPartyMedia, CreateWatchPartyData } from "./habitats.types";
+import type { StreamMedia, CreateStreamData } from "./habitats.types";
 
 // Example of valid media data for a movie
-export const validMovieMedia: WatchPartyMedia = {
+export const validMovieMedia: StreamMedia = {
   tmdb_id: 550,
   media_type: "movie",
   media_title: "Fight Club",
@@ -16,7 +16,7 @@ export const validMovieMedia: WatchPartyMedia = {
 };
 
 // Example of valid media data for a TV show
-export const validTVMedia: WatchPartyMedia = {
+export const validTVMedia: StreamMedia = {
   tmdb_id: 1399,
   media_type: "tv",
   media_title: "Game of Thrones",
@@ -26,35 +26,27 @@ export const validTVMedia: WatchPartyMedia = {
 };
 
 // Example of minimal valid media data
-export const minimalMedia: WatchPartyMedia = {
+export const minimalMedia: StreamMedia = {
   tmdb_id: 550,
   media_type: "movie",
   media_title: "Fight Club",
 };
 
-// Example using the CreateWatchPartyData interface
-export const watchPartyWithMedia: CreateWatchPartyData = {
-  title: "Fight Club Watch Party",
+// Example using the CreateStreamData interface
+export const streamWithMedia: CreateStreamData = {
   description: "Let's watch this classic together!",
   scheduledTime: new Date(Date.now() + 86400000).toISOString(), // Tomorrow
   maxParticipants: 10,
   media: validMovieMedia,
 };
 
-// Example without media (backward compatibility)
-export const watchPartyWithoutMedia: CreateWatchPartyData = {
-  title: "General Movie Night",
-  scheduledTime: new Date(Date.now() + 86400000).toISOString(),
-  maxParticipants: 15,
-};
-
 /**
  * Example usage of the service methods:
  *
  * // Method 1: Traditional parameters with media
- * await habitatsService.createWatchParty(
+ * await habitatsService.createStream(
  *   habitatId,
- *   "Fight Club Watch Party",
+ *   "Fight Club Streaming Session",
  *   "Let's watch this classic!",
  *   scheduledTime,
  *   10,
@@ -62,15 +54,15 @@ export const watchPartyWithoutMedia: CreateWatchPartyData = {
  *   validMovieMedia
  * );
  *
- * // Method 2: Using CreateWatchPartyData interface
- * await habitatsService.createWatchParty(
+ * // Method 2: Using CreateStreamData interface
+ * await habitatsService.createStream(
  *   habitatId,
  *   userId,
- *   watchPartyWithMedia
+ *   streamWithMedia
  * );
  *
  * // Method 3: Without media (backward compatibility)
- * await habitatsService.createWatchParty(
+ * await habitatsService.createStream(
  *   habitatId,
  *   "General Movie Night",
  *   undefined,

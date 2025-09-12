@@ -7,11 +7,18 @@
 
 ## Migration Overview
 
-The habitats feature requires three migrations:
+The system includes several feature migrations:
+
+### Habitats Feature (3 migrations):
 
 1. **Base Schema** - Core habitats, members, and messages tables
-2. **Dashboard Migration** - Discussion rooms, polls, and watch parties
-3. **Media Integration** - TMDB media support for watch parties
+2. **Dashboard Migration** - Discussion rooms, polls, and streaming sessions
+3. **Media Integration** - TMDB media support for streaming sessions
+
+### Streaming Feature (2 migrations):
+
+1. **Stream Participants** - Participant management and host transfer
+2. **Enhanced Playback Sync** - Real-time synchronization with event logging
 
 ## Step-by-Step Migration Process
 
@@ -45,7 +52,28 @@ The habitats feature requires three migrations:
 3. Paste and run the comprehensive verification script
 4. Review the output to ensure all tables, indexes, and policies were created
 
-### 5. Expected Results
+### 5. Run the Enhanced Playback Synchronization Migration
+
+1. In the SQL Editor, create a new query
+2. Copy the entire contents of `scripts/playback-sync-migration.sql`
+3. Paste it into the SQL Editor
+4. Click **Run** to execute the enhanced playback sync migration
+
+### 6. Verify the Playback Sync Migration
+
+1. In the SQL Editor, create a new query
+2. Copy the contents of `scripts/verify-playback-sync-enhanced-migration.sql`
+3. Paste and run the verification script
+4. Review the output to ensure all columns, tables, indexes, and functions were created
+
+### 7. Test the Enhanced Migration (Optional)
+
+1. In the SQL Editor, create a new query
+2. Copy the contents of `scripts/test-playback-sync-enhanced-migration.sql`
+3. Paste and run the test script
+4. Verify all tests pass successfully
+
+### 8. Expected Results
 
 After successful migration, you should see:
 
@@ -70,7 +98,15 @@ After successful migration, you should see:
 - ✅ Updated views with media information
 - ✅ Helper functions for TMDB integration
 
-### 6. Troubleshooting
+**Enhanced Playback Synchronization:**
+
+- ✅ 6 new sync columns in `streams` table (current_time, is_playing, last_sync_at, video_url, sync_enabled, sync_tolerance)
+- ✅ New `playback_events` table for event logging and recovery
+- ✅ 6 performance indexes for efficient sync queries
+- ✅ 3 cleanup functions for automatic data maintenance
+- ✅ Event deduplication and conflict resolution capabilities
+
+### 9. Troubleshooting
 
 If you encounter errors:
 
@@ -79,7 +115,7 @@ If you encounter errors:
 3. **Duplicate object errors**: The scripts use `IF NOT EXISTS` clauses, so they're safe to re-run
 4. **Migration order errors**: Always run base schema before dashboard migration
 
-### 7. Rollback Options
+### 10. Rollback Options
 
 #### Rollback Media Integration Only
 
@@ -95,6 +131,14 @@ Use the provided rollback script:
 
 ```sql
 -- Copy contents of scripts/rollback-dashboard-migration.sql
+```
+
+#### Rollback Enhanced Playback Sync
+
+Use the playback sync rollback script:
+
+```sql
+-- Copy contents of scripts/rollback-playback-sync-migration.sql
 ```
 
 #### Complete Rollback (All Habitats Tables)
@@ -118,6 +162,8 @@ DROP FUNCTION IF EXISTS set_updated_at() CASCADE;
 
 ## Migration Files Reference
 
+### Habitats Feature
+
 - **`habitats-schema.sql`** - Base schema migration
 - **`habitats-dashboard-migration.sql`** - Dashboard architecture migration
 - **`watch-party-media-integration-migration.sql`** - Media integration migration
@@ -127,6 +173,15 @@ DROP FUNCTION IF EXISTS set_updated_at() CASCADE;
 - **`rollback-media-integration-migration.sql`** - Media integration rollback
 - **`dashboard-migration-README.md`** - Detailed dashboard migration docs
 - **`media-integration-migration-README.md`** - Detailed media integration docs
+
+### Streaming Feature
+
+- **`stream-participants-migration.sql`** - Stream participant management migration
+- **`playback-sync-migration.sql`** - Enhanced playback synchronization migration
+- **`verify-playback-sync-enhanced-migration.sql`** - Playback sync verification
+- **`test-playback-sync-enhanced-migration.sql`** - Playback sync functionality tests
+- **`rollback-playback-sync-migration.sql`** - Playback sync rollback
+- **`playback-sync-migration-README.md`** - Detailed playback sync migration docs
 
 ## Next Steps
 

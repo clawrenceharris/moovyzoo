@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { Button, Input } from "@/components/ui";
+import { Input, Button } from "@/components/ui";
+
 import type { Discussion, MessageWithProfile } from "../domain/habitats.types";
 import { formatDistanceToNow } from "date-fns";
 
@@ -210,6 +211,7 @@ export function ChatInterface({
 
   return (
     <div className={`flex flex-col h-full bg-background ${className}`}>
+      <h1> {discussion?.name}</h1>
       {/* Messages container */}
       <div
         ref={messagesContainerRef}

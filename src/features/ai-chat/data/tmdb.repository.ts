@@ -241,32 +241,29 @@ export interface TMDBEpisode {
 // Helper function to make API calls to our own endpoints
 async function apiCall<T>(endpoint: string): Promise<T> {
   try {
-    // Ensure we have an absolute URL for client-side requests
+    // Construct absolute URL - handle both server and client environments
     let url: string;
-    if (endpoint.startsWith('/')) {
-      // This is a relative URL, make it absolute
+    if (endpoint.startsWith('http')) {
+      url = endpoint;
+    } else {
+      // Check if we're in a browser environment
       if (typeof window !== 'undefined') {
-        // Client-side: use window.location.origin
         url = `${window.location.origin}${endpoint}`;
       } else {
-        // Server-side or Node.js environment: construct absolute URL
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
-                       process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
-                       'http://localhost:3000';
+        // Server-side: use environment variable or default localhost
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL 
+          ? `https://${process.env.VERCEL_URL}` 
+          : 'http://localhost:3000';
         url = `${baseUrl}${endpoint}`;
       }
-    } else {
-      // Already an absolute URL
-      url = endpoint;
     }
     
-    console.log('API call URL:', url); // Debug log
     const response = await fetch(url);
-    
+
     if (!response.ok) {
       throw new Error(`API error: ${response.status} ${response.statusText}`);
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('API call error:', error);
@@ -287,6 +284,7 @@ export async function searchMovie(title: string): Promise<TMDBMovie[]> {
   const response = await apiCall<{ movies: TMDBMovie[] }>(`/api/tmdb/search/movies?${params}`);
   console.log("⚙️ searchMovie called");
   return response.movies;
+
 }
 
 /**
@@ -440,7 +438,7 @@ export async function getTrendingOrAiringTV(
     params.append('region', region);
   }
   console.log("⚙️ getTrendingOrAiringTV called");
-  
+
   const response = await apiCall<{ tvShows: TMDBTVShow[] }>(`/api/tmdb/trending/tv?${params}`);
   return response.tvShows;
 }
@@ -458,11 +456,11 @@ export async function discoverByGenre(
     throw new Error('Genre IDs are required');
   }
 
-  const params = new URLSearchParams({ 
+  const params = new URLSearchParams({
     genreIds: genreIds.trim(),
     sortBy
   });
-  
+
   if (year) {
     params.append('year', year.toString());
   }
@@ -486,25 +484,25 @@ export async function getMovieGenres(): Promise<Array<{ id: number; name: string
 export function formatMovieForDisplay(movie: TMDBMovie | TMDBMovieDetails): string {
   const year = movie.release_date ? new Date(movie.release_date).getFullYear() : 'Unknown year';
   const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
-  
+
   let result = `**${movie.title}** (${year}) - Rating: ${rating}/10\n`;
   result += `ID: ${movie.id}\n`;
-  
+
   if (movie.overview) {
     result += `Overview: ${movie.overview}\n`;
   }
-  
+
   if ('runtime' in movie && movie.runtime) {
     result += `Runtime: ${movie.runtime} minutes\n`;
   }
-  
+
   if ('genres' in movie && movie.genres) {
     const genres = movie.genres.map(g => g.name).join(', ');
     result += `Genres: ${genres}\n`;
   }
 
   console.log("⚙️ formatMovieForDisplay called");
-  
+
   return result;
 }
 
@@ -512,27 +510,27 @@ export function formatMovieForDisplay(movie: TMDBMovie | TMDBMovieDetails): stri
 export function formatTVShowForDisplay(tvShow: TMDBTVShow | TMDBTVShowDetails): string {
   const year = tvShow.first_air_date ? new Date(tvShow.first_air_date).getFullYear() : 'Unknown year';
   const rating = tvShow.vote_average ? tvShow.vote_average.toFixed(1) : 'N/A';
-  
+
   let result = `**${tvShow.name}** (${year}) - Rating: ${rating}/10\n`;
   result += `ID: ${tvShow.id}\n`;
-  
+
   if (tvShow.overview) {
     result += `Overview: ${tvShow.overview}\n`;
   }
-  
+
   if ('number_of_seasons' in tvShow && tvShow.number_of_seasons) {
     result += `Seasons: ${tvShow.number_of_seasons}\n`;
   }
-  
+
   if ('number_of_episodes' in tvShow && tvShow.number_of_episodes) {
     result += `Episodes: ${tvShow.number_of_episodes}\n`;
   }
-  
+
   if ('genres' in tvShow && tvShow.genres) {
     const genres = tvShow.genres.map(g => g.name).join(', ');
     result += `Genres: ${genres}\n`;
   }
-  
+
   return result;
 }
 

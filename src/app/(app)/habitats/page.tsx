@@ -6,52 +6,48 @@ import {
   HabitatList,
   HabitatCreationModal,
 } from "@/features/habitats/components";
-import { useUserHabitats } from "@/features/habitats/hooks";
 import { useUser } from "@/hooks/use-user";
+import { useUserHabitats } from "@/hooks/queries/use-habitat-queries";
+import { EmptyState, ErrorState } from "@/components";
+import { getErrorMessage } from "@/utils/error-map";
+import { getUserErrorMessage } from "@/utils/normalize-error";
+import { AppErrorCode } from "@/utils/error-codes";
 
 export default function HabitatsPage() {
   const router = useRouter();
   const { user } = useUser();
-  const { habitats, loading, error, refresh } = useUserHabitats(user?.id);
+  const {
+    data: habitats,
+    isLoading,
+    error,
+    refetch,
+  } = useUserHabitats(user?.id);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const handleCreateSuccess = (habitatId: string) => {
     // Refresh the habitats list
-    refresh();
+    refetch();
     // Navigate to the new habitat
     router.push(`/habitats/${habitatId}`);
   };
 
   // Show loading state while user is being fetched
-  if (!user) {
+  if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <div
-            className="h-8 bg-muted rounded w-48 mb-2 animate-pulse"
-            aria-label="Loading page title"
-          ></div>
-          <div
-            className="h-4 bg-muted rounded w-96 animate-pulse"
-            aria-label="Loading page description"
-          ></div>
-        </div>
-        <div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-          aria-label="Loading habitats"
-        >
-          {Array.from({ length: 6 }).map((_, index) => (
-            <div
-              key={index}
-              className="h-32 bg-muted rounded animate-pulse"
-              aria-label={`Loading habitat ${index + 1}`}
-            ></div>
-          ))}
-        </div>
-      </div>
+      <ErrorState
+        message={getUserErrorMessage(error.message)}
+        onRetry={refetch}
+      />
     );
   }
-
+  if (!habitats?.length) {
+    return (
+      <EmptyState
+        description="Doesn't look like you are a part of any Habitats."
+        onAction={refetch}
+      />
+    );
+  }
   return (
     <div className="container flex flex-col mx-auto px-4 py-8 min-h-screen">
       <header className="mb-8">
@@ -70,9 +66,8 @@ export default function HabitatsPage() {
       <main className="section flex-1">
         <HabitatList
           habitats={habitats}
-          loading={loading}
-          error={error}
-          onRetry={refresh}
+          loading={isLoading}
+          onRetry={refetch}
         />
       </main>
 

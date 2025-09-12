@@ -1,5 +1,7 @@
 // Core domain types for habitats feature
 
+import { StreamWithParticipants } from "@/features/streaming";
+
 export interface Habitat {
   id: string;
   name: string;
@@ -51,26 +53,6 @@ export interface Poll {
   created_by: string;
   created_at: string;
   is_active: boolean;
-}
-
-export interface WatchParty {
-  id: string;
-  habitat_id: string;
-  title: string;
-  description?: string;
-  scheduled_time: string;
-  participant_count: number;
-  max_participants?: number;
-  created_by: string;
-  created_at: string;
-  is_active: boolean;
-  // Media integration fields
-  tmdb_id?: number;
-  media_type?: "movie" | "tv";
-  media_title?: string;
-  poster_path?: string;
-  release_date?: string;
-  runtime?: number;
 }
 
 // Database insert/update types
@@ -130,15 +112,12 @@ export interface PollUpdate {
   is_active?: boolean;
 }
 
-export interface WatchPartyInsert {
-  habitat_id: string;
-  title: string;
+export interface StreamInsert {
   description?: string;
   scheduled_time: string;
   participant_count?: number;
   max_participants?: number;
   created_by: string;
-  // Media integration fields
   tmdb_id?: number;
   media_type?: "movie" | "tv";
   media_title?: string;
@@ -147,7 +126,7 @@ export interface WatchPartyInsert {
   runtime?: number;
 }
 
-export interface WatchPartyUpdate {
+export interface StreamUpdate {
   title?: string;
   description?: string;
   scheduled_time?: string;
@@ -186,17 +165,12 @@ export interface PollWithVotes extends Poll {
   user_vote?: string;
 }
 
-export interface WatchPartyWithParticipants extends WatchParty {
-  participants: HabitatMember[];
-  is_participant: boolean;
-}
-
 // Dashboard-specific aggregated types
 export interface HabitatDashboardData {
   habitat: HabitatWithMembership;
   discussions: DiscussionWithStats[];
   polls: PollWithVotes[];
-  watchParties: WatchPartyWithParticipants[];
+  streams: StreamWithParticipants[];
   members: HabitatMember[];
   onlineMembers: HabitatMember[];
   totalMembers: number;
@@ -206,22 +180,9 @@ export interface PopularDiscussion extends DiscussionWithStats {
   recent_activity_score: number;
 }
 
-export interface UpcomingWatchParty extends WatchPartyWithParticipants {
-  time_until_start: number; // minutes until start
-  status: "upcoming" | "starting_soon" | "live" | "ended";
-}
-
 // Message types for discussion rooms
 export interface DiscussionMessage extends Message {
   discussion_id: string; // alias for chat_id for clarity
-}
-
-// Participant tracking for watch parties
-export interface WatchPartyParticipant {
-  watch_party_id: string;
-  user_id: string;
-  joined_at: string;
-  is_active: boolean;
 }
 
 // Poll voting types
@@ -239,7 +200,7 @@ export interface HabitatActivity {
   activity_type:
     | "discussion_created"
     | "poll_created"
-    | "watch_party_created"
+    | "stream_created"
     | "message_sent";
   activity_data: Record<string, unknown>;
   created_by: string;
@@ -247,7 +208,7 @@ export interface HabitatActivity {
 }
 
 // Media integration types
-export interface WatchPartyMedia {
+export interface StreamMedia {
   tmdb_id: number;
   media_type: "movie" | "tv";
   media_title: string;
@@ -266,17 +227,15 @@ export interface SelectedMedia {
   runtime?: number;
 }
 
-export interface CreateWatchPartyData {
-  title: string;
+export interface CreateStreamData {
   description?: string;
   scheduledTime: string;
   maxParticipants?: number;
-  media: WatchPartyMedia;
+  media: StreamMedia;
 }
 
-// Form-specific interface for watch party creation
-export interface CreateWatchPartyFormData {
-  title: string;
+// Form-specific interface for streaming session creation
+export interface CreateStreamFormData {
   description?: string;
   scheduledDate: string;
   scheduledTime: string;

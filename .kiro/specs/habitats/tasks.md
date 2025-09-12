@@ -2,14 +2,14 @@
 
 - [x] 1. Update database schema for dashboard architecture
 
-  - Create migration scripts for new tables (chat_rooms, discussions, watch_parties)
+  - Create migration scripts for new tables (chat_rooms, discussions, streams)
   - Update habitat_messages table to include chat_id reference
   - Add database indexes for efficient querying
   - _Requirements: 3.1, 3.2, 4.1, 5.1_
 
 - [x] 2. Create data models and types for dashboard features
 
-  - Define Disucssion, Poll, and WatchParty TypeScript interfaces
+  - Define Disucssion, Poll, and Stream TypeScript interfaces
   - Update Message interface to include discussion_id
   - Create validation schemas for new data models
   - _Requirements: 3.1, 4.1, 5.1_
@@ -22,11 +22,11 @@
   - Add unit tests for discussions repository operations
   - _Requirements: 5.2_
 
-- [x] 3.2 Create watch parties repository methods
+- [x] 3.2 Create streaming sessions repository methods
 
-  - Implement getWatchPartiesByHabitat method
-  - Implement createWatchParty method
-  - Add unit tests for watch parties repository operations
+  - Implement getStreamingByHabitat method
+  - Implement createStream method
+  - Add unit tests for streaming sessions repository operations
   - _Requirements: 3.1, 5.1_
 
 - [x] 3.3 Update messages repository for discussion support
@@ -55,7 +55,7 @@
 
   - Add createDiscussion method to discussions repository
   - Add createPoll method to polls repository (new)
-  - Add createWatchParty method to watch parties repository
+  - Add createStream method to streaming sessions repository
   - Add proper error handling and validation for all creation methods
   - _Requirements: 6.1, 7.1, 8.1_
 
@@ -63,7 +63,7 @@
 
   - Create Zod schemas for discussion creation validation
   - Create Zod schemas for poll creation validation
-  - Create Zod schemas for watch party creation validation
+  - Create Zod schemas for streaming session creation validation
   - Add error codes for creation-specific validation failures
   - Update error map with user-friendly creation error messages
   - _Requirements: 6.5, 6.6, 7.6, 7.7, 8.6, 8.7_
@@ -72,7 +72,7 @@
 
   - Add createDiscussion method to habitats service with business logic
   - Add createPoll method to habitats service with business logic
-  - Add createWatchParty method to habitats service with business logic
+  - Add createStream method to habitats service with business logic
   - Implement proper validation and error handling for all creation operations
   - _Requirements: 6.1, 6.2, 6.3, 7.1, 7.2, 7.3, 8.1, 8.2, 8.3_
 
@@ -87,7 +87,7 @@
 - [x] 5.2 Create dashboard hero section component
 
   - Implement habitat branding display
-  - Add primary action buttons (Start Streaming Party, Create Poll)
+  - Add primary action buttons (Start Streaming Stream, Create Poll)
   - Style according to visual design system
   - _Requirements: 3.2, 5.1, 5.2_
 
@@ -102,14 +102,14 @@
 
 - [x] 5.3 Create PopularInHabitat component
 
-  - Display popular discussions, polls, and watch parties
-  - Implement click navigation to specific discussions, and watch parties
+  - Display popular discussions, polls, and streaming sessions
+  - Implement click navigation to specific discussions, and streaming sessions
   - Add loading and empty states
   - _Requirements: 3.3, 4.1_
 
-- [x] 5.4 Create WatchPartyCard component
+- [x] 5.4 Create StreamCard component
 
-  - Display watch party details
+  - Display streaming session details
   - Buttons for joining/leaving and entering
   - Badge for current status (live/starting in...)
   - Show participant counts and active watch count
@@ -171,10 +171,10 @@
   - Add proper modal state management and success handling
   - _Requirements: 7.1, 7.2, 7.3_
 
-- [x] 7.2.2 Create WatchPartyCreationModal component
+- [x] 7.2.2 Create StreamCreationModal component
 
-  - Create WatchPartyCreationModal wrapper using Shadcn UI Dialog component
-  - Integrate with existing WatchPartyCreationForm component
+  - Create StreamCreationModal wrapper using Shadcn UI Dialog component
+  - Integrate with existing StreamCreationForm component
   - Add proper modal state management and success handling
   - _Requirements: 8.1, 8.2, 8.3_
 
@@ -215,49 +215,49 @@
   - Update any references throughout the codebase
   - _Requirements: 3.1_
 
-- [ ] 10. Add comprehensive testing
-- [ ] 10.1 Create unit tests for new components
+- [x] 10. Add comprehensive testing
+- [x] 10.1 Create unit tests for new components
 
   - Test HabitatDashboard component rendering and interactions
-  - Test dashboard section components (PopularDiscussions, WatchParties, etc.)
+  - Test dashboard section components (PopularDiscussions, Streaming, etc.)
   - Test DiscussionRoom component functionality
   - _Requirements: All requirements_
 
-- [ ] 10.2 Create integration tests for dashboard data flow
+- [x] 10.2 Create integration tests for dashboard data flow
 
   - Test dashboard data aggregation and display
   - Test navigation between dashboard and chat rooms
   - Test real-time updates on dashboard
   - _Requirements: 3.1, 4.1, 4.2_
 
-- [ ] 10.3 Create unit tests for creation components
+- [x] 10.3 Create unit tests for creation components
 
   - Test DiscussionCreationForm validation and submission
   - Test PollCreationForm dynamic options and validation
-  - Test WatchPartyCreationForm date/time validation
+  - Test StreamCreationForm date/time validation
   - Test all creation modal components
   - Test form error handling and loading states
   - _Requirements: 6.1, 6.5, 6.6, 7.1, 7.6, 7.7, 8.1, 8.6, 8.7_
 
-- [ ] 10.4 Create integration tests for creation workflows
+- [x] 10.4 Create integration tests for creation workflows
 
   - Test complete discussion creation flow from button click to navigation
   - Test complete poll creation flow from button click to dashboard update
-  - Test complete watch party creation flow from button click to dashboard update
+  - Test complete streaming session creation flow from button click to dashboard update
   - Test creation error handling and retry scenarios
   - Test real-time dashboard updates after creation
   - _Requirements: 6.1, 6.4, 7.1, 7.5, 8.1, 8.5_
 
-- [ ] 10.5 Create tests for creation components
+- [x] 10.5 Create tests for creation components
 
   - Create unit tests for DiscussionCreationForm component
   - Create unit tests for PollCreationForm component
-  - Create unit tests for WatchPartyCreationForm component
+  - Create unit tests for StreamCreationForm component
   - Create unit tests for all creation modal components
   - Test form validation, submission, and error handling
   - _Requirements: 6.1, 6.5, 6.6, 7.1, 7.6, 7.7, 8.1, 8.6, 8.7_
 
-- [ ] 10.6 Update existing tests for new architecture
+- [x] 10.6 Update existing tests for new architecture
   - Update any existing habitat tests to work with new routing
   - Update chat interface tests for room-specific functionality
   - Ensure all tests pass with new architecture

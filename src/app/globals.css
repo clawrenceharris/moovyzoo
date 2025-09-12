@@ -72,15 +72,15 @@
   }
 
   /* Habitat Card Components */
-  .habitat-card {
-    @apply relative overflow-hidden rounded-xl bg-card border border-border/50 cursor-pointer transition-all duration-300 hover:scale-[1.02];
+  .media-card {
+    @apply p-2 relative overflow-hidden rounded-md bg-card border border-border/80 cursor-pointer transition-all duration-300 hover:scale-[1.02];
   }
 
-  .habitat-card-banner {
-    @apply relative aspect-[16/10] overflow-hidden;
+  .media-card-banner {
+    @apply relative aspect-[16/10] overflow-hidden rounded-md;
   }
 
-  .habitat-card-banner::after {
+  .media-card-banner::after {
     @apply bg-background/50 absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent;
     content: "";
   }
@@ -101,23 +101,23 @@
     @apply flex items-center p-6 justify-between mt-auto;
   }
 
-  .habitat-card-members {
+  .media-card-members {
     @apply flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-sm font-medium;
   }
 
-  .habitat-card-members-icon {
+  .media-card-members-icon {
     @apply w-4 h-4 text-accent;
   }
 
-  .habitat-card-cta {
+  .media-card-cta {
     @apply px-6 py-2.5 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold rounded-lg transition-colors duration-200;
   }
 
-  .habitat-card-tags {
-    @apply absolute top-4 right-4 flex flex-wrap gap-1.5 z-20;
+  .media-card-tags {
+    @apply absolute bottom-4 left-4 flex flex-wrap gap-1.5 z-20;
   }
 
-  .habitat-card-tag {
+  .media-card-tag {
     @apply px-2 py-1 text-xs font-medium bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white/90;
   }
 
@@ -343,7 +343,7 @@
   --destructive: #ef4444;
   --border: #e5e5e5;
   --input: #e5e5e5;
-  --ring: #00d4ff;
+  --ring: var(--foreground);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -395,14 +395,12 @@
   --brand-grey-95: #f1f1f3;
   --brand-grey-97: #f7f7f8;
   --brand-grey-99: #fcfcfd;
-
 }
 
 .dark {
   --background: #141414; /* Theater black */
   --foreground: #ffffff;
   --secondary-background: #141414;
-  --primary-background: 
   --tertiary-background: #1f1f1f;
   --card: #1a1a1a; /* Netflix card gray */
   --card-foreground: #ffffff;
@@ -415,13 +413,13 @@
   --muted: #1f1f1f;
   --muted-foreground: #a3a3a3;
   --accent: #00d4ff; /* Electric social highlight */
-  --accent-foreground: #0a0a0a;
+  --accent-foreground: #ffffff;
   --accent-yellow: #facc15; /* Playful spotlight */
   --accent-pink: #ec4899; /* Social likes and reactions */
   --destructive: #ef4444;
   --border: rgba(255, 255, 255, 0.1);
   --input: rgba(255, 255, 255, 0.15);
-  --ring: #00d4ff;
+  --ring: var(--foreground);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);

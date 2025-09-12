@@ -2,9 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import FormLayout from "@/components/FormLayout";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui";
+import { Button, Input } from "@/components/ui";
 import {
   FormField,
   FormItem,
@@ -17,12 +15,10 @@ import {
   createHabitatFormSchema,
   type CreateHabitatFormInput,
 } from "../domain/habitats.schema";
-import {
-  getFriendlyErrorMessage,
-  normalizeError,
-} from "@/utils/normalize-error";
-import { errorMap } from "@/utils/error-map";
+
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FormLayout } from "@/components";
+import { normalizeError } from "@/utils/normalize-error";
 
 interface HabitatCreationFormProps {
   userId: string;
@@ -55,7 +51,7 @@ export function HabitatCreationForm({
     try {
       const habitat = await habitatsService.createHabitat(
         data.name,
-        data.description,
+        data.description || null,
         tags,
         data.isPublic,
         userId
@@ -68,8 +64,8 @@ export function HabitatCreationForm({
         router.push(`/habitats/${habitat.id}`);
       }
     } catch (err) {
-      const errorMessage = getFriendlyErrorMessage(err);
-      setError(errorMessage);
+      const normalizedError = normalizeError(err);
+      setError(normalizedError.message);
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +108,6 @@ export function HabitatCreationForm({
         name: "",
         description: "",
         isPublic: true,
-        userId,
       }}
       description="Create a new habitat for movie and TV discussions"
     >
@@ -209,7 +204,7 @@ export function HabitatCreationForm({
             render={({ field }) => (
               <FormItem>
                 <div className="flex items-center space-x-2">
-                  <input
+                  <Input
                     type="checkbox"
                     id="isPublic"
                     checked={field.value}

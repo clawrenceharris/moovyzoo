@@ -1,0 +1,125 @@
+/* Stream Page Layout Styles */
+
+.streamLayout {
+  min-height: 100vh;
+  background: var(--background);
+}
+
+.desktopLayout {
+  display: flex;
+  gap: 1.5rem;
+  height: 100vh;
+  padding: 1.5rem;
+}
+
+.mobileLayout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.videoContainer {
+  flex: 1;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.sidebarContainer {
+  width: 20rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.mobileSidebarToggle {
+  padding: 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--card);
+}
+
+.collapsibleSidebar {
+  position: fixed;
+  inset-left: 0;
+  inset-right: 0;
+  bottom: 0;
+  background: var(--background);
+  border-top: 1px solid var(--border);
+  transition: transform 0.3s ease;
+  z-index: 50;
+  height: 60vh;
+}
+
+.collapsibleSidebar.collapsed {
+  transform: translateY(100%);
+}
+
+.collapsibleSidebar.expanded {
+  transform: translateY(0);
+}
+
+.sidebarContent {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebarGrid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.participantsSection {
+  height: 50%;
+}
+
+.chatSection {
+  height: 50%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .videoContainer {
+    border-radius: 0;
+  }
+
+  .mobileSidebarToggle {
+    padding: 0.75rem;
+  }
+
+  .sidebarGrid {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+}
+
+/* Animation for sidebar toggle */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+.collapsibleSidebar.expanding {
+  animation: slideUp 0.3s ease forwards;
+}
+
+.collapsibleSidebar.collapsing {
+  animation: slideDown 0.3s ease forwards;
+}

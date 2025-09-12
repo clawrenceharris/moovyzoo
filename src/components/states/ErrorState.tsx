@@ -1,6 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui";
 
 /**
  * Available variants for error display
@@ -27,6 +27,7 @@ export interface ErrorStateProps {
   className?: string;
   /** Whether to show the error icon */
   showIcon?: boolean;
+  action?: React.ReactNode;
 }
 
 /**
@@ -70,6 +71,7 @@ export function ErrorState({
   icon,
   onRetry,
   retryLabel = "Try Again",
+  action,
   className,
   showIcon = true,
 }: ErrorStateProps) {
@@ -113,16 +115,18 @@ export function ErrorState({
             </svg>
           ))}
         <span className="text-sm font-medium">{title}</span>
-        {onRetry && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onRetry}
-            className="h-auto p-1 text-xs"
-          >
-            {retryLabel}
-          </Button>
-        )}
+        {action
+          ? action
+          : onRetry && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onRetry}
+                className="h-auto p-1 text-xs"
+              >
+                {retryLabel}
+              </Button>
+            )}
       </div>
     </div>
   );
