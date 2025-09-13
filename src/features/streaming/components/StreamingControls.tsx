@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 interface StreamingControlsProps {
   isPlaying: boolean;
-  currentTime: number;
+  time: number;
   duration: number;
   volume: number;
   playbackSpeed: number;
@@ -25,7 +25,7 @@ const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
 export function StreamingControls({
   isPlaying,
-  currentTime,
+  time,
   duration,
   volume,
   playbackSpeed,
@@ -110,11 +110,11 @@ export function StreamingControls({
           break;
         case "ArrowLeft":
           e.preventDefault();
-          onSeek(Math.max(0, currentTime - 10));
+          onSeek(Math.max(0, time - 10));
           break;
         case "ArrowRight":
           e.preventDefault();
-          onSeek(Math.min(duration, currentTime + 10));
+          onSeek(Math.min(duration, time + 10));
           break;
         case "ArrowUp":
           e.preventDefault();
@@ -132,7 +132,7 @@ export function StreamingControls({
       handleMuteToggle,
       onSeek,
       onVolumeChange,
-      currentTime,
+      time,
       duration,
       volume,
     ]
@@ -168,7 +168,7 @@ export function StreamingControls({
           type="range"
           min={0}
           max={duration || 0}
-          value={currentTime}
+          value={time}
           onChange={handleSeek}
           disabled={loading}
           className={cn(
@@ -240,7 +240,7 @@ export function StreamingControls({
 
           {/* Time display */}
           <div className="text-white text-sm">
-            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(time)}</span>
             <span className="text-gray-400"> / </span>
             <span>{formatTime(duration)}</span>
           </div>

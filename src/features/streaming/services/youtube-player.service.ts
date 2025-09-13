@@ -157,7 +157,7 @@ export class YouTubePlayerService {
       const player = this.getPlayer();
 
       // Seek to the target time
-      player.seekTo(state.currentTime, true);
+      player.seekTo(state.time, true);
 
       // Apply play/pause state
       if (state.isPlaying) {
@@ -177,12 +177,12 @@ export class YouTubePlayerService {
   async getDetailedState(): Promise<DetailedPlaybackState> {
     const player = this.getPlayer();
 
-    const currentTime = player.getCurrentTime();
+    const time = player.getCurrentTime();
     const playerState = player.getPlayerState();
     const duration = player.getDuration();
 
     return {
-      currentTime,
+      time,
       isPlaying: playerState === YT_PLAYER_STATE.PLAYING,
       duration,
       volume: 1, // Default volume - YouTube API doesn't expose volume in iframe

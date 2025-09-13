@@ -89,7 +89,7 @@ export interface ParticipantChangePayload {
 
 export interface PlaybackStatePayload {
   streamId: string;
-  currentTime: number;
+  time: number;
   isPlaying: boolean;
   lastSyncAt: string;
   hostUserId: string;
@@ -105,7 +105,7 @@ export interface StreamMedia {
 }
 
 export interface PlaybackState {
-  currentTime: number;
+  time: number;
   isPlaying: boolean;
   duration: number;
   volume: number;
@@ -131,8 +131,8 @@ export interface PlaybackEvent {
     | "buffer_start"
     | "buffer_end";
   timestamp: number;
-  currentTime: number;
-  hostUserId: string;
+  time: number;
+  hostUserId?: string;
   eventId: string; // For deduplication
   metadata?: {
     seekFrom?: number; // For seek events
@@ -161,6 +161,25 @@ export interface SelectedMedia {
   media_title: string;
   poster_path?: string;
   release_date?: string;
+}
+
+// Chat message types
+export interface StreamMessage {
+  id: string;
+  stream_id: string;
+  user_id: string;
+  message: string;
+  created_at: string;
+  profile?: {
+    display_name: string;
+    avatar_url?: string;
+  };
+}
+
+export interface StreamMessageInsert {
+  stream_id: string;
+  user_id: string;
+  message: string;
 }
 
 // Database insert/update types

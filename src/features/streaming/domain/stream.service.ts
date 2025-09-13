@@ -805,7 +805,7 @@ export class StreamService {
     streamId: string,
     userId: string,
     playbackState: {
-      currentTime?: number;
+      time?: number;
       isPlaying?: boolean;
     }
   ): Promise<void> {
@@ -845,7 +845,7 @@ export class StreamService {
    * Get current playback state for a stream
    */
   async getPlaybackState(streamId: string): Promise<{
-    currentTime: number;
+    time: number;
     isPlaying: boolean;
     lastSyncAt: string;
   } | null> {

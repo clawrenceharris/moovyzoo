@@ -178,7 +178,7 @@ export function StreamHero({
       </div>
 
       {/* Content */}
-      <div className="relative p-6 -mt-20 z-10">
+      <div className="relative p-4 -mt-20 z-10">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Media Poster (Mobile/Tablet) */}
 

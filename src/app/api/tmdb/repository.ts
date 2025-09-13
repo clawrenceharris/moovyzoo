@@ -363,7 +363,6 @@ export async function getMovieDetails(
   }
 
   const movieDetails = await tmdbFetch<TMDBMovieDetails>(`/movie/${movieId}`, {
-    append_to_response: "credits,videos",
     language: "en-US",
   });
 

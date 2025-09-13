@@ -1,14 +1,10 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 // TODO: Add toast library (e.g., sonner) for user feedback
-import {
-  ParticipantsSidebar,
-  StreamChat,
-  StreamHero,
-  StreamVideoPlayer,
-} from "@/features/streaming/components";
+import { StreamHero, StreamVideoPlayer } from "@/features/streaming/components";
+import { StreamSidebar } from "@/features/streaming/components/StreamSidebar";
 import { ParticipantsList } from "@/features/streaming/components/ParticipantsList";
 import { useUser } from "@/hooks/use-user";
 import {
@@ -27,7 +23,8 @@ import type {
 } from "@/features/streaming/domain/stream.types";
 import { useJoinStream, useLeaveStream } from "@/features/streaming";
 import { getUserErrorMessage } from "@/utils/normalize-error";
-import { getMovieDetails } from "@/app/api/tmdb/repository";
+import { getMovieDetails, getTVShowDetails } from "@/app/api/tmdb/repository";
+import { SyncDebugPanel } from "@/components/debug/SyncDebugPanel";
 
 interface StreamPageData {
   stream: StreamWithParticipants;
@@ -56,6 +53,11 @@ export function StreamPageClient({
   const { user } = useUser();
   const [isJoining, setIsJoining] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const [videos, setVideos] = useState<string[]>([]);
+  const [isLoadingVideos, setIsLoadingVideos] = useState(false);
+  const videosFetchedRef = useRef<string | null>(null);
+  const [currentPlaybackState, setCurrentPlaybackState] = useState<any>(null);
+  const [currentSyncStatus, setCurrentSyncStatus] = useState<string>("unknown");
 
   // Real-time data fetching with initial data
   const {
@@ -87,6 +89,8 @@ export function StreamPageClient({
   );
   const userParticipation: UserParticipationStatus = {
     isParticipant: !!userParticipant,
+    isHost: userParticipant?.is_host || false,
+    reminderEnabled: userParticipant?.reminder_enabled || false,
     canJoin: !userParticipant,
     canLeave: !!userParticipant && !userParticipant.is_host,
     joinedAt: userParticipant
@@ -97,32 +101,71 @@ export function StreamPageClient({
       : undefined,
   };
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [videos, setVideos] = useState<string[]>([]);
 
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const fetchVideos = useCallback(async () => {
+    if (
+      isLoadingVideos ||
+      !stream?.tmdb_id ||
+      videosFetchedRef.current === stream.tmdb_id.toString()
+    ) {
+      return;
+    }
+
+    setIsLoadingVideos(true);
+    try {
+      let videoKeys: string[] = [];
+      if (stream.media_type === "movie") {
+        const movie = await getMovieDetails(stream.tmdb_id);
+        videoKeys = movie?.videos?.results.map((v) => v.key) || [];
+        console.log("🎥 Movie fetch result:", {
+          movieTitle: movie?.title,
+          videoCount: videoKeys.length,
+        });
+      } else if (stream.media_type === "tv") {
+        const tvShow = await getTVShowDetails(stream.tmdb_id);
+        videoKeys = tvShow?.videos?.results.map((v) => v.key) || [];
+        console.log("📺 TV Show fetch result:", {
+          showTitle: tvShow?.name,
+          videoCount: videoKeys.length,
+        });
+      }
+
+      setVideos(videoKeys);
+      videosFetchedRef.current = stream.tmdb_id.toString();
+    } catch (error) {
+      console.error("❌ Error fetching videos:", getUserErrorMessage(error));
+    } finally {
+      setIsLoadingVideos(false);
+    }
+  }, [stream?.tmdb_id, stream?.media_type, isLoadingVideos, streamId]);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-  const handlePlayClick = () => {
-    setIsPlaying(true);
-  };
 
-  const fetchVideos = async () => {
-    try {
-      if (!stream) {
-        return;
-      }
-      const movie = await getMovieDetails(stream.tmdb_id);
-      setVideos(movie?.videos?.results.map((v) => v.key) || []);
-      console.log(movie);
-    } catch (error) {
-      console.error(getUserErrorMessage(error));
+  const handlePlaybackChange = useCallback((playbackState: any) => {
+    setCurrentPlaybackState(playbackState);
+  }, []);
+
+  const handleSyncStatusChange = useCallback((syncStatus: string) => {
+    setCurrentSyncStatus(syncStatus);
+  }, []);
+
+  // Fetch videos when stream data is available
+  useEffect(() => {
+    if (
+      stream?.tmdb_id &&
+      videosFetchedRef.current !== stream.tmdb_id.toString()
+    ) {
+      console.log("🎬 Stream data available, fetching videos");
+      fetchVideos();
     }
-  };
+  }, [stream?.tmdb_id, fetchVideos]);
+
   useEffect(() => {
     fetchVideos();
-  }, []);
+  }, [fetchVideos]);
 
   // Loading state
   if (isLoadingSession && !currentStream) {
@@ -207,13 +250,13 @@ export function StreamPageClient({
         />
 
         {/* Participants Section */}
-        <div className="bg-card border border-border rounded-lg p-6">
-          <ParticipantsList
-            participants={currentParticipants}
-            currentUserId={user?.id}
-            maxVisible={12}
-          />
-        </div>
+        <ParticipantsList
+          streamId={streamId}
+          participants={currentParticipants}
+          currentUserId={user.id}
+          hostId={participants.find((p) => p.is_host)?.user_id}
+          maxVisible={12}
+        />
 
         {/* Focus management for accessibility */}
         <div
@@ -230,41 +273,44 @@ export function StreamPageClient({
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-5">
-      <div className="flex flex-row flex-1 gap-5">
-        {isPlaying ? (
-          <div data-testid="video-container" className={`flex-1 aspect-video`}>
-            <StreamVideoPlayer
-              videos={videos}
-              streamId={stream.id}
-              media={stream}
-              isHost={true}
-              currentUserId={user.id}
-            />
-          </div>
-        ) : (
-          <StreamHero
-            userId={user.id}
-            onPlayClick={handlePlayClick}
+    <div className="relative flex h-fullflex-col gap-5">
+      <div className="relative flex flex-col flex-1 gap-5 xl:flex-row">
+        <div data-testid="video-container" className={"flex-1  aspect-video"}>
+          <StreamVideoPlayer
+            videos={videos}
+            onRefresh={fetchVideos}
             stream={stream}
+            userId={user.id}
             userParticipation={userParticipation}
+            isHost={userParticipation.isHost || false}
+            currentUserId={user.id}
+            onPlaybackChange={handlePlaybackChange}
+            onSyncStatusChange={handleSyncStatusChange}
           />
-        )}
-
-        <div className={"flex flex-col gap-0"}>
-          <div className="flex-1">
-            <StreamChat streamId={stream.id} currentUserId={user.id} />
-          </div>
         </div>
+
+        <StreamSidebar
+          streamId={stream.id}
+          participants={currentParticipants}
+          currentUserId={user.id}
+          isHost={currentParticipants.some(
+            (p) => p.user_id === user?.id && p.is_host
+          )}
+        />
       </div>
-      <ParticipantsSidebar
-        className="flex-1"
-        streamId={stream.id}
-        participants={participants}
-        currentUserId={user.id}
+
+      {/* Debug Panel */}
+      <SyncDebugPanel
+        streamId={streamId}
+        userId={user.id}
         isHost={currentParticipants.some(
           (p) => p.user_id === user?.id && p.is_host
         )}
+        videosCount={videos.length}
+        syncStatus={currentSyncStatus}
+        isConnected={true}
+        playbackState={currentPlaybackState || { isPlaying: false, time: 0 }}
+        error={null}
       />
     </div>
   );

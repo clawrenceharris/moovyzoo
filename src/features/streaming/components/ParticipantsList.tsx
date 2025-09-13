@@ -4,17 +4,20 @@ import React, { useEffect, useState, useRef } from "react";
 import { Crown, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import type { StreamParticipant } from "../domain/stream.types";
+import { useStreamPresence } from "../hooks/use-stream-presence";
 
 /**
  * Props for the ParticipantsList component
  */
 export interface ParticipantsListProps {
+  /** Stream ID for presence tracking */
+  streamId: string;
   /** List of participants to display */
   participants: StreamParticipant[];
   /** ID of the stream creator/host */
   hostId?: string;
   /** Current user ID to highlight "You" */
-  currentUserId?: string;
+  currentUserId: string;
   /** Maximum number of participants to show */
   maxVisible?: number;
 }
@@ -46,6 +49,7 @@ interface ParticipantPosition {
  * - Responsive card sizing for different screen sizes
  */
 export function ParticipantsList({
+  streamId,
   participants,
   hostId,
   currentUserId,
@@ -55,6 +59,13 @@ export function ParticipantsList({
   const [positions, setPositions] = useState<ParticipantPosition[]>([]);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const animationRef = useRef<number>(null);
+
+  // Track active participants using presence
+  const { activeParticipants, totalActiveCount } = useStreamPresence(
+    streamId,
+    currentUserId || "",
+    participants
+  );
 
   // Generate gradient colors for avatars
   const generateGradientColor = (id: string): string => {
@@ -89,13 +100,13 @@ export function ParticipantsList({
 
   // Initialize positions for participants
   useEffect(() => {
-    if (!containerRef.current || participants.length === 0) return;
+    if (!containerRef.current || activeParticipants.length === 0) return;
 
     const container = containerRef.current;
     const rect = container.getBoundingClientRect();
     setContainerSize({ width: rect.width, height: rect.height });
 
-    const displayedParticipants = participants.slice(0, maxVisible);
+    const displayedParticipants = activeParticipants.slice(0, maxVisible);
 
     const newPositions: ParticipantPosition[] = [];
 
@@ -135,7 +146,7 @@ export function ParticipantsList({
     });
 
     setPositions(newPositions);
-  }, [participants, hostId, currentUserId, maxVisible]);
+  }, [activeParticipants, hostId, currentUserId, maxVisible]);
 
   // Animation loop for floating motion
   useEffect(() => {
@@ -227,26 +238,35 @@ export function ParticipantsList({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  if (participants.length === 0) {
+  if (activeParticipants.length === 0) {
     return (
       <Card className="p-8 text-center">
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted/20 flex items-center justify-center">
           <Users className="w-8 h-8 text-muted-foreground" />
         </div>
-        <p className="text-muted-foreground">No participants yet</p>
+        <p className="text-muted-foreground">No active participants</p>
         <p className="text-sm text-muted-foreground/70 mt-1">
-          Be the first to join this Stream!
+          {participants.length > 0
+            ? `${participants.length} participant${
+                participants.length === 1 ? "" : "s"
+              } offline`
+            : "Be the first to join this Stream!"}
         </p>
       </Card>
     );
   }
 
   return (
-    <Card className="relative overflow-hidden">
+    <div className="relative overflow-hidden">
       <div className="p-4 border-b">
         <h3 className="text-lg font-semibold flex items-center gap-2">
-          <Users className="w-5 h-5" />
-          Participants ({participants.length})
+          <Users className="w-5" />
+          Active ({totalActiveCount})
+          {participants.length > totalActiveCount && (
+            <span className="text-sm text-muted-foreground font-normal">
+              {participants.length} joined
+            </span>
+          )}
         </h3>
       </div>
 
@@ -317,12 +337,12 @@ export function ParticipantsList({
         ))}
 
         {/* Overflow indicator */}
-        {participants.length > maxVisible && (
+        {activeParticipants.length > maxVisible && (
           <div className="absolute bottom-4 right-4 px-3 py-1 bg-black/60 text-white text-sm rounded-full backdrop-blur-sm">
-            +{participants.length - maxVisible} more
+            +{activeParticipants.length - maxVisible} more
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 }

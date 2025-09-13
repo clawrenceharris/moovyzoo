@@ -86,7 +86,7 @@ interface StreamMedia {
 
 ```typescript
 interface PlaybackState {
-  currentTime: number;
+  time: number;
   isPlaying: boolean;
   duration: number;
   volume: number;
