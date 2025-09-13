@@ -323,7 +323,7 @@ export function StreamVideoPlayer({
     if (!error) return null;
 
     return (
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-600 bg-opacity-90 text-white p-4 rounded max-w-sm text-center">
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-600 bg-opacity-90 text-white p-4 rounded max-w-sm text-center z-99">
         <AlertTriangle className="h-6 w-6 mx-auto mb-2" />
         <p className="text-sm">{error}</p>
       </div>
@@ -331,106 +331,92 @@ export function StreamVideoPlayer({
   };
 
   return (
-    <>
-      <div
-        ref={containerRef}
-        className={`relative flex-1 h-full bg-black rounded-lg overflow-hidden focus:outline-none ${
-          isMobile ? "mobile-optimized" : ""
-        }`}
-        tabIndex={0}
-        data-testid="video-player-container"
-      >
-        {/* YouTube Video Player */}
-        {videos.length > 0 && (isHostReady || playbackState.time > 0) ? (
-          <YouTube
-            className="h-full flex-1"
-            videoId={videos[0]}
-            opts={{
-              playerVars: {
-                autoplay: 1,
-                controls: 1,
-                disablekb: 1,
-                fs: 0,
-                iv_load_policy: 3,
-                modestbranding: 1,
-                rel: 0,
-                showinfo: 0,
-                start: 0,
-              },
-            }}
-            ref={youtubePlayerRef}
-            onReady={handleYouTubeReady}
-            onStateChange={handleYouTubeStateChange}
-          />
-        ) : (
-          <StreamHero
-            userId={userId}
-            onPlayClick={() => {
-              if (isHost) {
-                setIsHostReady(true);
-              }
-            }}
-            stream={stream}
-            userParticipation={userParticipation}
-          />
-        )}
+    <div
+      ref={containerRef}
+      className={`relative flex-1 h-full bg-black rounded-lg overflow-hidden focus:outline-none ${
+        isMobile ? "mobile-optimized" : ""
+      }`}
+      tabIndex={0}
+      data-testid="video-player-container"
+    >
+      {/* YouTube Video Player */}
+      {videos.length > 0 && (isHostReady || playbackState.time > 0) ? (
+        <YouTube
+          className="h-full flex-1"
+          videoId={videos[0]}
+          opts={{
+            playerVars: {
+              autoplay: 1,
+              controls: 1,
+              disablekb: 1,
+              fs: 0,
+              iv_load_policy: 3,
+              modestbranding: 1,
+              rel: 0,
+              showinfo: 0,
+              start: 0,
+            },
+          }}
+          ref={youtubePlayerRef}
+          onReady={handleYouTubeReady}
+          onStateChange={handleYouTubeStateChange}
+        />
+      ) : (
+        <StreamHero
+          userId={userId}
+          onPlayClick={() => {
+            if (isHost) {
+              setIsHostReady(true);
+            }
+          }}
+          stream={stream}
+          userParticipation={userParticipation}
+        />
+      )}
 
-        {/* Fallback for no video */}
-        {videos.length === 0 && (
-          <div className="w-full h-full flex items-center justify-center bg-gray-800 text-white">
-            <div className="text-center">
-              <h3 className="text-lg font-semibold mb-2">
-                {stream.media_title}
-              </h3>
-              <p className="text-sm text-gray-300">Video not available</p>
-            </div>
+      {/* Fallback for no video */}
+      {videos.length === 0 && (
+        <div className="w-full h-full flex items-center justify-center bg-gray-800 text-white">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold mb-2">{stream.media_title}</h3>
+            <p className="text-sm text-gray-300">Video not available</p>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Host/Participant Indicator */}
-        {!isHost && (
-          <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
-            View Only
-          </div>
-        )}
+      {/* Host/Participant Indicator */}
+      {!isHost && (
+        <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+          View Only
+        </div>
+      )}
 
-        {/* Sync Status Indicator */}
-        {renderSyncStatus()}
+      {/* Sync Status Indicator */}
+      {renderSyncStatus()}
 
-        {/* Manual Sync Controls */}
-        {renderSyncControls()}
+      {/* Manual Sync Controls */}
+      {renderSyncControls()}
 
-        {/* Playback State Display */}
-        {renderPlaybackState()}
+      {/* Playback State Display */}
+      {renderPlaybackState()}
 
-        {/* Error Message */}
-        {renderErrorMessage()}
+      {/* Error Message */}
+      {renderErrorMessage()}
 
-        {/* Retry Button for errors */}
-        {videos.length === 0 && (
-          <div className="absolute top-4 right-4">
-            <Button
-              onClick={handleRefresh}
-              size="sm"
-              variant="outline"
-              className="bg-black bg-opacity-75 text-white border-white hover:bg-opacity-90"
-              aria-label="Retry"
-            >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
-      </div>
-      {/* Debug Panel */}
-      <SyncDebugPanel
-        streamId={stream.id}
-        playbackState={playbackState}
-        userId={userId}
-        isHost={userParticipation.isHost || false}
-        videosCount={videos.length}
-        syncStatus={syncStatus}
-        isConnected={isConnected}
-      />
-    </>
+      {/* Retry Button for errors */}
+      {videos.length === 0 && (
+        <div className="absolute top-4 right-4">
+          <Button
+            onClick={handleRefresh}
+            size="sm"
+            variant="outline"
+            className="bg-black bg-opacity-75 text-white border-white hover:bg-opacity-90"
+            aria-label="Retry"
+          >
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }

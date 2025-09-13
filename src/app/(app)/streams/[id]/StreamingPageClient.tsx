@@ -3,12 +3,8 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 // TODO: Add toast library (e.g., sonner) for user feedback
-import {
-  ParticipantsSidebar,
-  StreamChat,
-  StreamHero,
-  StreamVideoPlayer,
-} from "@/features/streaming/components";
+import { StreamHero, StreamVideoPlayer } from "@/features/streaming/components";
+import { StreamSidebar } from "@/features/streaming/components/StreamSidebar";
 import { ParticipantsList } from "@/features/streaming/components/ParticipantsList";
 import { useUser } from "@/hooks/use-user";
 import {
@@ -254,13 +250,13 @@ export function StreamPageClient({
         />
 
         {/* Participants Section */}
-        <div className="bg-card border border-border rounded-lg p-6">
-          <ParticipantsList
-            participants={currentParticipants}
-            currentUserId={user?.id}
-            maxVisible={12}
-          />
-        </div>
+        <ParticipantsList
+          streamId={streamId}
+          participants={currentParticipants}
+          currentUserId={user.id}
+          hostId={participants.find((p) => p.is_host)?.user_id}
+          maxVisible={12}
+        />
 
         {/* Focus management for accessibility */}
         <div
@@ -277,12 +273,9 @@ export function StreamPageClient({
   }
 
   return (
-    <div className="relative flex flex-1 flex-col gap-5">
-      <div className="relative flex flex-row flex-1 gap-5">
-        <div
-          data-testid="video-container"
-          className={`flex-1 h-full aspect-video`}
-        >
+    <div className="relative flex h-fullflex-col gap-5">
+      <div className="relative flex flex-col flex-1 gap-5 xl:flex-row">
+        <div data-testid="video-container" className={"flex-1  aspect-video"}>
           <StreamVideoPlayer
             videos={videos}
             onRefresh={fetchVideos}
@@ -296,21 +289,15 @@ export function StreamPageClient({
           />
         </div>
 
-        <div className={"flex flex-col gap-0"}>
-          <div className="flex-1">
-            <StreamChat streamId={stream.id} currentUserId={user.id} />
-          </div>
-        </div>
+        <StreamSidebar
+          streamId={stream.id}
+          participants={currentParticipants}
+          currentUserId={user.id}
+          isHost={currentParticipants.some(
+            (p) => p.user_id === user?.id && p.is_host
+          )}
+        />
       </div>
-      <ParticipantsSidebar
-        className="flex-1"
-        streamId={stream.id}
-        participants={participants}
-        currentUserId={user.id}
-        isHost={currentParticipants.some(
-          (p) => p.user_id === user?.id && p.is_host
-        )}
-      />
 
       {/* Debug Panel */}
       <SyncDebugPanel

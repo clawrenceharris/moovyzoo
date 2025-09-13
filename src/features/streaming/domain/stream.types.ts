@@ -163,6 +163,25 @@ export interface SelectedMedia {
   release_date?: string;
 }
 
+// Chat message types
+export interface StreamMessage {
+  id: string;
+  stream_id: string;
+  user_id: string;
+  message: string;
+  created_at: string;
+  profile?: {
+    display_name: string;
+    avatar_url?: string;
+  };
+}
+
+export interface StreamMessageInsert {
+  stream_id: string;
+  user_id: string;
+  message: string;
+}
+
 // Database insert/update types
 export interface StreamInsert {
   description?: string;

@@ -4,19 +4,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, Send } from "lucide-react";
-
-interface ChatMessage {
-  id: string;
-  stream_id: string;
-  user_id: string;
-  message: string;
-  created_at: string;
-  profile: {
-    display_name: string;
-    avatar_url?: string;
-  };
-}
+import { MessageCircle, Send, Loader2 } from "lucide-react";
+import { useStreamMessages, useSendMessage } from "../hooks/use-stream-chat";
+import { LoadingState, ErrorState } from "@/components/states";
 
 interface StreamChatProps {
   streamId: string;
@@ -29,15 +19,26 @@ export function StreamChat({
   currentUserId,
   className = "",
 }: StreamChatProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Fetch messages with real-time updates
+  const {
+    data: messages = [],
+    isLoading,
+    error,
+    refetch,
+  } = useStreamMessages(streamId, currentUserId);
+
+  // Send message mutation
+  const sendMessageMutation = useSendMessage();
+
   // Auto-scroll to bottom when new messages arrive
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current?.scrollIntoView) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   useEffect(() => {
@@ -47,37 +48,18 @@ export function StreamChat({
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() || sendMessageMutation.isPending) return;
 
-    // Create optimistic message
-    const optimisticMessage: ChatMessage = {
-      id: `temp-${Date.now()}`,
-      stream_id: streamId,
-      user_id: currentUserId,
-      message: newMessage.trim(),
-      created_at: new Date().toISOString(),
-      profile: {
-        display_name: "You",
-      },
-    };
-
-    // Add to messages immediately
-    setMessages((prev) => [...prev, optimisticMessage]);
-    setNewMessage("");
-
-    // TODO: Send to backend and handle real-time updates
-    // For now, just simulate the message being sent
-    console.log("Sending message:", optimisticMessage);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewMessage(e.target.value);
-
-    // TODO: Implement typing indicators
-    if (!isTyping) {
-      setIsTyping(true);
-      // Debounce typing indicator
-      setTimeout(() => setIsTyping(false), 1000);
+    try {
+      await sendMessageMutation.mutateAsync({
+        stream_id: streamId,
+        user_id: currentUserId,
+        message: newMessage.trim(),
+      });
+      setNewMessage("");
+      inputRef.current?.focus();
+    } catch (error) {
+      console.error("Failed to send message:", error);
     }
   };
 
@@ -88,8 +70,54 @@ export function StreamChat({
     });
   };
 
+  const getDisplayName = (message: any) => {
+    if (message.user_id === currentUserId) {
+      return "You";
+    }
+    return (
+      message.profile?.display_name || `User ${message.user_id.slice(0, 8)}`
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <Card className="h-full flex flex-col">
+        <div className="p-4 border-b">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <MessageCircle className="w-5 h-5" />
+            Chat
+          </h3>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <LoadingState variant="inline" />
+        </div>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="h-full flex flex-col">
+        <div className="p-4 border-b">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <MessageCircle className="w-5 h-5" />
+            Chat
+          </h3>
+        </div>
+        <div className="flex-1 p-4">
+          <ErrorState
+            variant="inline"
+            title="Failed to load chat"
+            message="Unable to load messages. Please try again."
+            onRetry={() => refetch()}
+          />
+        </div>
+      </Card>
+    );
+  }
+
   return (
-    <Card className={`h-full flex flex-col`}>
+    <Card className={`h-full flex flex-col ${className}`}>
       <div className="p-4 border-b">
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <MessageCircle className="w-5 h-5" />
@@ -111,16 +139,14 @@ export function StreamChat({
               <div key={message.id} className="flex gap-3">
                 {/* Avatar */}
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
-                  {message.profile.display_name.charAt(0).toUpperCase()}
+                  {getDisplayName(message).charAt(0).toUpperCase()}
                 </div>
 
                 {/* Message Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2 mb-1">
                     <p className="font-medium text-sm">
-                      {message.user_id === currentUserId
-                        ? "You"
-                        : message.profile.display_name}
+                      {getDisplayName(message)}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {formatTime(message.created_at)}
@@ -143,20 +169,32 @@ export function StreamChat({
           <Input
             ref={inputRef}
             value={newMessage}
-            onChange={handleInputChange}
+            onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message..."
             className="flex-1"
             maxLength={500}
+            disabled={sendMessageMutation.isPending}
           />
           <Button
             type="submit"
             size="sm"
-            disabled={!newMessage.trim()}
+            disabled={!newMessage.trim() || sendMessageMutation.isPending}
             className="px-3"
+            aria-label="Send message"
           >
-            <Send className="w-4 h-4" />
+            {sendMessageMutation.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
           </Button>
         </form>
+
+        {sendMessageMutation.error && (
+          <p className="text-sm text-red-500 mt-2">
+            Failed to send message. Please try again.
+          </p>
+        )}
       </div>
     </Card>
   );

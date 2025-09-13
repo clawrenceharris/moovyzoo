@@ -120,7 +120,7 @@ export function StreamHero({
   };
 
   return (
-    <div className="flex-1 h-full relative overflow-hidden rounded-xl bg-card border border-border/50">
+    <div className="flex-1 relative overflow-hidden rounded-xl bg-card border border-border/50">
       {/* Hero Background with Poster */}
 
       <div className="relative aspect-[21/9] sm:aspect-[16/6] overflow-hidden">
@@ -178,7 +178,7 @@ export function StreamHero({
       </div>
 
       {/* Content */}
-      <div className="relative p-6 -mt-20 z-10">
+      <div className="relative p-4 -mt-20 z-10">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Media Poster (Mobile/Tablet) */}
 
