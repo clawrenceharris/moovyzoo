@@ -89,7 +89,7 @@ export interface ParticipantChangePayload {
 
 export interface PlaybackStatePayload {
   streamId: string;
-  currentTime: number;
+  time: number;
   isPlaying: boolean;
   lastSyncAt: string;
   hostUserId: string;
@@ -105,7 +105,7 @@ export interface StreamMedia {
 }
 
 export interface PlaybackState {
-  currentTime: number;
+  time: number;
   isPlaying: boolean;
   duration: number;
   volume: number;
@@ -131,8 +131,8 @@ export interface PlaybackEvent {
     | "buffer_start"
     | "buffer_end";
   timestamp: number;
-  currentTime: number;
-  hostUserId: string;
+  time: number;
+  hostUserId?: string;
   eventId: string; // For deduplication
   metadata?: {
     seekFrom?: number; // For seek events

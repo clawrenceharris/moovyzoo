@@ -11,7 +11,7 @@ const mockSetConnectionStatus = vi.fn();
 vi.mock("../../hooks/use-playback-sync", () => ({
   usePlaybackSync: vi.fn(() => ({
     playbackState: {
-      currentTime: 0,
+      time: 0,
       isPlaying: false,
       duration: 0,
       volume: 1,
@@ -105,7 +105,7 @@ describe("StreamVideoPlayer with Sync", () => {
 
     await waitFor(() => {
       expect(mockBroadcastPlaybackState).toHaveBeenCalledWith({
-        currentTime: 30,
+        time: 30,
       });
     });
   });
@@ -139,7 +139,7 @@ describe("StreamVideoPlayer with Sync", () => {
     const mockUsePlaybackSync = await import("../../hooks/use-playback-sync");
     vi.mocked(mockUsePlaybackSync.usePlaybackSync).mockReturnValue({
       playbackState: {
-        currentTime: 45,
+        time: 45,
         isPlaying: true,
         duration: 120,
         volume: 1,
@@ -165,7 +165,7 @@ describe("StreamVideoPlayer with Sync", () => {
     const mockUsePlaybackSync = await import("../../hooks/use-playback-sync");
     vi.mocked(mockUsePlaybackSync.usePlaybackSync).mockReturnValue({
       playbackState: {
-        currentTime: 0,
+        time: 0,
         isPlaying: false,
         duration: 0,
         volume: 1,
@@ -186,7 +186,7 @@ describe("StreamVideoPlayer with Sync", () => {
     // Simulate reconnection
     vi.mocked(mockUsePlaybackSync.usePlaybackSync).mockReturnValue({
       playbackState: {
-        currentTime: 0,
+        time: 0,
         isPlaying: false,
         duration: 0,
         volume: 1,

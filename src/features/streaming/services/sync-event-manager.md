@@ -58,7 +58,7 @@ syncManager.onEvent((event) => {
 const playEvent: PlaybackEvent = {
   type: "play",
   timestamp: Date.now(),
-  currentTime: 120,
+  time: 120,
   hostUserId: "host-123",
   eventId: "unique-event-id",
   metadata: {},
@@ -136,7 +136,7 @@ CREATE TABLE playback_events (
   event_type TEXT NOT NULL CHECK (event_type IN ('play', 'pause', 'seek', 'sync_request', 'buffer_start', 'buffer_end')),
   event_id TEXT NOT NULL UNIQUE,
   timestamp_ms BIGINT NOT NULL,
-  current_time INTEGER NOT NULL,
+  time INTEGER NOT NULL,
   metadata JSONB DEFAULT '{}',
   created_at TIMESTAMP DEFAULT NOW()
 );

@@ -127,7 +127,7 @@ interface StreamingVideoPlayerProps {
 }
 
 interface PlaybackState {
-  currentTime: number;
+  time: number;
   isPlaying: boolean;
   duration: number;
   buffering: boolean;
@@ -236,7 +236,7 @@ ALTER TABLE habitat_watch_parties ADD COLUMN media_title VARCHAR(255);
 ALTER TABLE habitat_watch_parties ADD COLUMN poster_path VARCHAR(255);
 ALTER TABLE habitat_watch_parties ADD COLUMN release_date DATE;
 ALTER TABLE habitat_watch_parties ADD COLUMN runtime INTEGER; -- in minutes
-ALTER TABLE habitat_watch_parties ADD COLUMN current_time INTEGER DEFAULT 0; -- playback position in seconds
+ALTER TABLE habitat_watch_parties ADD COLUMN time INTEGER DEFAULT 0; -- playback position in seconds
 ALTER TABLE habitat_watch_parties ADD COLUMN is_playing BOOLEAN DEFAULT false;
 ALTER TABLE habitat_watch_parties ADD COLUMN last_sync_at TIMESTAMP DEFAULT NOW();
 
@@ -304,7 +304,7 @@ interface StreamParticipant {
 }
 
 interface PlaybackState {
-  current_time: number;
+  time: number;
   is_playing: boolean;
   last_sync_at: string;
 }

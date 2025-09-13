@@ -13,7 +13,7 @@ SELECT
     column_default
 FROM information_schema.columns 
 WHERE table_name = 'streams' 
-    AND column_name IN ('current_time', 'is_playing', 'last_sync_at', 'video_url', 'sync_enabled', 'sync_tolerance')
+    AND column_name IN ('time', 'is_playing', 'last_sync_at', 'video_url', 'sync_enabled', 'sync_tolerance')
 ORDER BY column_name;
 
 -- ============================================================================
@@ -118,11 +118,11 @@ SELECT
     'Streams with Sync Data' as section,
     COUNT(*) as total_streams,
     COUNT(*) FILTER (WHERE sync_enabled = true) as sync_enabled_streams,
-    COUNT(*) FILTER (WHERE current_time > 0) as streams_with_position,
+    COUNT(*) FILTER (WHERE time > 0) as streams_with_position,
     COUNT(*) FILTER (WHERE is_playing = true) as currently_playing_streams,
     AVG(sync_tolerance) as avg_sync_tolerance
 FROM streams
-WHERE current_time IS NOT NULL; -- Only count streams that have been migrated
+WHERE time IS NOT NULL; -- Only count streams that have been migrated
 
 -- ============================================================================
 -- 9. Migration Status Summary
@@ -143,7 +143,7 @@ SELECT
 -- ============================================================================
 
 EXPLAIN (ANALYZE, BUFFERS) 
-SELECT s.id, s.current_time, s.is_playing, s.last_sync_at
+SELECT s.id, s.time, s.is_playing, s.last_sync_at
 FROM streams s
 WHERE s.is_active = true AND s.sync_enabled = true
 ORDER BY s.last_sync_at DESC

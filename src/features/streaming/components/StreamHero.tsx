@@ -120,7 +120,7 @@ export function StreamHero({
   };
 
   return (
-    <div className="flex-1 relative overflow-hidden rounded-xl bg-card border border-border/50">
+    <div className="flex-1 h-full relative overflow-hidden rounded-xl bg-card border border-border/50">
       {/* Hero Background with Poster */}
 
       <div className="relative aspect-[21/9] sm:aspect-[16/6] overflow-hidden">

@@ -761,7 +761,7 @@ export class StreamingRepository {
   async updatePlaybackState(
     streamId: string,
     playbackState: {
-      currentTime?: number;
+      time?: number;
       isPlaying?: boolean;
     }
   ): Promise<void> {
@@ -770,8 +770,8 @@ export class StreamingRepository {
         last_sync_at: new Date().toISOString(),
       };
 
-      if (playbackState.currentTime !== undefined) {
-        updateData.current_time = Math.floor(playbackState.currentTime);
+      if (playbackState.time !== undefined) {
+        updateData.time = Math.floor(playbackState.time);
       }
 
       if (playbackState.isPlaying !== undefined) {
@@ -795,14 +795,14 @@ export class StreamingRepository {
    * Get current playback state for a stream
    */
   async getPlaybackState(streamId: string): Promise<{
-    currentTime: number;
+    time: number;
     isPlaying: boolean;
     lastSyncAt: string;
   } | null> {
     try {
       const { data, error } = await supabase
         .from("streams")
-        .select("current_time, is_playing, last_sync_at")
+        .select("time, is_playing, last_sync_at")
         .eq("id", streamId)
         .maybeSingle();
 
@@ -816,7 +816,7 @@ export class StreamingRepository {
       }
 
       return {
-        currentTime: data.current_time || 0,
+        time: data.time || 0,
         isPlaying: data.is_playing || false,
         lastSyncAt: data.last_sync_at || new Date().toISOString(),
       };

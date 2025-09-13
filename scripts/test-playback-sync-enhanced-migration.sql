@@ -10,9 +10,9 @@ BEGIN
     -- Check if all new columns exist
     IF NOT EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_name = 'streams' AND column_name = 'current_time'
+        WHERE table_name = 'streams' AND column_name = 'time'
     ) THEN
-        RAISE EXCEPTION 'Column current_time not found in streams table';
+        RAISE EXCEPTION 'Column time not found in streams table';
     END IF;
 
     IF NOT EXISTS (
@@ -210,7 +210,7 @@ BEGIN
         event_type, 
         event_id, 
         timestamp_ms, 
-        current_time, 
+        time, 
         metadata
     ) VALUES (
         '00000000-0000-0000-0000-000000000001'::UUID,

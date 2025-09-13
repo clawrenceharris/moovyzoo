@@ -16,7 +16,7 @@ The enhanced playback synchronization system enables synchronized video playback
 
 ### Enhanced `streams` table columns:
 
-- `current_time` (INTEGER): Current playback position in seconds
+- `time` (INTEGER): Current playback position in seconds
 - `is_playing` (BOOLEAN): Whether the stream is currently playing
 - `last_sync_at` (TIMESTAMP): Timestamp of last playback state sync
 - `video_url` (TEXT): URL to the actual video content for playback
@@ -31,7 +31,7 @@ The enhanced playback synchronization system enables synchronized video playback
 - `event_type` (TEXT): Type of playback event (play, pause, seek, sync_request, buffer_start, buffer_end)
 - `event_id` (TEXT): Unique identifier for event deduplication
 - `timestamp_ms` (BIGINT): Unix timestamp in milliseconds when event occurred
-- `current_time` (INTEGER): Video position in seconds at time of event
+- `time` (INTEGER): Video position in seconds at time of event
 - `metadata` (JSONB): Additional event data (seek positions, buffer reasons, etc.)
 - `created_at` (TIMESTAMP): Record creation timestamp
 

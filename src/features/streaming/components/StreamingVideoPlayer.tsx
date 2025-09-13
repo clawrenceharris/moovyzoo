@@ -53,7 +53,7 @@ export function StreamingVideoPlayer({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [time, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
@@ -86,7 +86,7 @@ export function StreamingVideoPlayer({
       if (!videoRef.current) return;
 
       const time = parseFloat(e.target.value);
-      videoRef.current.currentTime = time;
+      videoRef.current.time = time;
       setCurrentTime(time);
       onSeek?.(time);
     },
@@ -157,12 +157,12 @@ export function StreamingVideoPlayer({
     (quality: VideoQuality) => {
       if (!videoRef.current) return;
 
-      const currentTime = videoRef.current.currentTime;
+      const time = videoRef.current.time;
       const wasPlaying = !videoRef.current.paused;
 
       setSelectedQuality(quality);
       videoRef.current.src = quality.src;
-      videoRef.current.currentTime = currentTime;
+      videoRef.current.time = time;
 
       if (wasPlaying) {
         videoRef.current.play();
@@ -194,18 +194,15 @@ export function StreamingVideoPlayer({
         case "ArrowLeft":
           e.preventDefault();
           if (videoRef.current) {
-            videoRef.current.currentTime = Math.max(
-              0,
-              videoRef.current.currentTime - 10
-            );
+            videoRef.current.time = Math.max(0, videoRef.current.time - 10);
           }
           break;
         case "ArrowRight":
           e.preventDefault();
           if (videoRef.current) {
-            videoRef.current.currentTime = Math.min(
+            videoRef.current.time = Math.min(
               duration,
-              videoRef.current.currentTime + 10
+              videoRef.current.time + 10
             );
           }
           break;
@@ -246,7 +243,7 @@ export function StreamingVideoPlayer({
 
     const handlePlay = () => setIsPlaying(true);
     const handlePause = () => setIsPlaying(false);
-    const handleTimeUpdate = () => setCurrentTime(video.currentTime);
+    const handleTimeUpdate = () => setCurrentTime(video.time);
     const handleLoadedMetadata = () => setDuration(video.duration);
     const handleVolumeChange = () => {
       setVolume(video.volume);
@@ -384,7 +381,7 @@ export function StreamingVideoPlayer({
               type="range"
               min={0}
               max={duration || 0}
-              value={currentTime}
+              value={time}
               onChange={handleSeek}
               className={cn(
                 "w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer",
@@ -442,7 +439,7 @@ export function StreamingVideoPlayer({
               </div>
 
               <div className="text-white text-sm">
-                {formatTime(currentTime)} / {formatTime(duration)}
+                {formatTime(time)} / {formatTime(duration)}
               </div>
             </div>
 

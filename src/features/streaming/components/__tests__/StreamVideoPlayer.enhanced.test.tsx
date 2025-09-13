@@ -36,7 +36,7 @@ describe("StreamVideoPlayer - Enhanced Sync Integration", () => {
 
   const defaultMockReturn = {
     playbackState: {
-      currentTime: 0,
+      time: 0,
       isPlaying: false,
       duration: 0,
       volume: 1,
@@ -286,7 +286,7 @@ describe("StreamVideoPlayer - Enhanced Sync Integration", () => {
         ...defaultMockReturn,
         playbackState: {
           ...defaultMockReturn.playbackState,
-          currentTime: 120,
+          time: 120,
           duration: 300,
         },
       });

@@ -89,7 +89,7 @@ describe("usePlaybackSync", () => {
     );
 
     expect(result.current.playbackState).toEqual({
-      currentTime: 0,
+      time: 0,
       isPlaying: false,
       duration: 0,
       volume: 1,
@@ -138,7 +138,7 @@ describe("usePlaybackSync", () => {
     );
 
     const newState: Partial<PlaybackState> = {
-      currentTime: 30,
+      time: 30,
       isPlaying: true,
     };
 
@@ -165,7 +165,7 @@ describe("usePlaybackSync", () => {
     );
 
     const newState: Partial<PlaybackState> = {
-      currentTime: 30,
+      time: 30,
       isPlaying: true,
     };
 
@@ -188,7 +188,7 @@ describe("usePlaybackSync", () => {
 
     // First set the initial state
     const initialState: PlaybackState = {
-      currentTime: 30.0,
+      time: 30.0,
       isPlaying: true,
       duration: 120,
       volume: 1,
@@ -203,7 +203,7 @@ describe("usePlaybackSync", () => {
     });
 
     const incomingState = {
-      currentTime: 30.2, // Within tolerance (0.5s)
+      time: 30.2, // Within tolerance (0.5s)
       isPlaying: true,
     };
 
@@ -215,7 +215,7 @@ describe("usePlaybackSync", () => {
     });
 
     // Should not update due to sync tolerance
-    expect(result.current.playbackState.currentTime).toBe(30.0);
+    expect(result.current.playbackState.time).toBe(30.0);
   });
 
   it("should sync when difference exceeds tolerance", () => {
@@ -229,7 +229,7 @@ describe("usePlaybackSync", () => {
     );
 
     const currentState: PlaybackState = {
-      currentTime: 30.0,
+      time: 30.0,
       isPlaying: true,
       duration: 120,
       volume: 1,
@@ -237,7 +237,7 @@ describe("usePlaybackSync", () => {
     };
 
     const incomingState = {
-      currentTime: 31.0, // Exceeds tolerance (0.5s)
+      time: 31.0, // Exceeds tolerance (0.5s)
       isPlaying: true,
     };
 
@@ -245,7 +245,7 @@ describe("usePlaybackSync", () => {
       result.current.handleIncomingSync(incomingState, currentState);
     });
 
-    expect(result.current.playbackState.currentTime).toBe(31.0);
+    expect(result.current.playbackState.time).toBe(31.0);
   });
 
   it("should handle connection status changes", () => {
@@ -314,7 +314,7 @@ describe("usePlaybackSync", () => {
         await result.current.broadcastPlaybackEvent({
           type: "play",
           timestamp: Date.now(),
-          currentTime: 30,
+          time: 30,
           hostUserId: mockUserId,
           eventId: "test-event-1",
         });
@@ -347,7 +347,7 @@ describe("usePlaybackSync", () => {
         await result.current.broadcastPlaybackEvent({
           type: "pause",
           timestamp: Date.now(),
-          currentTime: 45,
+          time: 45,
           hostUserId: mockUserId,
           eventId: "test-event-2",
         });
@@ -379,7 +379,7 @@ describe("usePlaybackSync", () => {
         await result.current.broadcastPlaybackEvent({
           type: "seek",
           timestamp: Date.now(),
-          currentTime: 60,
+          time: 60,
           hostUserId: mockUserId,
           eventId: "test-event-3",
           metadata: { seekFrom: 30 },
@@ -408,7 +408,7 @@ describe("usePlaybackSync", () => {
         await result.current.broadcastPlaybackEvent({
           type: "play",
           timestamp: Date.now(),
-          currentTime: 30,
+          time: 30,
           hostUserId: mockUserId,
           eventId: "test-event-4",
         });
@@ -430,7 +430,7 @@ describe("usePlaybackSync", () => {
       const playEvent = {
         type: "play" as const,
         timestamp: Date.now(),
-        currentTime: 30,
+        time: 30,
         hostUserId: "host-user-id",
         eventId: "sync-event-1",
       };
@@ -456,7 +456,7 @@ describe("usePlaybackSync", () => {
       const seekEvent = {
         type: "seek" as const,
         timestamp: Date.now() - 200, // 200ms ago
-        currentTime: 60,
+        time: 60,
         hostUserId: "host-user-id",
         eventId: "sync-event-2",
         metadata: { seekFrom: 30 },
@@ -485,7 +485,7 @@ describe("usePlaybackSync", () => {
       const playEvent = {
         type: "play" as const,
         timestamp: Date.now(),
-        currentTime: 30,
+        time: 30,
         hostUserId: "host-user-id",
         eventId: "sync-event-3",
       };
@@ -530,7 +530,7 @@ describe("usePlaybackSync", () => {
       const playEvent = {
         type: "play" as const,
         timestamp: Date.now(),
-        currentTime: 30,
+        time: 30,
         hostUserId: "host-user-id",
         eventId: "sync-event-4",
       };
@@ -559,21 +559,21 @@ describe("usePlaybackSync", () => {
         await result.current.broadcastPlaybackEvent({
           type: "seek",
           timestamp: Date.now(),
-          currentTime: 30,
+          time: 30,
           hostUserId: mockUserId,
           eventId: "rapid-1",
         });
         await result.current.broadcastPlaybackEvent({
           type: "seek",
           timestamp: Date.now(),
-          currentTime: 31,
+          time: 31,
           hostUserId: mockUserId,
           eventId: "rapid-2",
         });
         await result.current.broadcastPlaybackEvent({
           type: "seek",
           timestamp: Date.now(),
-          currentTime: 32,
+          time: 32,
           hostUserId: mockUserId,
           eventId: "rapid-3",
         });

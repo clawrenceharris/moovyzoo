@@ -7,7 +7,7 @@
 
 -- Add playback synchronization columns to streams table
 ALTER TABLE streams 
-ADD COLUMN IF NOT EXISTS current_time INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS time INTEGER DEFAULT 0,
 ADD COLUMN IF NOT EXISTS is_playing BOOLEAN DEFAULT false,
 ADD COLUMN IF NOT EXISTS last_sync_at TIMESTAMP DEFAULT NOW(),
 ADD COLUMN IF NOT EXISTS video_url TEXT,
@@ -15,7 +15,7 @@ ADD COLUMN IF NOT EXISTS sync_enabled BOOLEAN DEFAULT true,
 ADD COLUMN IF NOT EXISTS sync_tolerance INTEGER DEFAULT 500; -- milliseconds
 
 -- Add comments for documentation
-COMMENT ON COLUMN streams.current_time IS 'Current playback position in seconds';
+COMMENT ON COLUMN streams.time IS 'Current playback position in seconds';
 COMMENT ON COLUMN streams.is_playing IS 'Whether the stream is currently playing';
 COMMENT ON COLUMN streams.last_sync_at IS 'Timestamp of last playback state sync';
 COMMENT ON COLUMN streams.video_url IS 'URL to the actual video content for playback';
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS playback_events (
   event_type TEXT NOT NULL CHECK (event_type IN ('play', 'pause', 'seek', 'sync_request', 'buffer_start', 'buffer_end')),
   event_id TEXT NOT NULL UNIQUE, -- For deduplication
   timestamp_ms BIGINT NOT NULL, -- Unix timestamp in milliseconds
-  current_time INTEGER NOT NULL, -- Video position in seconds
+  time INTEGER NOT NULL, -- Video position in seconds
   metadata JSONB DEFAULT '{}',
   created_at TIMESTAMP DEFAULT NOW()
 );
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS playback_events (
 COMMENT ON TABLE playback_events IS 'Stores playback synchronization events for logging and recovery';
 COMMENT ON COLUMN playback_events.event_id IS 'Unique identifier for event deduplication';
 COMMENT ON COLUMN playback_events.timestamp_ms IS 'Unix timestamp in milliseconds when event occurred';
-COMMENT ON COLUMN playback_events.current_time IS 'Video position in seconds at time of event';
+COMMENT ON COLUMN playback_events.time IS 'Video position in seconds at time of event';
 COMMENT ON COLUMN playback_events.metadata IS 'Additional event data (seek positions, buffer reasons, etc.)';
 
 -- ============================================================================
@@ -95,7 +95,7 @@ BEGIN
     event_type, 
     event_id, 
     timestamp_ms, 
-    current_time, 
+    time, 
     metadata
   ) VALUES (
     '00000000-0000-0000-0000-000000000000'::UUID, -- System cleanup
@@ -120,13 +120,13 @@ BEGIN
   -- Reset sync state for streams inactive for more than 24 hours
   UPDATE streams 
   SET 
-    current_time = 0,
+    time = 0,
     is_playing = false,
     last_sync_at = NOW()
   WHERE 
     is_active = false 
     AND last_sync_at < NOW() - INTERVAL '24 hours'
-    AND (current_time != 0 OR is_playing = true);
+    AND (time != 0 OR is_playing = true);
   
   GET DIAGNOSTICS updated_count = ROW_COUNT;
   

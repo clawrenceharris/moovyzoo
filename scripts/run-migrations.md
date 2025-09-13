@@ -100,7 +100,7 @@ After successful migration, you should see:
 
 **Enhanced Playback Synchronization:**
 
-- ✅ 6 new sync columns in `streams` table (current_time, is_playing, last_sync_at, video_url, sync_enabled, sync_tolerance)
+- ✅ 6 new sync columns in `streams` table (time, is_playing, last_sync_at, video_url, sync_enabled, sync_tolerance)
 - ✅ New `playback_events` table for event logging and recovery
 - ✅ 6 performance indexes for efficient sync queries
 - ✅ 3 cleanup functions for automatic data maintenance

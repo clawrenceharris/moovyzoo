@@ -55,8 +55,8 @@ describe("YouTubePlayerService", () => {
   describe("State Retrieval Methods", () => {
     it("should return current time", async () => {
       mockYouTubePlayer.getCurrentTime = vi.fn().mockReturnValue(45);
-      const currentTime = await service.getCurrentTime();
-      expect(currentTime).toBe(45);
+      const time = await service.getCurrentTime();
+      expect(time).toBe(45);
       expect(mockYouTubePlayer.getCurrentTime).toHaveBeenCalledOnce();
     });
 
@@ -143,7 +143,7 @@ describe("YouTubePlayerService", () => {
   describe("Sync-Specific Methods", () => {
     it("should sync to playback state", async () => {
       const playbackState: PlaybackState = {
-        currentTime: 60,
+        time: 60,
         isPlaying: true,
         duration: 120,
         volume: 0.8,
@@ -158,7 +158,7 @@ describe("YouTubePlayerService", () => {
 
     it("should sync to paused state", async () => {
       const playbackState: PlaybackState = {
-        currentTime: 30,
+        time: 30,
         isPlaying: false,
         duration: 120,
         volume: 0.8,
@@ -179,7 +179,7 @@ describe("YouTubePlayerService", () => {
       const detailedState = await service.getDetailedState();
 
       expect(detailedState).toEqual({
-        currentTime: 45,
+        time: 45,
         isPlaying: true,
         duration: 120,
         volume: 1, // Default volume

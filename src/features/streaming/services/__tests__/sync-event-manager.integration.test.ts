@@ -45,7 +45,7 @@ describe("SyncEventManager Integration", () => {
         const event: PlaybackEvent = {
           type: i % 2 === 0 ? "play" : "pause",
           timestamp: Date.now() + i * 100,
-          currentTime: i * 10,
+          time: i * 10,
           hostUserId: "host-123",
           eventId: `rapid-event-${i}`,
           metadata: {},
@@ -71,7 +71,7 @@ describe("SyncEventManager Integration", () => {
       const event1: PlaybackEvent = {
         type: "play",
         timestamp: Date.now(),
-        currentTime: 120,
+        time: 120,
         hostUserId: "host-123",
         eventId: "offline-event-1",
         metadata: {},
@@ -80,7 +80,7 @@ describe("SyncEventManager Integration", () => {
       const event2: PlaybackEvent = {
         type: "pause",
         timestamp: Date.now() + 1000,
-        currentTime: 125,
+        time: 125,
         hostUserId: "host-123",
         eventId: "offline-event-2",
         metadata: {},
@@ -115,7 +115,7 @@ describe("SyncEventManager Integration", () => {
       ].map(({ eventId, timestamp }) => ({
         type: "seek" as const,
         timestamp,
-        currentTime: 120,
+        time: 120,
         hostUserId: "host-123",
         eventId,
         metadata: { seekFrom: 100 },
@@ -165,7 +165,7 @@ describe("SyncEventManager Integration", () => {
       const event: PlaybackEvent = {
         type: "play",
         timestamp: Date.now(),
-        currentTime: 120,
+        time: 120,
         hostUserId: "host-123",
         eventId: "error-event",
         metadata: {},
@@ -185,7 +185,7 @@ describe("SyncEventManager Integration", () => {
       const event: PlaybackEvent = {
         type: "play",
         timestamp: Date.now(),
-        currentTime: 120,
+        time: 120,
         hostUserId: "host-123",
         eventId: "duplicate-test",
         metadata: {},
@@ -214,7 +214,7 @@ describe("SyncEventManager Integration", () => {
         const event: PlaybackEvent = {
           type: "seek",
           timestamp: Date.now() + i,
-          currentTime: i,
+          time: i,
           hostUserId: "host-123",
           eventId: `perf-event-${i}`,
           metadata: {},
@@ -228,7 +228,7 @@ describe("SyncEventManager Integration", () => {
         syncEventManager.isDuplicateEvent({
           type: "seek",
           timestamp: Date.now(),
-          currentTime: 500,
+          time: 500,
           hostUserId: "host-123",
           eventId: "perf-event-500",
           metadata: {},
@@ -248,7 +248,7 @@ describe("SyncEventManager Integration", () => {
         newManager.isDuplicateEvent({
           type: "seek",
           timestamp: Date.now(),
-          currentTime: 500,
+          time: 500,
           hostUserId: "host-123",
           eventId: "perf-event-500",
           metadata: {},

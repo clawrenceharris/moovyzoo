@@ -33,7 +33,7 @@ describe("SyncEventManager", () => {
     mockEvent = {
       type: "play",
       timestamp: Date.now(),
-      currentTime: 120,
+      time: 120,
       hostUserId: "host-123",
       eventId: "event-123",
       metadata: {},
