@@ -4,15 +4,20 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { HabitatHero } from "./HabitatHero";
 import { HabitatDiscussions } from "./HabitatDiscussions";
+import { HabitatPolls } from "./HabitatPolls";
 import { HabitatStreams } from "./HabitatStreams";
 import { HabitatInfo } from "./HabitatInfo";
+import { PollVotingModal } from "./PollVotingModal";
 import { LoadingState, ErrorState } from "@/components";
 import type { HabitatDashboardData } from "../domain/habitats.types";
 import { getUserErrorMessage } from "@/utils/normalize-error";
 import { useHabitatDashboard } from "@/hooks/queries/use-habitat-queries";
 import useModal from "@/hooks/use-modal";
 import { StreamCreationForm } from "@/features/streaming/components/StreamCreationForm";
+import { PollCreationModal } from "./PollCreationModal";
 import { useJoinStream, useLeaveStream } from "@/features/streaming";
+import { useVotePoll } from "@/hooks/mutations/use-discussion-mutations";
+import type { PollWithVotes } from "../domain/habitats.types";
 
 interface HabitatDashboardProps {
   habitatId: string;
@@ -53,6 +58,44 @@ export function HabitatDashboard({
     ),
   });
 
+  // Poll creation modal state
+  const [isPollModalOpen, setIsPollModalOpen] = React.useState(false);
+  const [votingPoll, setVotingPoll] = React.useState<PollWithVotes | null>(null);
+
+  const openPollCreationModal = () => setIsPollModalOpen(true);
+  const closePollCreationModal = () => setIsPollModalOpen(false);
+
+  const openVotingModal = (poll: PollWithVotes) => setVotingPoll(poll);
+  const closeVotingModal = () => setVotingPoll(null);
+
+  const handlePollSuccess = () => {
+    closePollCreationModal();
+    refetch(); // Refresh the dashboard to show the new poll
+  };
+
+  const { mutate: votePoll } = useVotePoll(habitatId, {
+    onSuccess: () => {
+      closeVotingModal();
+      refetch(); // Refresh the dashboard to show updated vote counts
+    },
+  });
+
+  const handleVote = async (pollId: string, option: string) => {
+    return new Promise<void>((resolve, reject) => {
+      votePoll(
+        { pollId, option, userId },
+        {
+          onSuccess: () => {
+            resolve();
+          },
+          onError: (error) => {
+            reject(error);
+          },
+        }
+      );
+    });
+  };
+
   // Show loading state
   if (isLoading) {
     return (
@@ -80,6 +123,21 @@ export function HabitatDashboard({
     return (
       <div className={`flex flex-col h-full bg-background ${className}`}>
         {streamCreationModal}
+        <PollCreationModal
+          isOpen={isPollModalOpen}
+          onClose={closePollCreationModal}
+          habitatId={habitatId}
+          userId={userId}
+          onSuccess={handlePollSuccess}
+        />
+        {votingPoll && (
+          <PollVotingModal
+            isOpen={!!votingPoll}
+            onClose={closeVotingModal}
+            poll={votingPoll}
+            onVote={handleVote}
+          />
+        )}
         {/* Breadcrumb Navigation */}
         <div className="border-b border-border  px-6 py-3 backdrop-blur-md">
           <nav className="flex items-center gap-2 text-sm">
@@ -115,6 +173,7 @@ export function HabitatDashboard({
             <HabitatHero
               habitat={data.habitat}
               onStartStream={openStreamCreationModal}
+              onCreatePoll={openPollCreationModal}
             />
           </div>
 
@@ -153,6 +212,20 @@ export function HabitatDashboard({
                     );
                   }}
                 />
+
+                {/* Active Polls Section - Only show for members */}
+                {data.habitat.is_member && (
+                  <HabitatPolls
+                    polls={data.polls}
+                    loading={isLoading}
+                    onPollClick={(pollId) => {
+                      const poll = data.polls.find(p => p.id === pollId);
+                      if (poll) {
+                        openVotingModal(poll);
+                      }
+                    }}
+                  />
+                )}
               </div>
 
               {/* Sidebar */}

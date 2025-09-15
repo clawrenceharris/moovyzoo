@@ -2,7 +2,7 @@
 inclusion: always
 ---
 
-# Testing Standards - Zoovie
+# Testing Standards - MoovyZoo
 
 ## Testing Architecture
 

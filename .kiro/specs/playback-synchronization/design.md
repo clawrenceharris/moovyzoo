@@ -531,4 +531,4 @@ interface SyncConflictResolver {
 - Implement garbage collection for old events
 - Optimize state management for long sessions
 
-This design provides a comprehensive foundation for implementing robust, real-time playback synchronization that integrates seamlessly with the existing Zoovie streaming infrastructure while handling the complexities of network latency, error recovery, and multi-participant coordination.
+This design provides a comprehensive foundation for implementing robust, real-time playback synchronization that integrates seamlessly with the existing MoovyZoo streaming infrastructure while handling the complexities of network latency, error recovery, and multi-participant coordination.

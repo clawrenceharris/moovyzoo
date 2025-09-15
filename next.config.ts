@@ -32,6 +32,11 @@ const nextConfig: NextConfig = {
         hostname: 'img.freepik.com',
         pathname: '/**', // for Freepik images
       },
+      {
+        protocol: 'https',
+        hostname: 'wallpapers.com',
+        pathname: '/**', // for wallpapers.com images
+      }
     ],
   },
 };

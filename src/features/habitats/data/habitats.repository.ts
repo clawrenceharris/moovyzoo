@@ -271,6 +271,93 @@ export class HabitatsRepository {
   }
 
   /**
+   * Get public habitats that the user hasn't joined yet
+   */
+  async getPublicHabitats(
+    userId: string,
+    limit: number = 12
+  ): Promise<HabitatWithMembership[]> {
+    try {
+      // First get user's joined habitat IDs
+      const { data: userHabitats, error: userError } = await supabase
+        .from("habitat_members")
+        .select("habitat_id")
+        .eq("user_id", userId);
+
+      if (userError) {
+        throw userError;
+      }
+
+      const joinedHabitatIds = userHabitats?.map(h => h.habitat_id) || [];
+
+      // Then get public habitats excluding user's joined ones
+      let query = supabase
+        .from("habitats")
+        .select("*")
+        .eq("is_public", true)
+        .order("member_count", { ascending: false })
+        .limit(limit);
+
+      if (joinedHabitatIds.length > 0) {
+        query = query.not("id", "in", joinedHabitatIds);
+      }
+
+      const { data: habitats, error } = await query;
+
+      if (error) {
+        throw error;
+      }
+
+      return habitats.map((habitat) =>
+        this.mapDatabaseToHabitatWithMembership(habitat, false)
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get popular public habitats (ordered by member count)
+   */
+  async getPopularHabitats(
+    userId?: string,
+    limit: number = 8
+  ): Promise<HabitatWithMembership[]> {
+    try {
+      let query = supabase
+        .from("habitats")
+        .select(
+          `
+          *,
+          habitat_members!left(user_id, joined_at, last_active)
+        `
+        )
+        .eq("is_public", true)
+        .order("member_count", { ascending: false })
+        .limit(limit);
+
+      // If userId is provided, include membership info
+      if (userId) {
+        query = query.eq("habitat_members.user_id", userId);
+      }
+
+      const { data: habitats, error } = await query;
+
+      if (error) {
+        throw error;
+      }
+
+      return habitats.map((habitat) => {
+        const membership = habitat.habitat_members?.[0];
+        const isMember = !!membership && !!userId;
+        return this.mapDatabaseToHabitatWithMembership(habitat, isMember);
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
    * Get all members of a habitat
    */
   async getHabitatMembers(habitatId: string): Promise<HabitatMember[]> {
@@ -743,7 +830,8 @@ export class HabitatsRepository {
     description: string | null,
     tags: string[],
     isPublic: boolean,
-    createdBy: string
+    createdBy: string,
+    bannerUrl?: string | null
   ): Promise<Habitat> {
     try {
       const { data: habitat, error } = await supabase
@@ -754,6 +842,7 @@ export class HabitatsRepository {
           tags: tags,
           is_public: isPublic,
           created_by: createdBy,
+          banner_url: bannerUrl?.trim() || null,
           member_count: 1, // Creator is automatically a member
         })
         .select()
@@ -1153,6 +1242,57 @@ export class HabitatsRepository {
       if (error) {
         throw error;
       }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Vote on a poll
+   */
+  async votePoll(pollId: string, option: string, userId: string): Promise<Poll> {
+    try {
+      // First, get the current poll to check if it exists and get current options
+      const { data: currentPoll, error: fetchError } = await supabase
+        .from("habitat_polls")
+        .select("*")
+        .eq("id", pollId)
+        .eq("is_active", true)
+        .single();
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      if (!currentPoll) {
+        throw new Error("Poll not found or is not active");
+      }
+
+      // Check if the option exists
+      const options = currentPoll.options as Record<string, number>;
+      if (!(option in options)) {
+        throw new Error("Invalid poll option");
+      }
+
+      // Increment the vote count for the selected option
+      const updatedOptions = { ...options };
+      updatedOptions[option] = updatedOptions[option] + 1;
+
+      // Update the poll with new vote counts
+      const { data: updatedPoll, error: updateError } = await supabase
+        .from("habitat_polls")
+        .update({ 
+          options: updatedOptions
+        })
+        .eq("id", pollId)
+        .select()
+        .single();
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      return this.mapDatabaseToPoll(updatedPoll);
     } catch (error) {
       throw error;
     }

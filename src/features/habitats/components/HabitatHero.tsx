@@ -33,10 +33,14 @@ export function HabitatHero({
                 fill
                 className="object-cover"
                 priority
+                unoptimized
               />
             )}
           </div>
         </div>
+
+        {/* Dark Overlay for Text Readability */}
+        <div className="absolute inset-0 bg-black/50 z-10" />
 
         {/* Content Overlay */}
         <div className="absolute bottom-0 items-center inset-0 z-30 flex flex-col  text-center">

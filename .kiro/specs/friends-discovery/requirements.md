@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Friends Discovery feature enables users to connect with other Zoovie users by viewing public profiles, sending friend requests, and building a social network within the platform. This feature transforms Zoovie from a solo viewing experience into a social platform where users can discover like-minded movie and TV enthusiasts, share their viewing preferences, and build connections based on shared interests.
+The Friends Discovery feature enables users to connect with other MoovyZoo users by viewing public profiles, sending friend requests, and building a social network within the platform. This feature transforms MoovyZoo from a solo viewing experience into a social platform where users can discover like-minded movie and TV enthusiasts, share their viewing preferences, and build connections based on shared interests.
 
 The feature includes profile discovery, friend request management, watch history tracking, and enhanced profile pages that showcase user preferences and viewing activity.
 
@@ -10,7 +10,7 @@ The feature includes profile discovery, friend request management, watch history
 
 ### Requirement 1
 
-**User Story:** As a Zoovie user, I want to discover other users with similar movie and TV interests, so that I can connect with like-minded viewers and expand my social network.
+**User Story:** As a MoovyZoo user, I want to discover other users with similar movie and TV interests, so that I can connect with like-minded viewers and expand my social network.
 
 #### Acceptance Criteria
 

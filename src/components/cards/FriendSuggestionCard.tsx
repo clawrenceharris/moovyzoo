@@ -121,6 +121,7 @@ export function FriendSuggestionCard({
               alt={`${suggestion.display_name} avatar`}
               fill
               className="object-cover"
+              unoptimized
             />
           ) : (
             // Fallback gradient background

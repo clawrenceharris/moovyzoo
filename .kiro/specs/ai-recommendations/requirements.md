@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This feature implements an AI-powered recommendation system that suggests both content (movies and TV shows) and potential friends to users based on their preferences, viewing history, and social connections. The system will display personalized recommendations as UI cards on the home page, providing users with intelligent suggestions to enhance their Zoovie experience.
+This feature implements an AI-powered recommendation system that suggests both content (movies and TV shows) and potential friends to users based on their preferences, viewing history, and social connections. The system will display personalized recommendations as UI cards on the home page, providing users with intelligent suggestions to enhance their MoovyZoo experience.
 
 The recommendation system consists of two main components: a Content Recommendation Agent that suggests movies and TV shows, and a Friend Suggestion Agent that identifies users with similar tastes. Both agents will use explainable AI techniques to provide transparent reasoning for their suggestions.
 
@@ -10,7 +10,7 @@ The recommendation system consists of two main components: a Content Recommendat
 
 ### Requirement 1: Content Recommendation System
 
-**User Story:** As a Zoovie user, I want to receive personalized movie and TV show recommendations based on my preferences and viewing history, so that I can discover new content that matches my taste.
+**User Story:** As a MoovyZoo user, I want to receive personalized movie and TV show recommendations based on my preferences and viewing history, so that I can discover new content that matches my taste.
 
 #### Acceptance Criteria
 
@@ -26,7 +26,7 @@ The recommendation system consists of two main components: a Content Recommendat
 
 ### Requirement 2: Friend Suggestion System
 
-**User Story:** As a Zoovie user, I want to discover other users with similar movie and TV show preferences, so that I can connect with like-minded people and expand my social network.
+**User Story:** As a MoovyZoo user, I want to discover other users with similar movie and TV show preferences, so that I can connect with like-minded people and expand my social network.
 
 #### Acceptance Criteria
 
@@ -41,7 +41,7 @@ The recommendation system consists of two main components: a Content Recommendat
 
 ### Requirement 3: Session-Based Caching System
 
-**User Story:** As a Zoovie user, I want my recommendations to load quickly and remain consistent during my session, so that I have a smooth browsing experience without repeated loading delays.
+**User Story:** As a MoovyZoo user, I want my recommendations to load quickly and remain consistent during my session, so that I have a smooth browsing experience without repeated loading delays.
 
 #### Acceptance Criteria
 
@@ -54,7 +54,7 @@ The recommendation system consists of two main components: a Content Recommendat
 
 ### Requirement 4: Homepage Integration
 
-**User Story:** As a Zoovie user, I want to see my personalized recommendations prominently displayed on my home page, so that I can quickly discover new content and potential friends when I visit the platform.
+**User Story:** As a MoovyZoo user, I want to see my personalized recommendations prominently displayed on my home page, so that I can quickly discover new content and potential friends when I visit the platform.
 
 #### Acceptance Criteria
 
@@ -83,7 +83,7 @@ The recommendation system consists of two main components: a Content Recommendat
 
 ### Requirement 6: Privacy and Security Controls
 
-**User Story:** As a Zoovie user, I want my privacy to be respected in the recommendation system, so that my personal data is only used appropriately and I have control over my visibility to others.
+**User Story:** As a MoovyZoo user, I want my privacy to be respected in the recommendation system, so that my personal data is only used appropriately and I have control over my visibility to others.
 
 #### Acceptance Criteria
 

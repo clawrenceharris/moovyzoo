@@ -50,6 +50,7 @@ function MessageItem({ message, isCurrentUser }: MessageItemProps) {
             width={32}
             height={32}
             className="w-8 h-8 rounded-full object-cover border border-border"
+            unoptimized
           />
         ) : (
           <div className="w-8 h-8 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center">

@@ -185,7 +185,7 @@ export function ProfileDiscovery({ initialProfiles = [], initialPagination }: Pr
       <EmptyState
         variant="card"
         title="No Profiles Found"
-        description="There are no public profiles to discover at the moment. Check back later or invite friends to join Zoovie!"
+        description="There are no public profiles to discover at the moment. Check back later or invite friends to join MoovyZoo!"
         actionLabel="Refresh"
         onAction={handleRefresh}
         icon={<Users className="w-12 h-12 text-muted-foreground" />}

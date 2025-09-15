@@ -85,7 +85,7 @@
   }
 
   .media-card-banner::after {
-    @apply bg-background/50 absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent;
+    @apply bg-background/20 absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent;
     content: "";
   }
 

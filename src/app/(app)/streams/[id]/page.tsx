@@ -105,7 +105,7 @@ export async function generateMetadata({
 
   if (!data?.stream) {
     return {
-      title: "Stream Not Found - Zoovie",
+      title: "Stream Not Found - MoovyZoo",
       description: "This Stream could not be found.",
     };
   }
@@ -116,8 +116,8 @@ export async function generateMetadata({
   // For private sessions, use generic metadata to protect privacy
   if (visibility.type === "private") {
     return {
-      title: "Private Stream - Zoovie",
-      description: "Join your friends for a private Stream on Zoovie.",
+      title: "Private Stream - MoovyZoo",
+      description: "Join your friends for a private Stream on MoovyZoo.",
       robots: "noindex, nofollow",
     };
   }
@@ -125,7 +125,7 @@ export async function generateMetadata({
   const title = `${stream.media_title} - Stream`;
   const description =
     stream.description ||
-    `Join the Stream for ${stream.media_title} on Zoovie.`;
+    `Join the Stream for ${stream.media_title} on MoovyZoo.`;
 
   const metadata: Metadata = {
     title,
@@ -134,7 +134,7 @@ export async function generateMetadata({
       title,
       description,
       type: "website",
-      siteName: "Zoovie",
+      siteName: "MoovyZoo",
     },
     twitter: {
       card: "summary_large_image",

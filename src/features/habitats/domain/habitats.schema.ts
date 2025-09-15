@@ -70,10 +70,18 @@ export const createHabitatSchema = z.object({
   isPublic: z.boolean().default(true),
 });
 
+// Banner URL validation schema
+export const bannerUrlSchema = z
+  .string()
+  .url("Please enter a valid URL")
+  .optional()
+  .or(z.literal(""));
+
 // Form schema without tags validation (handled separately in component)
 export const createHabitatFormSchema = z.object({
   name: habitatNameSchema,
   description: habitatDescriptionSchema.optional(),
+  bannerUrl: bannerUrlSchema,
   isPublic: z.boolean(),
 });
 

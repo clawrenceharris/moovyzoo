@@ -31,18 +31,20 @@ export function useCreateHabitat(
       tags: string[];
       isPublic: boolean;
       userId: string;
+      bannerUrl?: string;
     },
     unknown
   > = {}
 ) {
   return useBaseCreateMutation(
-    async ({ name, description, tags, isPublic, userId }) => {
+    async ({ name, description, tags, isPublic, userId, bannerUrl }) => {
       return await habitatsService.createHabitat(
         name,
         description,
         tags,
         isPublic,
-        userId
+        userId,
+        bannerUrl
       );
     },
     {

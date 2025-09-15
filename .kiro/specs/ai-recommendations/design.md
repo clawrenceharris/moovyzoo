@@ -2,7 +2,7 @@
 
 ## Overview
 
-The AI Recommendations feature implements a dual-agent system that provides personalized content and friend suggestions to users. The system leverages existing TMDB integration (`src/features/ai-chat/utils/tmdb-tools.ts`), existing watch history repository (`src/features/profile/data/watch-history.repository.ts`), and existing friends system (`src/features/profile/data/friends.repository.ts`). The feature follows Zoovie's established architectural patterns and integrates seamlessly with the current home page structure.
+The AI Recommendations feature implements a dual-agent system that provides personalized content and friend suggestions to users. The system leverages existing TMDB integration (`src/features/ai-chat/utils/tmdb-tools.ts`), existing watch history repository (`src/features/profile/data/watch-history.repository.ts`), and existing friends system (`src/features/profile/data/friends.repository.ts`). The feature follows MoovyZoo's established architectural patterns and integrates seamlessly with the current home page structure.
 
 The system consists of two main AI agents: a Content Recommendation Agent that reuses existing TMDB tools, and a Friend Suggestion Agent that builds on existing friend and profile repositories. Both agents provide explainable recommendations with transparent scoring and rationale, requiring minimal new database changes.
 
@@ -34,7 +34,7 @@ graph TB
 
 ### Component Architecture
 
-The feature follows Zoovie's established patterns:
+The feature follows MoovyZoo's established patterns:
 
 - **API Layer**: Next.js API routes for recommendation endpoints
 - **Service Layer**: Business logic for recommendation algorithms

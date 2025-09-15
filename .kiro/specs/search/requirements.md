@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Search feature enables users to explore and find content across three key areas of the Zoovie platform: habitats (themed community spaces), other users (for social connections), and shows/movies (for entertainment discovery). This feature serves as a central hub for content discovery, helping users expand their social network, find new communities to join, and discover new entertainment content to watch and discuss.
+The Search feature enables users to explore and find content across three key areas of the MoovyZoo platform: habitats (themed community spaces), other users (for social connections), and shows/movies (for entertainment discovery). This feature serves as a central hub for content discovery, helping users expand their social network, find new communities to join, and discover new entertainment content to watch and discuss.
 
 The feature will be implemented as a dedicated search page with tabbed navigation, providing focused search experiences for each content type while maintaining a consistent and intuitive user interface.
 

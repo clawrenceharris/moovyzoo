@@ -7,7 +7,7 @@ fileMatch: "*.css"
 
 ---
 
-# UI Standards – Zoovie (Tailwind v4 + Shadcn UI First)
+# UI Standards – MoovyZoo (Tailwind v4 + Shadcn UI First)
 
 > We now **prioritize Shadcn UI** for select components (tabs, dialogs, popovers, cards, input, etc). Tailwind v4 for styling engine (tokens in CSS via `@theme`) with a modular, reusable class strategy.
 >

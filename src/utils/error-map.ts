@@ -1,6 +1,6 @@
 /**
  * Error message mapping for user-friendly error display
- * Maps AppErrorCode to user-facing messages with Zoovie's brand voice
+ * Maps AppErrorCode to user-facing messages with MoovyZoo's brand voice
  */
 
 import { AppErrorCode } from "./error-codes";
@@ -11,7 +11,7 @@ export interface ErrorMessage {
 }
 
 /**
- * User-friendly error messages with Zoovie's witty but compassionate tone
+ * User-friendly error messages with MoovyZoo's witty but compassionate tone
  * All messages are ≤140 characters and action-oriented
  */
 export const errorMap: Record<AppErrorCode, ErrorMessage> = {

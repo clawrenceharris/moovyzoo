@@ -9,7 +9,7 @@ fileMatch: "page.tsx"
 
 ---
 
-# Visual Design System – Zoovie
+# Visual Design System – MoovyZoo
 
 _Modern, sleek design for young adults with the cinematic elegance of Netflix, the community-based immersivenes of Discord and the spontaneous fun of Snapchat_
 

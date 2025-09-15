@@ -92,7 +92,7 @@ export default function FloatingSidebar() {
             />
           </span>
           {expanded && (
-            <span className="text-sm font-semibold tracking-wide">Ask Zoovie AI</span>
+            <span className="text-sm font-semibold tracking-wide">Ask MoovyZoo AI</span>
           )}
         </button>
 

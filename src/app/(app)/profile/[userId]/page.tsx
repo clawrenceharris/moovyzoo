@@ -8,8 +8,8 @@ interface ProfilePageProps {
 }
 
 export const metadata: Metadata = {
-  title: "User Profile | Zoovie",
-  description: "View user profile on Zoovie",
+  title: "User Profile | MoovyZoo",
+  description: "View user profile on MoovyZoo",
 };
 
 export default async function UserProfilePage({ params }: ProfilePageProps) {
