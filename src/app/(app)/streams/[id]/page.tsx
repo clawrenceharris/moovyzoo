@@ -12,7 +12,7 @@ import type {
 import { StreamService } from "@/features/streaming";
 
 interface StreamingPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 interface StreamPageData {
@@ -100,7 +100,8 @@ async function getStreamData(id: string): Promise<StreamPageData | null> {
 export async function generateMetadata({
   params,
 }: StreamingPageProps): Promise<Metadata> {
-  const data = await getStreamData(params.id);
+  const { id } = await params;
+  const data = await getStreamData(id);
 
   if (!data?.stream) {
     return {
@@ -244,7 +245,7 @@ function StreamError({ error }: { error: Error }) {
 
 // Main page component with server-side rendering
 export default async function StreamingPage({ params }: StreamingPageProps) {
-  const { id } = params;
+  const { id } = await params;
   // Server-side data fetching
   const data = await getStreamData(id);
 

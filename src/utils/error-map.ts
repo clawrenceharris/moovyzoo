@@ -268,6 +268,24 @@ export const errorMap: Record<AppErrorCode, ErrorMessage> = {
     title: "Operation Failed",
     message: "The operation failed. Please try again.",
   },
+
+  // AI Recommendations Errors
+  [AppErrorCode.RECOMMENDATIONS_GENERATION_FAILED]: {
+    title: "Recommendations Unavailable",
+    message: "We couldn't generate recommendations right now. Please try again later.",
+  },
+  [AppErrorCode.TMDB_API_ERROR]: {
+    title: "Content Service Error",
+    message: "Our content service is having issues. Showing popular content instead.",
+  },
+  [AppErrorCode.INSUFFICIENT_USER_DATA]: {
+    title: "Not Enough Data",
+    message: "Add some favorites or watch history to get personalized recommendations!",
+  },
+  [AppErrorCode.RECOMMENDATION_CACHE_ERROR]: {
+    title: "Cache Error",
+    message: "Recommendation caching failed. Generating fresh recommendations.",
+  },
 };
 
 /**
