@@ -109,16 +109,17 @@ export function HabitatStreams({
       {hasParties ? (
         <div className="flex overflow-scroll flex-row p-7 gap-4">
           {sortedStreams.map((stream) => (
-            <StreamCard
-              key={stream.id}
-              userId={userId}
-              stream={stream}
-              onJoinClick={() => {
-                onJoinStream(stream.id);
-              }}
-              onLeaveClick={() => onLeaveStream(stream.id)}
-              onWatchClick={() => onEnterStream(stream.id)}
-            />
+            <div key={stream.id} className="flex-shrink-0 w-96 max-w-96">
+              <StreamCard
+                userId={userId}
+                stream={stream}
+                onJoinClick={() => {
+                  onJoinStream(stream.id);
+                }}
+                onLeaveClick={() => onLeaveStream(stream.id)}
+                onWatchClick={() => onEnterStream(stream.id)}
+              />
+            </div>
           ))}
         </div>
       ) : (

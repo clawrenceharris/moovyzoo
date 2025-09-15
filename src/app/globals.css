@@ -73,15 +73,24 @@
 
   /* Habitat Card Components */
   .media-card {
-    @apply p-2 relative overflow-hidden rounded-md bg-card border border-border/80 cursor-pointer transition-all duration-300 hover:scale-[1.02];
+    @apply relative overflow-hidden rounded-md bg-card border border-border/80 cursor-pointer transition-all duration-300 hover:scale-[1.02] w-full;
   }
 
   .media-card-banner {
-    @apply relative aspect-[16/10] overflow-hidden rounded-md;
+    @apply relative aspect-[16/10] overflow-hidden rounded-md w-full;
+  }
+
+  .content-recommendation-banner {
+    @apply relative aspect-[2/3] overflow-hidden rounded-md w-full;
   }
 
   .media-card-banner::after {
-    @apply bg-background/50 absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent;
+    @apply bg-background/20 absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent;
+    content: "";
+  }
+
+  .content-recommendation-banner::after {
+    @apply absolute inset-0;
     content: "";
   }
 
@@ -127,7 +136,7 @@
   }
 
   .loading-state-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6;
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6;
   }
 
   .loading-state-list {

@@ -98,7 +98,7 @@ export const WithCustomIcon: Story = {
   args: {
     variant: "default",
     title: "Connection Lost",
-    message: "Unable to connect to Zoovie servers.",
+    message: "Unable to connect to MoovyZoo servers.",
     icon: <Wifi className="w-12 h-12 text-destructive" />,
     onRetry: () => alert("Retry clicked!"),
   },

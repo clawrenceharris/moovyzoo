@@ -5,6 +5,7 @@ import type {
   StreamUpdate,
   StreamParticipant,
   ParticipantInsert,
+  StreamMessage,
 } from "../domain/stream.types";
 import { supabase } from "@/utils/supabase/client";
 
@@ -271,7 +272,7 @@ export class StreamingRepository {
       search?: string;
       status?: "upcoming" | "live" | "ended";
     } = {}
-  ): Promise<{ streams: StreamWithParticipants[]; total: number }> {
+  ): Promise<{ streams: Stream[]; total: number }> {
     try {
       const { limit = 20, offset = 0, search, status } = options;
 
@@ -324,16 +325,7 @@ export class StreamingRepository {
         return { streams: [], total: 0 };
       }
 
-      // Transform the data to match our interface
-      const transformedStreams: StreamWithParticipants[] = (streams || []).map(
-        (stream) => ({
-          ...stream,
-          participants: stream.participants || [],
-          is_participant: false, // Will be determined based on user context
-        })
-      );
-
-      return { streams: transformedStreams, total: count || 0 };
+      return { streams, total: count || 0 };
     } catch (error) {
       console.error("Error in getPublicStreams:", error);
       return { streams: [], total: 0 };
@@ -446,13 +438,11 @@ export class StreamingRepository {
    */
   private transformParticipantData(data: any): StreamParticipant {
     return {
-      id: data.id,
       stream_id: data.stream_id,
       user_id: data.user_id,
       joined_at: data.joined_at,
       is_host: data.is_host,
       reminder_enabled: data.reminder_enabled,
-      created_at: data.created_at,
       profile: data.profiles
         ? {
             display_name: data.profiles.display_name,
@@ -497,13 +487,11 @@ export class StreamingRepository {
       }
 
       return {
-        id: data.id,
         stream_id: data.stream_id,
         user_id: data.user_id,
         joined_at: data.joined_at,
         is_host: data.is_host,
         reminder_enabled: data.reminder_enabled,
-        created_at: data.created_at,
         profile: data.user_profiles
           ? {
               display_name: (data.user_profiles as any).display_name,
@@ -553,13 +541,11 @@ export class StreamingRepository {
       }
 
       return {
-        id: data.id,
         stream_id: data.stream_id,
         user_id: data.user_id,
         joined_at: data.joined_at,
         is_host: data.is_host,
         reminder_enabled: data.reminder_enabled,
-        created_at: data.created_at,
         profile: data.user_profiles
           ? {
               display_name: (data.user_profiles as any).display_name,
@@ -673,13 +659,11 @@ export class StreamingRepository {
       }
 
       return {
-        id: data.id,
         stream_id: data.stream_id,
         user_id: data.user_id,
         joined_at: data.joined_at,
         is_host: data.is_host,
         reminder_enabled: data.reminder_enabled,
-        created_at: data.created_at,
         profile: data.user_profiles
           ? {
               display_name: (data.user_profiles as any).display_name,
@@ -770,6 +754,133 @@ export class StreamingRepository {
     }
   }
 
+  // ===== CHAT REPOSITORY METHODS =====
+
+  /**
+   * Send a chat message to a stream
+   */
+  async sendMessage(messageData: {
+    stream_id: string;
+    user_id: string;
+    message: string;
+  }): Promise<StreamMessage> {
+    try {
+      const { data, error } = await supabase
+        .from("stream_messages")
+        .insert({
+          stream_id: messageData.stream_id,
+          user_id: messageData.user_id,
+          message: messageData.message.trim(),
+        })
+        .select(
+          `
+          id,
+          stream_id,
+          user_id,
+          message,
+          created_at,
+          user_profiles:user_id (
+            display_name,
+            avatar_url
+          )
+        `
+        )
+        .single();
+
+      if (error) {
+        throw new Error(`Failed to send message: ${error.message}`);
+      }
+
+      return {
+        id: data.id,
+        stream_id: data.stream_id,
+        user_id: data.user_id,
+        message: data.message,
+        created_at: data.created_at,
+        profile: data.user_profiles
+          ? {
+              display_name: (data.user_profiles as any).display_name,
+              avatar_url: (data.user_profiles as any).avatar_url,
+            }
+          : undefined,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get chat messages for a stream
+   */
+  async getStreamMessages(
+    streamId: string,
+    limit: number = 50
+  ): Promise<StreamMessage[]> {
+    try {
+      const { data, error } = await supabase
+        .from("stream_messages")
+        .select(
+          `
+          id,
+          stream_id,
+          user_id,
+          message,
+          created_at,
+          user_profiles:user_id (
+            display_name,
+            avatar_url
+          )
+        `
+        )
+        .eq("stream_id", streamId)
+        .order("created_at", { ascending: false })
+        .limit(limit);
+
+      if (error) {
+        console.error("Error fetching stream messages:", error);
+        return [];
+      }
+
+      return (data || [])
+        .map((message) => ({
+          id: message.id,
+          stream_id: message.stream_id,
+          user_id: message.user_id,
+          message: message.message,
+          created_at: message.created_at,
+          profile: message.user_profiles
+            ? {
+                display_name: (message.user_profiles as any).display_name,
+                avatar_url: (message.user_profiles as any).avatar_url,
+              }
+            : undefined,
+        }))
+        .reverse(); // Return in chronological order (oldest first)
+    } catch (error) {
+      console.error("Error in getStreamMessages:", error);
+      return [];
+    }
+  }
+
+  /**
+   * Delete a chat message (only by sender)
+   */
+  async deleteMessage(messageId: string, userId: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from("stream_messages")
+        .delete()
+        .eq("id", messageId)
+        .eq("user_id", userId);
+
+      if (error) {
+        throw new Error(`Failed to delete message: ${error.message}`);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // ===== PLAYBACK SYNCHRONIZATION REPOSITORY METHODS =====
 
   /**
@@ -778,7 +889,7 @@ export class StreamingRepository {
   async updatePlaybackState(
     streamId: string,
     playbackState: {
-      currentTime?: number;
+      time?: number;
       isPlaying?: boolean;
     }
   ): Promise<void> {
@@ -787,8 +898,8 @@ export class StreamingRepository {
         last_sync_at: new Date().toISOString(),
       };
 
-      if (playbackState.currentTime !== undefined) {
-        updateData.current_time = Math.floor(playbackState.currentTime);
+      if (playbackState.time !== undefined) {
+        updateData.time = Math.floor(playbackState.time);
       }
 
       if (playbackState.isPlaying !== undefined) {
@@ -812,14 +923,14 @@ export class StreamingRepository {
    * Get current playback state for a stream
    */
   async getPlaybackState(streamId: string): Promise<{
-    currentTime: number;
+    time: number;
     isPlaying: boolean;
     lastSyncAt: string;
   } | null> {
     try {
       const { data, error } = await supabase
         .from("streams")
-        .select("current_time, is_playing, last_sync_at")
+        .select("time, is_playing, last_sync_at")
         .eq("id", streamId)
         .maybeSingle();
 
@@ -833,7 +944,7 @@ export class StreamingRepository {
       }
 
       return {
-        currentTime: data.current_time || 0,
+        time: data.time || 0,
         isPlaying: data.is_playing || false,
         lastSyncAt: data.last_sync_at || new Date().toISOString(),
       };

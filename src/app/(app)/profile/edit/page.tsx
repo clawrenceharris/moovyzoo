@@ -4,8 +4,8 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Edit Profile | Zoovie",
-  description: "Edit your Zoovie profile information and preferences",
+  title: "Edit Profile | MoovyZoo",
+  description: "Edit your MoovyZoo profile information and preferences",
 };
 
 export default async function ProfileEditPage() {

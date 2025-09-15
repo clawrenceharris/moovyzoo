@@ -54,7 +54,8 @@ export function HabitatCreationForm({
         data.description || null,
         tags,
         data.isPublic,
-        userId
+        userId,
+        data.bannerUrl || null
       );
 
       if (onSuccess) {
@@ -107,6 +108,7 @@ export function HabitatCreationForm({
       defaultValues={{
         name: "",
         description: "",
+        bannerUrl: "",
         isPublic: true,
       }}
       description="Create a new habitat for movie and TV discussions"
@@ -143,6 +145,27 @@ export function HabitatCreationForm({
                     {...field}
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="bannerUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Banner Image URL (Optional)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="url"
+                    placeholder="https://example.com/banner-image.jpg"
+                    {...field}
+                  />
+                </FormControl>
+                <p className="text-sm text-muted-foreground">
+                  Add a banner image URL to make your habitat more visually appealing
+                </p>
                 <FormMessage />
               </FormItem>
             )}

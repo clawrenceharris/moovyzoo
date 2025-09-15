@@ -4,14 +4,15 @@ import type {
   StreamDashboardData,
   UserParticipationStatus,
   StreamParticipant,
-  CreateStreamData,
   Stream,
   ParticipantJoinData,
   ParticipantChangePayload,
+  StreamInsert,
 } from "./stream.types";
 import { AppErrorCode } from "@/utils/error-codes";
 import { createNormalizedError } from "@/utils/normalize-error";
 import { supabase } from "@/utils/supabase/client";
+import { CreateStreamFormInput } from "./stream.schema";
 
 /**
  * Service for streams business logic
@@ -19,20 +20,11 @@ import { supabase } from "@/utils/supabase/client";
 export class StreamService {
   private repository = new StreamingRepository();
 
-  async createStream(userId: string, data: CreateStreamData): Promise<Stream> {
+  async createStream(userId: string, data: StreamInsert): Promise<Stream> {
     try {
       const stream = await this.repository.createStream({
-        description: data.description,
-        scheduled_time: data.scheduledTime,
-        participant_count: 1, // Creator is automatically a participant
-        max_participants: data.maxParticipants,
+        ...data,
         created_by: userId,
-        tmdb_id: data.media.tmdb_id,
-        media_type: data.media.media_type,
-        media_title: data.media.media_title,
-        poster_path: data.media?.poster_path,
-        release_date: data.media?.release_date,
-        runtime: data.media?.runtime,
       });
 
       await this.repository.joinStream(stream.id, userId);
@@ -77,7 +69,6 @@ export class StreamService {
             : undefined
           : undefined,
       };
-      console.log({ participants });
       // Update streaming session with user participation status
       stream.is_participant = isParticipant;
 
@@ -254,7 +245,6 @@ export class StreamService {
         );
       }
       const data = await this.repository.getStreamParticipants(streamId);
-      console.log({ DATA: data });
       return data;
     } catch (error) {
       throw error;
@@ -354,7 +344,20 @@ export class StreamService {
     } = {}
   ): Promise<{ streams: StreamWithParticipants[]; total: number }> {
     try {
-      return await this.repository.getPublicStreams(options);
+      const { streams, total } = await this.repository.getPublicStreams(
+        options
+      );
+      const participantsWithProfiles = await Promise.all(
+        streams.map((stream) =>
+          this.repository.getParticipantsWithProfiles(stream.id)
+        )
+      );
+      const streamsWithParticipants = streams.map((stream, index) => ({
+        ...stream,
+        is_participant: false,
+        participants: participantsWithProfiles[index],
+      }));
+      return { streams: streamsWithParticipants, total };
     } catch (error) {
       throw error;
     }
@@ -477,13 +480,11 @@ export class StreamService {
 
       // Transform the response to match our interface
       const transformedParticipant: StreamParticipant = {
-        id: participant.id,
         stream_id: participant.stream_id,
         user_id: participant.user_id,
         joined_at: participant.joined_at,
         is_host: participant.is_host,
         reminder_enabled: participant.reminder_enabled,
-        created_at: participant.created_at,
       };
 
       return transformedParticipant;
@@ -623,8 +624,6 @@ export class StreamService {
       }
 
       return {
-        id: data.id,
-        created_at: data.created_at,
         stream_id: data.stream_id,
         user_id: data.user_id,
         joined_at: data.joined_at,
@@ -806,7 +805,7 @@ export class StreamService {
     streamId: string,
     userId: string,
     playbackState: {
-      currentTime?: number;
+      time?: number;
       isPlaying?: boolean;
     }
   ): Promise<void> {
@@ -846,7 +845,7 @@ export class StreamService {
    * Get current playback state for a stream
    */
   async getPlaybackState(streamId: string): Promise<{
-    currentTime: number;
+    time: number;
     isPlaying: boolean;
     lastSyncAt: string;
   } | null> {

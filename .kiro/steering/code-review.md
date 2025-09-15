@@ -6,7 +6,7 @@ inclusion: manual
 
 ## Overview
 
-The Habitats feature is the core social functionality of Zoovie, implementing a comprehensive system for movie/TV fan communities. The feature includes habitat management, real-time chat, discussions, polls, and streaming sessions. The implementation follows a clean architecture pattern with clear separation between data access, business logic, and presentation layers.
+The Habitats feature is the core social functionality of MoovyZoo, implementing a comprehensive system for movie/TV fan communities. The feature includes habitat management, real-time chat, discussions, polls, and streaming sessions. The implementation follows a clean architecture pattern with clear separation between data access, business logic, and presentation layers.
 
 ## Strengths
 

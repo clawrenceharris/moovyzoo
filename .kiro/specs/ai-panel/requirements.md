@@ -75,7 +75,7 @@ This feature adds an AI discussion sidebar to the application that provides user
 1. WHEN a user accesses the sidebar on mobile devices THEN the system SHALL display a full-screen overlay optimized for mobile
 2. WHEN a user accesses the sidebar on desktop THEN the system SHALL display a fixed-width sidebar (400px) that slides in from the right
 3. WHEN messages contain long text THEN the system SHALL wrap text appropriately and maintain readability
-4. WHEN the interface loads THEN the system SHALL use the Zoovie brand colors defined in globals.css (brand-red, brand-blue, brand-black, brand-grey)
+4. WHEN the interface loads THEN the system SHALL use the MoovyZoo brand colors defined in globals.css (brand-red, brand-blue, brand-black, brand-grey)
 5. WHEN users interact with buttons and inputs THEN the system SHALL provide appropriate hover and focus states using brand colors
 6. WHEN the FAB is displayed THEN the system SHALL use the primary brand red color (--brand-red-45) with proper hover effects
 

@@ -1,9 +1,9 @@
 export * from "./card";
 export * from "./carousel";
-export * from "./Button";
-export * from "./Form";
+export * from "./button";
+export * from "./form";
 export * from "./label";
-export * from "./Input";
+export * from "./input";
 export * from "./popover";
 
 export * from "./Modal";
@@ -16,3 +16,4 @@ export * from "./avatar";
 
 export * from "./tabs";
 export * from "./calendar";
+export * from "./visually-hidden";

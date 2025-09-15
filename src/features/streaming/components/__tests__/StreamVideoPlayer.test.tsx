@@ -7,7 +7,7 @@ import type { StreamMedia } from "../../domain/stream.types";
 vi.mock("../../hooks/use-playback-sync", () => ({
   usePlaybackSync: vi.fn(() => ({
     playbackState: {
-      currentTime: 0,
+      time: 0,
       isPlaying: false,
       duration: 0,
       volume: 1,
@@ -43,7 +43,7 @@ beforeEach(() => {
   HTMLVideoElement.prototype.requestFullscreen = vi.fn();
 
   // Mock video properties
-  Object.defineProperty(HTMLVideoElement.prototype, "currentTime", {
+  Object.defineProperty(HTMLVideoElement.prototype, "time", {
     get: vi.fn(() => 0),
     set: vi.fn(),
     configurable: true,

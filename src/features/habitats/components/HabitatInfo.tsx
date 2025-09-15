@@ -33,11 +33,11 @@ function MemberAvatar({
   }
   return (
     <div className="relative">
-      {profile.avatarUrl ? (
+      {profile.data?.avatarUrl ? (
         <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-background">
           <Image
-            src={profile.avatarUrl}
-            alt={`${profile.displayName || "Member"} avatar`}
+            src={profile.data?.avatarUrl}
+            alt={`${profile.data?.displayName || "Member"} avatar`}
             width={32}
             height={32}
             className="w-full h-full object-cover"
@@ -46,9 +46,9 @@ function MemberAvatar({
       ) : (
         <div className="flex gap-3 items-center">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-background flex items-center justify-center">
-            {profile.displayName ? (
+            {profile.data?.displayName ? (
               <span className="text-xs font-medium text-primary">
-                {profile.displayName.charAt(0).toUpperCase()}
+                {profile.data?.displayName.charAt(0).toUpperCase()}
               </span>
             ) : (
               <User />

@@ -93,7 +93,7 @@ interface StreamVideoPlayerProps {
 }
 
 interface PlaybackState {
-  currentTime: number;
+  time: number;
   isPlaying: boolean;
   duration: number;
   volume: number;
@@ -256,7 +256,7 @@ CREATE INDEX idx_stream_messages_stream ON stream_messages(stream_id, created_at
 
 ```sql
 -- Add playback synchronization columns
-ALTER TABLE habitat_watch_parties ADD COLUMN current_time INTEGER DEFAULT 0; -- seconds
+ALTER TABLE habitat_watch_parties ADD COLUMN time INTEGER DEFAULT 0; -- seconds
 ALTER TABLE habitat_watch_parties ADD COLUMN is_playing BOOLEAN DEFAULT false;
 ALTER TABLE habitat_watch_parties ADD COLUMN last_sync_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE habitat_watch_parties ADD COLUMN video_url TEXT; -- actual video content URL

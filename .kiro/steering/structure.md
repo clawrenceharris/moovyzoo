@@ -1,4 +1,4 @@
-# Structure Steering - Zoovie
+# Structure Steering - MoovyZoo
 
 ## Feature Architecture
 

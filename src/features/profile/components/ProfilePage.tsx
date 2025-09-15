@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { ProfileHeader } from "./ProfileHeader";
-import { ProfileStats } from "./ProfileStats";
 import { FavoriteTitles } from "./FavoriteTitles";
-import { RecentActivity } from "./RecentActivity";
 import { WatchHistory } from "./WatchHistory";
 import { LoadingState } from "@/components/states";
 import { ErrorState } from "@/components/states";
@@ -75,11 +73,6 @@ export function ProfilePage({ profile, isLoading, error, isOwnProfile = false }:
         <h2 className="text-xl font-semibold text-foreground mb-4">
           {isOwnProfile ? "Your Stats" : "Stats"}
         </h2>
-        <ProfileStats
-          badgesEarned={mockStats.badgesEarned}
-          bingeRacesWon={mockStats.bingeRacesWon}
-          habitatsJoined={mockStats.habitatsJoined}
-        />
       </section>
 
       {/* Content Grid */}
@@ -96,9 +89,6 @@ export function ProfilePage({ profile, isLoading, error, isOwnProfile = false }:
               isOwnProfile={isOwnProfile}
             />
           )}
-
-          {/* Recent Activity */}
-          <RecentActivity />
         </div>
       </div>
 

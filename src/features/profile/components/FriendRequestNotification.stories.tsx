@@ -1,10 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Bell } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 // Simple mock component that mimics the FriendRequestNotification behavior
-const MockFriendRequestNotification = ({ count, onOpenRequests }: { count: number; onOpenRequests: () => void }) => {
+const MockFriendRequestNotification = ({
+  count,
+  onOpenRequests,
+}: {
+  count: number;
+  onOpenRequests: () => void;
+}) => {
   if (count === 0) {
     return null;
   }
@@ -16,14 +22,14 @@ const MockFriendRequestNotification = ({ count, onOpenRequests }: { count: numbe
         size="icon"
         onClick={onOpenRequests}
         className="relative hover:bg-background/50"
-        aria-label={`${count} pending friend request${count === 1 ? '' : 's'}`}
+        aria-label={`${count} pending friend request${count === 1 ? "" : "s"}`}
       >
         <Bell className="size-5" />
         <Badge
           variant="destructive"
           className="absolute -top-1 -right-1 size-5 p-0 text-xs font-medium flex items-center justify-center min-w-5"
         >
-          {count > 99 ? '99+' : count}
+          {count > 99 ? "99+" : count}
         </Badge>
       </Button>
     </div>

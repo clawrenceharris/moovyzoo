@@ -31,13 +31,13 @@ await service.pause();
 await service.seekTo(30); // Seek to 30 seconds
 
 // Get state
-const currentTime = await service.getCurrentTime();
+const time = await service.getCurrentTime();
 const playerState = await service.getPlayerState();
 const isPlaying = playerState === YT_PLAYER_STATE.PLAYING;
 
 // Sync to remote state
 await service.syncToState({
-  currentTime: 60,
+  time: 60,
   isPlaying: true,
   duration: 120,
   volume: 1,

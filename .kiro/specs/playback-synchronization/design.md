@@ -113,7 +113,7 @@ interface PlaybackEvent {
     | "buffer_start"
     | "buffer_end";
   timestamp: number;
-  currentTime: number;
+  time: number;
   hostUserId: string;
   eventId: string; // For deduplication
   metadata?: {
@@ -270,7 +270,7 @@ The existing streams table is extended with additional sync-related columns:
 
 ```sql
 -- Additional columns for playback synchronization
-ALTER TABLE streams ADD COLUMN IF NOT EXISTS current_time INTEGER DEFAULT 0;
+ALTER TABLE streams ADD COLUMN IF NOT EXISTS time INTEGER DEFAULT 0;
 ALTER TABLE streams ADD COLUMN IF NOT EXISTS is_playing BOOLEAN DEFAULT false;
 ALTER TABLE streams ADD COLUMN IF NOT EXISTS last_sync_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE streams ADD COLUMN IF NOT EXISTS video_url TEXT;
@@ -290,7 +290,7 @@ CREATE TABLE playback_events (
   event_type TEXT NOT NULL CHECK (event_type IN ('play', 'pause', 'seek', 'sync_request', 'buffer_start', 'buffer_end')),
   event_id TEXT NOT NULL UNIQUE, -- For deduplication
   timestamp_ms BIGINT NOT NULL, -- Unix timestamp in milliseconds
-  current_time INTEGER NOT NULL, -- Video position in seconds
+  time INTEGER NOT NULL, -- Video position in seconds
   metadata JSONB DEFAULT '{}',
   created_at TIMESTAMP DEFAULT NOW(),
 
@@ -307,7 +307,7 @@ TypeScript interfaces for sync state:
 
 ```typescript
 interface PlaybackState {
-  currentTime: number;
+  time: number;
   isPlaying: boolean;
   duration: number;
   volume: number;
@@ -531,4 +531,4 @@ interface SyncConflictResolver {
 - Implement garbage collection for old events
 - Optimize state management for long sessions
 
-This design provides a comprehensive foundation for implementing robust, real-time playback synchronization that integrates seamlessly with the existing Zoovie streaming infrastructure while handling the complexities of network latency, error recovery, and multi-participant coordination.
+This design provides a comprehensive foundation for implementing robust, real-time playback synchronization that integrates seamlessly with the existing MoovyZoo streaming infrastructure while handling the complexities of network latency, error recovery, and multi-participant coordination.

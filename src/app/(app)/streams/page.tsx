@@ -3,10 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/use-user";
-import {
-  usePublicStreams,
-  useUserStreams,
-} from "@/features/streaming/hooks/use-stream-queries";
+import { usePublicStreams } from "@/features/streaming/hooks/use-stream-queries";
 import { StreamCard } from "@/components/cards/StreamCard";
 import { LoadingState, ErrorState, EmptyState } from "@/components/states";
 import { SearchInput } from "@/components/ui/SearchInput";
@@ -18,7 +15,8 @@ import { Pagination } from "@/components/ui/Pagination";
 import { Button } from "@/components/ui";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
-import { useJoinStream, useLeaveStream } from "@/features/streaming";
+import useModal from "@/hooks/use-modal";
+import { StreamCreationForm } from "@/features/habitats/components";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -53,9 +51,8 @@ export default function StreamsPage() {
     data: streamsData,
     isLoading,
     error,
-    refetch,
+    refetch: refetchStreams,
   } = usePublicStreams(user.id, queryOptions);
-
   // Reset to first page when filters change
   React.useEffect(() => {
     setCurrentPage(1);
@@ -64,16 +61,27 @@ export default function StreamsPage() {
   const streams = streamsData?.streams || [];
   const totalStreams = streamsData?.total || 0;
   const totalPages = Math.ceil(totalStreams / ITEMS_PER_PAGE);
-  const { mutate: joinStream } = useJoinStream();
-  const { mutate: leaveStream } = useLeaveStream();
 
+  const {
+    closeModal: closeStreamCreationModal,
+    openModal: openStreamCreationModal,
+    modal: streamCreationModal,
+  } = useModal({
+    title: "Create Stream",
+    children: (
+      <StreamCreationForm
+        isLoading={isLoading}
+        onSuccess={() => {
+          closeStreamCreationModal();
+          refetchStreams();
+        }}
+        onCancel={() => closeStreamCreationModal}
+        userId={user.id}
+      />
+    ),
+  });
   const handleStreamNavigation = (streamId: string) => {
     router.push(`/streams/${streamId}`);
-  };
-
-  const handleCreateStream = () => {
-    // Navigate to stream creation - this would typically be in a habitat context
-    router.push("/habitats");
   };
 
   const handleSearchClear = () => {
@@ -103,15 +111,15 @@ export default function StreamsPage() {
         <ErrorState
           title="Failed to load Streams"
           message="We couldn't load the Streams. Please check your connection and try again."
-          onRetry={refetch}
+          onRetry={refetchStreams}
           variant="card"
         />
       </div>
     );
   }
-
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      {streamCreationModal}
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -121,7 +129,7 @@ export default function StreamsPage() {
             available
           </p>
         </div>
-        <Button onClick={handleCreateStream} className="gap-2">
+        <Button onClick={openStreamCreationModal} className="gap-2">
           <Plus className="h-4 w-4" />
           Create Stream
         </Button>
@@ -169,30 +177,6 @@ export default function StreamsPage() {
         </div>
       ) : streams.length === 0 && !isLoading ? (
         <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold">Streams</h1>
-            <Button onClick={handleCreateStream} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Create Stream
-            </Button>
-          </div>
-
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-8">
-            <div className="flex-1">
-              <SearchInput
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder="Search Streams..."
-                onClear={handleSearchClear}
-              />
-            </div>
-            <StatusFilter
-              value={statusFilter}
-              onChange={handleStatusFilterChange}
-            />
-          </div>
-
           <EmptyState
             title={isFiltered ? "No Streams found" : "No Streams yet"}
             description={
@@ -207,24 +191,19 @@ export default function StreamsPage() {
                     setSearchQuery("");
                     setStatusFilter("all");
                   }
-                : handleCreateStream
+                : openStreamCreationModal
             }
             variant="default"
           />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6 mb-8">
           {streams.map((stream) => (
             <StreamCard
               key={stream.id}
+              onJoinClick={refetchStreams}
+              onLeaveClick={refetchStreams}
               stream={stream}
-              onJoinClick={() => {
-                joinStream({ streamId: stream.id, userId: user.id });
-                // Handle join action - this would typically use mutation hooks
-              }}
-              onLeaveClick={() => {
-                leaveStream({ streamId: stream.id, userId: user.id });
-              }}
               onWatchClick={() => handleStreamNavigation(stream.id)}
               userId={user.id}
             />

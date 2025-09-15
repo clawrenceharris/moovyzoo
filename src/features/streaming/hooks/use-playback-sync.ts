@@ -13,7 +13,7 @@ interface UsePlaybackSyncProps {
   streamId: string;
   userId: string;
   isHost: boolean;
-  youtubePlayerRef?: React.RefObject<YouTubePlayer>;
+  youtubePlayerRef?: React.RefObject<YouTubePlayer | null>;
 }
 
 interface PlaybackSyncState {
@@ -30,14 +30,8 @@ interface PlaybackSyncState {
   requestSync: () => Promise<void>;
   forceSync: () => Promise<void>;
   clearError: () => void;
-
-  // Legacy methods (maintained for backward compatibility)
-  broadcastPlaybackState: (state: Partial<PlaybackState>) => Promise<void>;
-  handleIncomingSync: (
-    incomingState: Partial<PlaybackState>,
-    currentState: PlaybackState
-  ) => void;
-  setConnectionStatus: (connected: boolean) => void;
+  startPlayback: () => void;
+  updatePlaybackState: (state: Partial<PlaybackState>) => void;
 }
 
 const SYNC_TOLERANCE = 0.5; // seconds
@@ -60,8 +54,9 @@ export function usePlaybackSync({
   isHost,
   youtubePlayerRef,
 }: UsePlaybackSyncProps): PlaybackSyncState {
+  // Removed render loop log
   const [playbackState, setPlaybackState] = useState<PlaybackState>({
-    currentTime: 0,
+    time: 0,
     isPlaying: false,
     duration: 0,
     volume: 1,
@@ -76,6 +71,7 @@ export function usePlaybackSync({
   const [error, setError] = useState<string | null>(null);
 
   const subscriptionRef = useRef<any>(null);
+  const channelRef = useRef<any>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const processedEventsRef = useRef<Set<string>>(new Set());
 
@@ -98,50 +94,104 @@ export function usePlaybackSync({
   const applySyncToPlayer = useCallback(
     async (event: PlaybackEvent): Promise<void> => {
       const player = getYouTubePlayer();
-      if (!player) return;
+      setPlaybackState((prev) => ({
+        ...prev,
+        time: event.time,
+        isPlaying: event.type === "play",
+      }));
+      console.log("🎯 applySyncToPlayer called:", {
+        streamId,
+        event,
+        hasPlayer: !!player,
+        userId,
+      });
+
+      if (!player) {
+        console.log("No YouTube player available for sync");
+        return;
+      }
 
       try {
         const lagCompensation = calculateLagCompensation(event.timestamp);
-        const adjustedTime = event.currentTime + lagCompensation;
+        const adjustedTime = event.time + lagCompensation;
+
+        console.log("⚡ Applying sync:", {
+          eventType: event.type,
+          originalTime: event.time,
+          lagCompensation,
+          adjustedTime,
+        });
 
         switch (event.type) {
           case "play":
             await player.seekTo(adjustedTime, true);
             player.playVideo();
+            console.log("▶️ Player started");
             break;
           case "pause":
             await player.seekTo(adjustedTime, true);
             player.pauseVideo();
+            console.log("⏸️ Player paused");
             break;
           case "seek":
             await player.seekTo(adjustedTime, true);
+            console.log("⏩ Player seeked");
             break;
         }
 
         setPlaybackState((prev) => ({
           ...prev,
-          currentTime: adjustedTime,
+          time: adjustedTime,
           isPlaying: event.type === "play",
         }));
 
         setLastSyncAt(new Date());
         setSyncStatus("connected");
         setError(null);
+        console.log("✅ Sync applied successfully");
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Unknown YouTube API error";
+        console.error("❌ Error applying sync:", err);
         setError(errorMessage);
         setSyncStatus("error");
       }
     },
-    [getYouTubePlayer, calculateLagCompensation]
+    [getYouTubePlayer, calculateLagCompensation, streamId, userId]
   );
 
   // Set up real-time subscription
   useEffect(() => {
+    console.log("🔌 Setting up real-time subscription:", {
+      streamId,
+      userId,
+      isHost,
+    });
+
     const channel = supabase.channel(`stream:${streamId}:playback`);
+    channelRef.current = channel;
 
     channel
+      .on("broadcast", { event: "playback_sync" }, (payload) => {
+        console.log("📢 Received broadcast event:", {
+          streamId,
+          isHost,
+          payload: payload.payload,
+          userId,
+        });
+
+        if (!isHost && payload.payload) {
+          console.log("🎯 Processing broadcast sync for participant");
+          const playbackEvent: PlaybackEvent = {
+            type: payload.payload.type,
+            timestamp: payload.payload.timestamp,
+            time: payload.payload.time,
+            hostUserId: payload.payload.hostUserId,
+            eventId: payload.payload.eventId,
+          };
+          processIncomingEvent(playbackEvent);
+        }
+      })
       .on(
         "postgres_changes",
         {
@@ -151,26 +201,61 @@ export function usePlaybackSync({
           filter: `id=eq.${streamId}`,
         },
         (payload) => {
+          console.log("📨 Received real-time update:", {
+            streamId,
+            isHost,
+            payload: payload.new,
+            userId,
+          });
+
           // Handle incoming playback sync
           const newState = payload.new;
           if (newState && !isHost) {
-            handleIncomingSync(
-              {
-                currentTime: newState.current_time,
-                isPlaying: newState.is_playing,
-              },
-              playbackState
-            );
+            console.log("🔄 Processing incoming sync for participant");
+
+            // Create a playback event from the database update
+            const playbackEvent: PlaybackEvent = {
+              type: newState.is_playing ? "play" : "pause",
+              timestamp: Date.now(),
+              time: newState.time || 0,
+              hostUserId: "database-sync",
+              eventId: `db-sync-${Date.now()}`,
+            };
+
+            console.log("🎯 Applying sync from database:", playbackEvent);
+            processIncomingEvent(playbackEvent);
+          } else if (isHost) {
+            console.log("⏭️ Skipping sync - user is host");
           }
         }
       )
-      .subscribe((status) => {
+      .subscribe((status, err) => {
+        console.log("📡 Subscription status changed:", {
+          streamId,
+          userId,
+          isHost,
+          status,
+          error: err,
+        });
+
         if (status === "SUBSCRIBED") {
+          console.log("✅ Successfully subscribed to real-time updates");
           setIsConnected(true);
           setSyncStatus("connected");
         } else if (status === "CHANNEL_ERROR") {
+          console.log("❌ Channel error - connection failed:", err);
           setIsConnected(false);
           setSyncStatus("error");
+          setError(`Subscription error: ${err?.message || "Unknown error"}`);
+        } else if (status === "TIMED_OUT") {
+          console.log("⏰ Subscription timed out");
+          setIsConnected(false);
+          setSyncStatus("error");
+          setError("Subscription timed out");
+        } else if (status === "CLOSED") {
+          console.log("🔒 Subscription closed");
+          setIsConnected(false);
+          setSyncStatus("disconnected");
         }
       });
 
@@ -184,44 +269,68 @@ export function usePlaybackSync({
         clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [streamId, isHost, playbackState]);
+  }, [streamId, isHost, playbackState, applySyncToPlayer]);
 
   // Enhanced broadcast method with debouncing
   const broadcastPlaybackEvent = useCallback(
     async (event: PlaybackEvent) => {
-      if (!isHost) return;
+      console.log("📡 broadcastPlaybackEvent called");
 
-      // Clear existing debounce timer
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
+      if (!isHost) {
+        console.log("❌ Not broadcasting - user is not host");
+        return;
       }
 
       // Debounce rapid events
-      debounceTimerRef.current = setTimeout(async () => {
-        try {
-          setSyncStatus("syncing");
+      try {
+        console.log("🚀 Broadcasting to database:");
+        console.log({
+          streamId,
+          time: event.time,
+          isPlaying: event.type === "play",
+          eventType: event.type,
+        });
 
-          await supabase
-            .from("streams")
-            .update({
-              current_time: event.currentTime,
-              is_playing: event.type === "play",
-              last_sync_at: new Date().toISOString(),
-            })
-            .eq("id", streamId)
-            .select();
+        setSyncStatus("syncing");
 
-          setLastSyncAt(new Date());
-          setSyncStatus("connected");
-          setError(null);
-        } catch (err) {
-          const errorMessage =
-            err instanceof Error ? err.message : "Broadcast failed";
-          setError(errorMessage);
-          setSyncStatus("error");
-          console.error("Error broadcasting playback event:", err);
+        const result = await supabase
+          .from("streams")
+          .update({
+            time: event.time,
+            is_playing: event.type === "play",
+            last_sync_at: new Date().toISOString(),
+          })
+          .eq("id", streamId)
+          .select();
+
+        console.log("✅ Database update result:", result);
+
+        // Also broadcast the event directly to participants
+        if (channelRef.current) {
+          console.log("📢 Broadcasting event directly to participants");
+          channelRef.current.send({
+            type: "broadcast",
+            event: "playback_sync",
+            payload: {
+              type: event.type,
+              time: event.time,
+              timestamp: event.timestamp,
+              hostUserId: event.hostUserId,
+              eventId: event.eventId,
+            },
+          });
         }
-      }, DEBOUNCE_DELAY);
+
+        setLastSyncAt(new Date());
+        setSyncStatus("connected");
+        setError(null);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Broadcast failed";
+        console.error("❌ Error broadcasting playback event:", err);
+        setError(errorMessage);
+        setSyncStatus("error");
+      }
     },
     [isHost, streamId]
   );
@@ -229,8 +338,17 @@ export function usePlaybackSync({
   // Process incoming sync events
   const processIncomingEvent = useCallback(
     async (event: PlaybackEvent) => {
+      console.log("📥 processIncomingEvent called:", {
+        streamId,
+        isHost,
+        event,
+        userId,
+        isDuplicate: processedEventsRef.current.has(event.eventId),
+      });
+
       // Prevent processing duplicate events
       if (processedEventsRef.current.has(event.eventId)) {
+        console.log("⏭️ Skipping duplicate event:", event.eventId);
         return;
       }
       processedEventsRef.current.add(event.eventId);
@@ -241,11 +359,10 @@ export function usePlaybackSync({
         processedEventsRef.current = new Set(eventsArray.slice(-50));
       }
 
-      if (isHost) return; // Hosts don't process incoming events
-
+      console.log("🎯 Applying sync to player:", event);
       await applySyncToPlayer(event);
     },
-    [isHost, applySyncToPlayer]
+    [isHost, applySyncToPlayer, streamId, userId]
   );
 
   // Request sync from host
@@ -255,7 +372,7 @@ export function usePlaybackSync({
     const syncRequestEvent: PlaybackEvent = {
       type: "sync_request",
       timestamp: Date.now(),
-      currentTime: 0,
+      time: 0,
       hostUserId: userId,
       eventId: `sync-request-${Date.now()}`,
     };
@@ -269,13 +386,13 @@ export function usePlaybackSync({
     if (!player) return;
 
     try {
-      const currentTime = player.getCurrentTime();
+      const time = player.getCurrentTime();
       const isPlaying = player.getPlayerState() === YT_PLAYER_STATE.PLAYING;
 
       const forceSyncEvent: PlaybackEvent = {
         type: isPlaying ? "play" : "pause",
         timestamp: Date.now(),
-        currentTime,
+        time,
         hostUserId: userId,
         eventId: `force-sync-${Date.now()}`,
       };
@@ -287,6 +404,41 @@ export function usePlaybackSync({
       setError(errorMessage);
     }
   }, [getYouTubePlayer, userId, applySyncToPlayer]);
+  const startPlayback = useCallback(() => {
+    const player = getYouTubePlayer();
+
+    console.log("🚀 startPlayback called:", {
+      streamId,
+      userId,
+      isHost,
+      hasPlayer: !!player,
+    });
+
+    if (!player) {
+      console.log("❌ No YouTube player available for startPlayback");
+      return;
+    }
+
+    try {
+      console.log("▶️ Calling player.playVideo()");
+      player.playVideo();
+      console.log("✅ playVideo() called successfully");
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "startPlayback failed";
+      console.error("❌ Error in startPlayback:", err);
+      setError(errorMessage);
+    }
+  }, [getYouTubePlayer, streamId, userId, isHost]);
+
+  // Update playback state (for host to sync with their own actions)
+  const updatePlaybackState = useCallback((state: Partial<PlaybackState>) => {
+    console.log("🔄 Updating playback state:", state);
+    setPlaybackState((prev) => ({
+      ...prev,
+      ...state,
+    }));
+  }, []);
 
   // Clear error state
   const clearError = useCallback(() => {
@@ -296,39 +448,9 @@ export function usePlaybackSync({
     }
   }, [syncStatus]);
 
-  // Legacy method for backward compatibility
-  const broadcastPlaybackState = useCallback(
-    async (state: Partial<PlaybackState>) => {
-      if (!isHost) return;
-
-      const event: PlaybackEvent = {
-        type: state.isPlaying ? "play" : "pause",
-        timestamp: Date.now(),
-        currentTime: state.currentTime || 0,
-        hostUserId: userId,
-        eventId: `legacy-${Date.now()}`,
-      };
-
-      await broadcastPlaybackEvent(event);
-    },
-    [isHost, userId, broadcastPlaybackEvent]
-  );
-
   const handleIncomingSync = useCallback(
     (incomingState: Partial<PlaybackState>, currentState: PlaybackState) => {
-      // Apply sync tolerance to prevent micro-adjustments
-      if (
-        incomingState.currentTime !== undefined &&
-        currentState.currentTime !== undefined
-      ) {
-        const timeDiff = Math.abs(
-          incomingState.currentTime - currentState.currentTime
-        );
-        if (timeDiff < SYNC_TOLERANCE) {
-          return; // Skip sync if within tolerance
-        }
-      }
-
+      console.log("Incoming Sync!");
       setPlaybackState((prev) => ({
         ...prev,
         ...incomingState,
@@ -357,10 +479,7 @@ export function usePlaybackSync({
     requestSync,
     forceSync,
     clearError,
-
-    // Legacy methods (backward compatibility)
-    broadcastPlaybackState,
-    handleIncomingSync,
-    setConnectionStatus,
+    startPlayback,
+    updatePlaybackState,
   };
 }

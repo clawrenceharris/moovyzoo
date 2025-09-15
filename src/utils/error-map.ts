@@ -1,6 +1,6 @@
 /**
  * Error message mapping for user-friendly error display
- * Maps AppErrorCode to user-facing messages with Zoovie's brand voice
+ * Maps AppErrorCode to user-facing messages with MoovyZoo's brand voice
  */
 
 import { AppErrorCode } from "./error-codes";
@@ -11,7 +11,7 @@ export interface ErrorMessage {
 }
 
 /**
- * User-friendly error messages with Zoovie's witty but compassionate tone
+ * User-friendly error messages with MoovyZoo's witty but compassionate tone
  * All messages are ≤140 characters and action-oriented
  */
 export const errorMap: Record<AppErrorCode, ErrorMessage> = {
@@ -267,6 +267,24 @@ export const errorMap: Record<AppErrorCode, ErrorMessage> = {
   [AppErrorCode.OPERATION_FAILED]: {
     title: "Operation Failed",
     message: "The operation failed. Please try again.",
+  },
+
+  // AI Recommendations Errors
+  [AppErrorCode.RECOMMENDATIONS_GENERATION_FAILED]: {
+    title: "Recommendations Unavailable",
+    message: "We couldn't generate recommendations right now. Please try again later.",
+  },
+  [AppErrorCode.TMDB_API_ERROR]: {
+    title: "Content Service Error",
+    message: "Our content service is having issues. Showing popular content instead.",
+  },
+  [AppErrorCode.INSUFFICIENT_USER_DATA]: {
+    title: "Not Enough Data",
+    message: "Add some favorites or watch history to get personalized recommendations!",
+  },
+  [AppErrorCode.RECOMMENDATION_CACHE_ERROR]: {
+    title: "Cache Error",
+    message: "Recommendation caching failed. Generating fresh recommendations.",
   },
 };
 

@@ -77,6 +77,12 @@ export enum AppErrorCode {
   PROFILE_NOT_PUBLIC = "PROFILE_NOT_PUBLIC",
   WATCH_HISTORY_INVALID = "WATCH_HISTORY_INVALID",
 
+  // AI Recommendations Errors
+  RECOMMENDATIONS_GENERATION_FAILED = "RECOMMENDATIONS_GENERATION_FAILED",
+  TMDB_API_ERROR = "TMDB_API_ERROR",
+  INSUFFICIENT_USER_DATA = "INSUFFICIENT_USER_DATA",
+  RECOMMENDATION_CACHE_ERROR = "RECOMMENDATION_CACHE_ERROR",
+
   // Generic Errors
   UNKNOWN_ERROR = "UNKNOWN_ERROR",
   INTERNAL_ERROR = "INTERNAL_ERROR",
@@ -535,5 +541,35 @@ export const errorMetadata: Record<AppErrorCode, ErrorMetadata> = {
     severity: ErrorSeverity.MEDIUM,
     retryable: true,
     userFacing: true,
+  },
+
+  // AI Recommendations Errors
+  [AppErrorCode.RECOMMENDATIONS_GENERATION_FAILED]: {
+    code: AppErrorCode.RECOMMENDATIONS_GENERATION_FAILED,
+    category: ErrorCategory.SYSTEM,
+    severity: ErrorSeverity.MEDIUM,
+    retryable: true,
+    userFacing: true,
+  },
+  [AppErrorCode.TMDB_API_ERROR]: {
+    code: AppErrorCode.TMDB_API_ERROR,
+    category: ErrorCategory.NETWORK,
+    severity: ErrorSeverity.MEDIUM,
+    retryable: true,
+    userFacing: true,
+  },
+  [AppErrorCode.INSUFFICIENT_USER_DATA]: {
+    code: AppErrorCode.INSUFFICIENT_USER_DATA,
+    category: ErrorCategory.BUSINESS_LOGIC,
+    severity: ErrorSeverity.LOW,
+    retryable: false,
+    userFacing: true,
+  },
+  [AppErrorCode.RECOMMENDATION_CACHE_ERROR]: {
+    code: AppErrorCode.RECOMMENDATION_CACHE_ERROR,
+    category: ErrorCategory.SYSTEM,
+    severity: ErrorSeverity.LOW,
+    retryable: true,
+    userFacing: false,
   },
 };

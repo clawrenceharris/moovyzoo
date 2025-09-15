@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button, FormLabel, Input } from "@/components/ui";
+import { Button, Input, Label } from "@/components/ui";
 import { Plus, X } from "lucide-react";
 import { habitatsService } from "../domain/habitats.service";
 import { normalizeError } from "@/utils/normalize-error";
@@ -168,7 +168,7 @@ export function PollCreationForm({
 
       {/* Poll Title */}
       <div className="space-y-2">
-        <FormLabel>Poll Title *</FormLabel>
+        <Label>Poll Title *</Label>
         <Input
           id="poll-title"
           type="text"
@@ -187,7 +187,7 @@ export function PollCreationForm({
 
       {/* Poll Options */}
       <div className="space-y-2">
-        <FormLabel>Poll Options *</FormLabel>
+        <Label>Poll Options *</Label>
         <div className="space-y-2">
           {formData.options.map((option, index) => (
             <div key={index} className="flex gap-2">

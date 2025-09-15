@@ -9,7 +9,7 @@ import type {
   DiscussionWithStats,
   Discussion,
   Poll,
-  CreateStreamData,
+  PollWithVotes,
 } from "./habitats.types";
 import { normalizeError } from "@/utils/normalize-error";
 import { AppErrorCode } from "@/types/error";
@@ -18,11 +18,13 @@ import { Permission } from "@/services/permission-types";
 import { withTransaction } from "@/utils/database-transaction";
 import {
   Stream,
+  StreamInsert,
   StreamParticipant,
   StreamWithParticipants,
 } from "@/features/streaming";
 import { StreamingRepository } from "@/features/streaming/data/stream.repository";
 import { streamService } from "@/features/streaming/domain/stream.service";
+import { CreateStreamFormInput } from "@/features/streaming/domain/stream.schema";
 
 /**
  * Service layer for habitats feature
@@ -79,6 +81,38 @@ export class HabitatsService {
       }
 
       return habitat;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get public habitats that the user hasn't joined yet
+   */
+  async getPublicHabitats(
+    userId: string,
+    limit: number = 12
+  ): Promise<HabitatWithMembership[]> {
+    try {
+      if (!userId) {
+        throw new Error("User ID is required");
+      }
+
+      return await habitatsRepository.getPublicHabitats(userId, limit);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get popular public habitats (ordered by member count)
+   */
+  async getPopularHabitats(
+    userId?: string,
+    limit: number = 8
+  ): Promise<HabitatWithMembership[]> {
+    try {
+      return await habitatsRepository.getPopularHabitats(userId, limit);
     } catch (error) {
       throw error;
     }
@@ -299,7 +333,7 @@ export class HabitatsService {
   async createHabitatStream(
     userId: string,
     habitatId: string,
-    data: CreateStreamData
+    data: StreamInsert
   ): Promise<Stream> {
     try {
       const stream = await streamService.createStream(userId, data);
@@ -703,6 +737,41 @@ export class HabitatsService {
   }
 
   /**
+   * Vote on a poll with validation
+   * Implements business logic for poll voting and access control
+   */
+  async votePoll(
+    pollId: string,
+    option: string,
+    userId: string
+  ): Promise<Poll> {
+    try {
+      if (!pollId || !option || !userId) {
+        throw new Error("Poll ID, option, and User ID are required");
+      }
+
+      // Get poll details first to validate habitat access
+      const poll = await habitatsRepository.getPollById(pollId);
+      
+      // Validate access to habitat - user must be a member to vote
+      // Use the same permission as dashboard access since voting is a basic member activity
+      await accessControlService.validateAccess(
+        userId,
+        poll.habitat_id,
+        Permission.READ_HABITAT,
+        "habitat"
+      );
+
+      // Vote on the poll
+      const updatedPoll = await habitatsRepository.votePoll(pollId, option, userId);
+
+      return updatedPoll;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
    * Create a new habitat with comprehensive validation and business logic
    * Uses transactions to ensure atomicity of habitat creation and member addition
    */
@@ -711,7 +780,8 @@ export class HabitatsService {
     description: string | null,
     tags: string[],
     isPublic: boolean,
-    userId: string
+    userId: string,
+    bannerUrl?: string | null
   ): Promise<Habitat> {
     try {
       if (!userId) {
@@ -727,7 +797,8 @@ export class HabitatsService {
             description,
             tags,
             isPublic,
-            userId
+            userId,
+            bannerUrl
           );
 
           // Log successful habitat creation
@@ -832,6 +903,7 @@ export class HabitatsService {
    */
   private async fetchDashboardComponents(habitatId: string): Promise<{
     discussions: DiscussionWithStats[];
+    polls: Poll[];
     streams: Stream[];
     members: HabitatMember[];
     stats: {
@@ -843,9 +915,10 @@ export class HabitatsService {
     recentActivity: MessageWithProfile[];
   }> {
     try {
-      const [discussions, streams, memberData, stats, recentActivity] =
+      const [discussions, polls, streams, memberData, stats, recentActivity] =
         await Promise.all([
           habitatsRepository.getDiscussionsByHabitat(habitatId),
+          habitatsRepository.getPollsByHabitat(habitatId),
           habitatsRepository.getStreamsByHabitat(habitatId),
           this.getMemberManagementData(habitatId),
           this.getHabitatStats(habitatId),
@@ -854,6 +927,7 @@ export class HabitatsService {
 
       return {
         discussions,
+        polls,
         streams,
         members: memberData.members,
         stats,
@@ -880,6 +954,7 @@ export class HabitatsService {
     habitat: HabitatWithMembership,
     components: {
       discussions: DiscussionWithStats[];
+      polls: Poll[];
       streams: Stream[];
       members: HabitatMember[];
       stats: {
@@ -905,11 +980,20 @@ export class HabitatsService {
     // Transform habitat data for dashboard
     const dashboardHabitat = this.transformHabitatForDashboard(habitat);
 
+    // Transform polls to include voting status
+    // Note: Without a dedicated votes table, we can't track individual user votes
+    // This is a simplified version that shows vote counts but not user voting status
+    const pollsWithVotes: PollWithVotes[] = components.polls.map(poll => ({
+      ...poll,
+      total_votes: Object.values(poll.options).reduce((sum, votes) => sum + votes, 0),
+      user_vote: undefined, // TODO: Implement proper user vote tracking with a votes table
+    }));
+
     // Create dashboard data object using composed data
     return {
       habitat: dashboardHabitat,
       discussions: components.discussions,
-      polls: [], // TODO: Implement polls in next subtask
+      polls: pollsWithVotes,
       streams: processedStreams,
       members: components.members,
       onlineMembers,
@@ -927,9 +1011,9 @@ export class HabitatsService {
   ): StreamWithParticipants[] {
     return streams.map((stream) => ({
       ...stream,
-
       participants: members.map((member) => ({
         ...member,
+
         user_id: userId,
         reminder_enabled: false,
         is_host: false,

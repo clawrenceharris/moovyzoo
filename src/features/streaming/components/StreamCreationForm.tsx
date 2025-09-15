@@ -4,14 +4,7 @@ import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MediaSearchField } from "@/components/media/MediaSearchField";
 import { habitatsService } from "../../habitats/domain/habitats.service";
-import {
-  createStreamFormSchema,
-  type CreateStreamFormInput,
-} from "../../habitats/domain/habitats.schema";
-import type {
-  CreateStreamFormData,
-  SelectedMedia,
-} from "../../habitats/domain/habitats.types";
+
 import {
   FormControl,
   FormField,
@@ -28,13 +21,18 @@ import {
   Label,
   FormDescription,
 } from "@/components";
-import { Stream } from "@/features/streaming";
+import { SelectedMedia, Stream } from "@/features/streaming";
 import { CalendarIcon, ChevronDownIcon } from "lucide-react";
 import { format, formatDate } from "date-fns";
 import { cn } from "@/lib/utils";
+import { streamService } from "../domain/stream.service";
+import {
+  CreateStreamFormInput,
+  createStreamFormSchema,
+} from "../domain/stream.schema";
 
 interface StreamCreationFormProps {
-  habitatId: string;
+  habitatId?: string;
   userId: string;
   isLoading: boolean;
   onSuccess: (stream: Stream) => void;
@@ -56,26 +54,38 @@ export function StreamCreationForm({
     const scheduledDateTime = new Date(
       `${normalizedDate}T${data.scheduledTime}`
     );
-    const maxParticipants = data.maxParticipants?.trim()
-      ? parseInt(data.maxParticipants.trim())
-      : undefined;
 
-    const stream = await habitatsService.createHabitatStream(
-      userId,
-      habitatId,
+    if (habitatId) {
+      const stream = await habitatsService.createHabitatStream(
+        userId,
+        habitatId,
 
-      {
-        description: data.description?.trim() || undefined,
-        scheduledTime: scheduledDateTime.toISOString(),
-        maxParticipants,
-        media: data.media,
-      }
-    );
-
-    onSuccess(stream);
+        {
+          description: data.description,
+          scheduled_time: scheduledDateTime.toISOString(),
+          max_participants: data.maxParticipants
+            ? parseInt(data.maxParticipants)
+            : undefined,
+          created_by: userId,
+          ...data.media,
+        }
+      );
+      onSuccess(stream);
+    } else {
+      const stream = await streamService.createStream(userId, {
+        description: data.description,
+        scheduled_time: scheduledDateTime.toISOString(),
+        max_participants: data.maxParticipants
+          ? parseInt(data.maxParticipants)
+          : undefined,
+        created_by: userId,
+        ...data.media,
+      });
+      onSuccess(stream);
+    }
   };
   return (
-    <FormLayout<CreateStreamFormData>
+    <FormLayout<CreateStreamFormInput>
       resolver={zodResolver(createStreamFormSchema)}
       onSubmit={onSubmit}
       isLoading={isLoading}
@@ -100,7 +110,6 @@ export function StreamCreationForm({
               media_title: media.media_title,
               poster_path: media.poster_path,
               release_date: media.release_date,
-              runtime: media.runtime,
             });
           } else {
             resetField("media");
@@ -122,7 +131,6 @@ export function StreamCreationForm({
                         media_title: watchedValues.media.media_title,
                         poster_path: watchedValues.media.poster_path,
                         release_date: watchedValues.media.release_date,
-                        runtime: watchedValues.media.runtime,
                       }
                     : null
                 }

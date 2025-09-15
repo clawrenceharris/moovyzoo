@@ -200,6 +200,7 @@ export class ProfilesRepository {
 
       const publicProfiles = profiles.map((profile: any) => ({
         id: profile.id,
+        userId: profile.user_id, // Include userId for friend requests
         displayName: profile.display_name,
         avatarUrl: profile.avatar_url,
         favoriteGenres: profile.favorite_genres,

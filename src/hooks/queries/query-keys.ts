@@ -23,6 +23,10 @@ export const queryKeys = {
     stats: (id: string) => [...queryKeys.habitats.detail(id), "stats"] as const,
     userHabitats: (userId: string) =>
       [...queryKeys.habitats.all, "user", userId] as const,
+    publicHabitats: (userId: string, limit: number) =>
+      [...queryKeys.habitats.all, "public", userId, limit] as const,
+    popularHabitats: (userId?: string, limit?: number) =>
+      [...queryKeys.habitats.all, "popular", userId, limit] as const,
   },
 
   // Discussion-related queries
@@ -60,7 +64,7 @@ export const queryKeys = {
 
   // Streaming session-related queries
   streaming: {
-    all: ["streaming"] as const,
+    all: ["streams"] as const,
     byHabitat: (habitatId: string) =>
       [...queryKeys.streaming.all, "habitat", habitatId] as const,
     detail: (id: string) => [...queryKeys.streaming.all, "detail", id] as const,

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Habitats are social spaces within Zoovie surrounding a specifc movie or show where users can gather to discuss the movie/show, participate in interactive activities, and connect with like-minded fans. These spaces serve as the core community feature, transforming passive viewing into active social engagement through chat, polls, trivia, and AI-driven discussion prompts.
+Habitats are social spaces within MoovyZoo surrounding a specifc movie or show where users can gather to discuss the movie/show, participate in interactive activities, and connect with like-minded fans. These spaces serve as the core community feature, transforming passive viewing into active social engagement through chat, polls, trivia, and AI-driven discussion prompts.
 
 ## Requirements
 

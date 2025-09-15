@@ -36,7 +36,7 @@ export class SyncEventManager {
         event_type: event.type,
         event_id: event.eventId,
         timestamp_ms: event.timestamp,
-        current_time: event.currentTime,
+        time: event.time,
         metadata: event.metadata || {},
       });
 

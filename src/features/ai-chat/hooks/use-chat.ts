@@ -10,7 +10,7 @@ interface UseChatReturn extends ChatState {
   updateMessageStatus: (messageId: string, status: Message['status']) => void;
 }
 
-const STORAGE_KEY = 'Zoovie-ai-chat-messages';
+const STORAGE_KEY = 'MoovyZoo-ai-chat-messages';
 
 export const useChat = (): UseChatReturn => {
   const [messages, setMessages] = useState<Message[]>([]);

@@ -6,8 +6,8 @@ import type { Metadata } from "next";
 import { ProfileWithFriendStatus } from "@/features/profile/domain/profiles.types";
 
 export const metadata: Metadata = {
-  title: "Discover Profiles | Zoovie",
-  description: "Discover and connect with other Zoovie users",
+  title: "Discover Profiles | MoovyZoo",
+  description: "Discover and connect with other MoovyZoo users",
 };
 
 export default async function ProfileDiscoverPage() {
