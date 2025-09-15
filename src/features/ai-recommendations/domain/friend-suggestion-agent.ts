@@ -3,6 +3,28 @@ import type { FriendsRepository } from '@/features/profile/data/friends.reposito
 import type { WatchHistoryRepository } from '@/features/profile/data/watch-history.repository';
 import type { FriendSuggestion } from '../types/recommendations';
 import type { UserProfile, WatchHistoryEntry, PublicProfile } from '@/features/profile/domain/profiles.types';
+
+/**
+ * Interface for the subset of ProfilesRepository methods needed by FriendSuggestionAgent
+ */
+interface ProfilesRepositoryForAgent {
+  getPublicProfiles(currentUserId?: string, limit?: number, offset?: number): Promise<PublicProfile[]>;
+  getByUserId(userId: string): Promise<UserProfile | null>;
+}
+
+/**
+ * Interface for the subset of FriendsRepository methods needed by FriendSuggestionAgent
+ */
+interface FriendsRepositoryForAgent {
+  getFriends(userId: string): Promise<UserProfile[]>;
+}
+
+/**
+ * Interface for the subset of WatchHistoryRepository methods needed by FriendSuggestionAgent
+ */
+interface WatchHistoryRepositoryForAgent {
+  getRecentActivity(userId: string, limit?: number): Promise<WatchHistoryEntry[]>;
+}
 import { AppErrorCode } from '@/utils/error-codes';
 import { createNormalizedError } from '@/utils/normalize-error';
 
@@ -13,9 +35,9 @@ import { createNormalizedError } from '@/utils/normalize-error';
  */
 export class FriendSuggestionAgent {
   constructor(
-    private profilesRepository: ProfilesRepository,
-    private friendsRepository: FriendsRepository,
-    private watchHistoryRepository: WatchHistoryRepository
+    private profilesRepository: ProfilesRepositoryForAgent,
+    private friendsRepository: FriendsRepositoryForAgent,
+    private watchHistoryRepository: WatchHistoryRepositoryForAgent
   ) {}
 
   /**
@@ -85,7 +107,7 @@ export class FriendSuggestionAgent {
       const friendIds = new Set(existingFriends.map(friend => friend.userId));
 
       // Filter out existing friends
-      const candidates = publicProfiles.filter(profile => !friendIds.has(profile.id));
+      const candidates = publicProfiles.filter(profile => !friendIds.has(profile.userId));
       
       console.log(`[FriendSuggestionAgent] Found ${candidates.length} potential friend candidates`);
       return candidates;
@@ -114,16 +136,21 @@ export class FriendSuggestionAgent {
       ]);
 
       // Handle current user profile result
-      const currentUserProfile = currentUserProfileResult.status === 'fulfilled' 
+      const currentUserProfile = currentUserProfileResult.status === 'fulfilled' && currentUserProfileResult.value
         ? currentUserProfileResult.value 
         : {
+            id: 'temp-id',
+            userId,
+            email: '',
+            displayName: 'User',
+            username: null,
+            avatarUrl: null,
+            bio: null,
+            quote: null,
             favoriteGenres: [],
             favoriteTitles: [],
-            userId,
-            displayName: 'User',
-            email: '',
-            avatarUrl: null,
             isPublic: true,
+            onboardingCompleted: false,
             createdAt: new Date(),
             updatedAt: new Date()
           };
@@ -171,8 +198,9 @@ export class FriendSuggestionAgent {
 
           // Only include suggestions with some similarity (minimum 10% match)
           if (tasteMatchScore >= 10) {
+            console.log(`[FriendSuggestionAgent] Creating suggestion with user_id: ${candidate.userId} for candidate: ${candidate.displayName}`);
             suggestions.push({
-              user_id: candidate.id, // PublicProfile uses 'id' not 'userId'
+              user_id: candidate.userId, // Use userId for friend requests
               display_name: candidate.displayName,
               avatar_url: candidate.avatarUrl || undefined,
               taste_match_score: tasteMatchScore,
@@ -236,7 +264,7 @@ export class FriendSuggestionAgent {
     sharedGenres: string[];
     sharedTitles: string[];
     sharedHighRatedTitles: string[];
-    currentUserProfile: UserProfile;
+    currentUserProfile: UserProfile | any;
     candidateGenres: string[];
   }): number {
     const { sharedGenres, sharedTitles, sharedHighRatedTitles, currentUserProfile, candidateGenres } = params;

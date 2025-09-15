@@ -2,6 +2,7 @@ import type {
   Friend,
   FriendRequest,
   FriendStatus,
+  UserProfile,
 } from "../domain/profiles.types";
 import { createClient } from "@/utils/supabase/server";
 import { AppErrorCode } from "@/utils/error-codes";
@@ -250,6 +251,55 @@ export class FriendsServerRepository {
       createdAt: new Date(dbFriend.created_at),
       updatedAt: new Date(dbFriend.updated_at),
     };
+  }
+
+  /**
+   * Get friends list for a user (server-side)
+   */
+  async getFriends(userId: string): Promise<UserProfile[]> {
+    try {
+      const supabase = await createClient();
+      const { data: friendships, error } = await supabase
+        .from("friends")
+        .select(`
+          requester_id,
+          receiver_id,
+          requester:user_profiles!friends_requester_id_fkey (*),
+          receiver:user_profiles!friends_receiver_id_fkey (*)
+        `)
+        .or(`requester_id.eq.${userId},receiver_id.eq.${userId}`)
+        .eq('status', 'accepted');
+
+      if (error) {
+        throw error;
+      }
+
+      return friendships.map((friendship: any) => {
+        // Return the profile that is NOT the current user
+        const friendProfile = friendship.requester_id === userId 
+          ? friendship.receiver 
+          : friendship.requester;
+
+        return {
+          id: friendProfile.id,
+          userId: friendProfile.user_id,
+          email: friendProfile.email,
+          displayName: friendProfile.display_name,
+          username: friendProfile.username,
+          avatarUrl: friendProfile.avatar_url,
+          bio: friendProfile.bio,
+          quote: friendProfile.quote,
+          favoriteGenres: friendProfile.favorite_genres || [],
+          favoriteTitles: friendProfile.favorite_titles || [],
+          isPublic: friendProfile.is_public,
+          onboardingCompleted: friendProfile.onboarding_completed,
+          createdAt: new Date(friendProfile.created_at),
+          updatedAt: new Date(friendProfile.updated_at),
+        };
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 }
 

@@ -50,14 +50,16 @@ describe('FriendSuggestionAgent', () => {
       // Arrange
       const publicProfiles: PublicProfile[] = [
         {
-          id: 'user-2',
+          id: 'profile-2', // Row ID from user_profiles table
+          userId: 'user-2', // Actual user ID for friend requests
           displayName: 'User Two',
           avatarUrl: null,
           favoriteGenres: ['Action', 'Drama'],
           createdAt: new Date(),
         },
         {
-          id: 'user-3',
+          id: 'profile-3', // Row ID from user_profiles table
+          userId: 'user-3', // Actual user ID for friend requests
           displayName: 'User Three',
           avatarUrl: null,
           favoriteGenres: ['Comedy', 'Romance'],
@@ -134,7 +136,8 @@ describe('FriendSuggestionAgent', () => {
       };
 
       const candidateProfile: PublicProfile = {
-        id: 'user-2',
+        id: 'profile-2', // Row ID from user_profiles table
+        userId: 'user-2', // Actual user ID for friend requests
         displayName: 'Similar User',
         avatarUrl: null,
         favoriteGenres: ['Action', 'Drama'], // 2/3 shared genres
@@ -190,7 +193,8 @@ describe('FriendSuggestionAgent', () => {
       };
 
       const candidateProfile: PublicProfile = {
-        id: 'user-2',
+        id: 'profile-2', // Row ID from user_profiles table
+        userId: 'user-2', // Actual user ID for friend requests
         displayName: 'Action Fan',
         avatarUrl: null,
         favoriteGenres: ['Action'],

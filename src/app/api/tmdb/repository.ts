@@ -3,7 +3,7 @@ const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 
 // Lazy load API key to avoid issues during module import
 function getTMDBApiKey(): string {
-  const apiKey = process.env.TMDB_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
   
   if (!apiKey) {
     throw new Error(

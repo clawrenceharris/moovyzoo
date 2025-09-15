@@ -84,6 +84,7 @@ export interface UpdateProfileData {
 
 export interface PublicProfile {
   id: string;
+  userId: string; // Add userId field for friend requests
   displayName: string;
   avatarUrl?: string;
   favoriteGenres?: string[]; // Only if showFavoriteGenres is true

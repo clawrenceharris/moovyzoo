@@ -1,8 +1,8 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, Button } from "@/components/ui";
-import { UserPlus } from "lucide-react";
+import { UserPlus, Clock } from "lucide-react";
 import type { FriendSuggestion } from "@/features/ai-recommendations/types/recommendations";
 
 /**
@@ -13,10 +13,12 @@ export interface FriendSuggestionCardProps {
   suggestion: FriendSuggestion;
   /** Callback when the profile area is clicked, receives user_id */
   onProfileClick: (userId: string) => void;
-  /** Callback when the friend request button is clicked, receives user_id */
-  onSendFriendRequest: (userId: string) => void;
+  /** Callback when the friend request button is clicked, receives user_id (deprecated - handled internally) */
+  onSendFriendRequest?: (userId: string) => Promise<void>;
   /** Current user's ID to prevent self-friend requests */
   currentUserId: string;
+  /** Friend request status from parent component */
+  friendRequestStatus?: 'pending' | 'sent';
   /** Additional CSS classes to apply */
   className?: string;
 }
@@ -44,10 +46,13 @@ export interface FriendSuggestionCardProps {
 export function FriendSuggestionCard({
   suggestion,
   onProfileClick,
-  onSendFriendRequest,
+  onSendFriendRequest, // deprecated - handled internally
   currentUserId,
   className,
 }: FriendSuggestionCardProps) {
+  const [isRequestSent, setIsRequestSent] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleProfileClick = (event: React.MouseEvent) => {
     // Prevent navigation if clicking on action button
     if ((event.target as HTMLElement).closest('[data-testid="friend-action-button"]')) {
@@ -56,13 +61,49 @@ export function FriendSuggestionCard({
       return;
     }
 
+    console.log(`[FriendSuggestionCard] Profile click for ${suggestion.display_name} with user_id: ${suggestion.user_id}`);
     onProfileClick(suggestion.user_id);
   };
 
-  const handleFriendRequest = (event: React.MouseEvent) => {
+  const handleFriendRequest = async (event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    onSendFriendRequest(suggestion.user_id);
+    
+    if (isRequestSent || isLoading) {
+      return;
+    }
+
+    // Optimistically show "Request Sent" immediately
+    setIsRequestSent(true);
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('/api/friends', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ receiverId: suggestion.user_id }),
+      });
+
+      if (!response.ok) {
+        // If the request already exists (idempotency), keep optimistic state silently
+        if (response.status === 409) {
+          return; // keep optimistic state
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send friend request');
+      }
+
+      // Success - keep the optimistic state
+    } catch (error) {
+      console.error('Failed to send friend request:', error);
+      // Revert optimistic state on error (except for 409 conflicts)
+      setIsRequestSent(false);
+      // TODO: Add toast notification for error feedback
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -134,16 +175,30 @@ export function FriendSuggestionCard({
 
         {/* Friend Request Button */}
         <div className="pt-2">
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={handleFriendRequest}
-            className="w-full"
-            data-testid="friend-action-button"
-          >
-            <UserPlus className="w-3 h-3 mr-1" />
-            Add Friend
-          </Button>
+          {isRequestSent ? (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled
+              className="w-full opacity-60"
+              data-testid="friend-action-button"
+            >
+              <Clock className="w-3 h-3 mr-1" />
+              Request Sent
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleFriendRequest}
+              disabled={isLoading}
+              className="w-full"
+              data-testid="friend-action-button"
+            >
+              <UserPlus className="w-3 h-3 mr-1" />
+              {isLoading ? 'Sending...' : 'Add Friend'}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

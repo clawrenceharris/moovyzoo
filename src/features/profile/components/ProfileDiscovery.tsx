@@ -47,18 +47,18 @@ export function ProfileDiscovery({ initialProfiles = [], initialPagination }: Pr
 
   const loadProfiles = async (isInitial = false) => {
     const currentOffset = isInitial ? 0 : pagination.offset + pagination.limit;
-    
+
     if (isInitial) {
       setIsLoading(true);
     } else {
       setIsLoadingMore(true);
     }
-    
+
     setError(null);
 
     try {
       const response = await fetch(`/api/profiles/discover?limit=${pagination.limit}&offset=${currentOffset}`);
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to load profiles');
@@ -71,7 +71,7 @@ export function ProfileDiscovery({ initialProfiles = [], initialPagination }: Pr
       } else {
         setProfiles(prev => [...prev, ...data.profiles]);
       }
-      
+
       setPagination(data.pagination);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load profiles';
@@ -132,7 +132,7 @@ export function ProfileDiscovery({ initialProfiles = [], initialPagination }: Pr
             throw new Error(errorData.error || `Failed to ${action} friend request`);
           }
           break;
-        
+
         case 'accept':
         case 'decline':
           // For accept/decline, we need the friendship ID
@@ -140,7 +140,7 @@ export function ProfileDiscovery({ initialProfiles = [], initialPagination }: Pr
           // For now, we'll just refresh the profiles
           await handleRefresh();
           return;
-        
+
         default:
           return;
       }

@@ -28,7 +28,7 @@ export default function RootLayout({
             <div className="relative flex-1">
               {/* Floating Sidebar visible across pages */}
               <FloatingSidebar />
-              <main className="flex-1 pl-[88px] md:pl-[100px] pr-4 py-4 ml-4">{children}</main>
+              <main className="flex-1 px-12 md:px-14 pr-4 py-4 ml-4">{children}</main>
             </div>
             {/* AI Chat Provider - positioned to slide in from right edge */}
             <AIChatProvider />

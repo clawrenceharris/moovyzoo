@@ -13,37 +13,20 @@ export default function Home() {
   const { profile } = useProfile(user?.id);
   const { recommendations, isLoading, error, refreshRecommendations } = useRecommendations(user?.id);
 
-  // Navigation handlers
+  // Navigation handlers (deprecated - content now opens in modal)
   const handleContentClick = (tmdbId: number, mediaType: 'movie' | 'tv') => {
     router.push(`/content/${mediaType}/${tmdbId}`);
   };
 
   const handleFriendClick = (userId: string) => {
+    console.log(`[HomePage] handleFriendClick called with userId: ${userId}`);
     router.push(`/profile/${userId}`);
   };
 
-  const handleSendFriendRequest = async (userId: string) => {
-    // Send friend request via API directly
-    try {
-      const response = await fetch('/api/friends', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ receiverId: userId }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Failed to send friend request:', errorData.error);
-      }
-    } catch (error) {
-      console.error('Failed to send friend request:', error);
-    }
-  };
+  // Friend request handling is now done directly in FriendSuggestionCard component
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pl-8">
       <div className="mt-2">
         <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
           <span className="text-foreground/80">Welcome, </span>
@@ -61,14 +44,10 @@ export default function Home() {
         isLoading={isLoading}
         error={error || undefined}
         onRefreshRecommendations={refreshRecommendations}
-        onContentClick={handleContentClick}
+        onContentClick={undefined}
         onFriendClick={handleFriendClick}
-        onSendFriendRequest={handleSendFriendRequest}
         currentUserId={user?.id}
       />
-
-      {/* Mock Watch History Tracker Demo */}
-      <MockWatchHistoryDemo />
     </div>
   );
 }

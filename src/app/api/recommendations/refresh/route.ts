@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { recommendationsService } from '@/features/ai-recommendations/domain/recommendations.factory';
+import { serverRecommendationsService } from '@/features/ai-recommendations/domain/recommendations.server-factory';
 import { normalizeError, getUserErrorMessage } from '@/utils/normalize-error';
 import { AppErrorCode } from '@/utils/error-codes';
 import { refreshRateLimiter } from '@/utils/rate-limiter';
@@ -59,10 +59,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate session ID from user ID and current date for daily cache
-    const sessionId = `${user.id}-${new Date().toISOString().split('T')[0]}`;
+    // Added suffix to force cache invalidation after server repo changes
+    const sessionId = `${user.id}-${new Date().toISOString().split('T')[0]}-server-fix`;
 
-    // Refresh recommendations using service
-    const recommendations = await recommendationsService.refreshRecommendations(
+    // Refresh recommendations using server service
+    const recommendations = await serverRecommendationsService.refreshRecommendations(
       user.id,
       sessionId,
       supabase

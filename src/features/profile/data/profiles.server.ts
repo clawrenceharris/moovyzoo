@@ -3,6 +3,7 @@ import type {
   UserProfile, 
   UserProfileDocument, 
   ProfileWithFriendStatus,
+  PublicProfile,
   WatchHistoryEntry 
 } from "../domain/profiles.types";
 import { friendsServerRepository } from "./friends.server";
@@ -65,6 +66,57 @@ export class ProfilesServerRepository {
     } catch (error) {
       console.error("Error fetching profile:", error);
       return null;
+    }
+  }
+
+  /**
+   * Get profile by user ID - alias for getProfileByUserId for compatibility with ProfilesRepository interface
+   */
+  async getByUserId(userId: string): Promise<UserProfile | null> {
+    return this.getProfileByUserId(userId);
+  }
+
+  /**
+   * Get public profiles (for discovery) - excludes current user (server-side)
+   */
+  async getPublicProfiles(currentUserId?: string, limit = 20, offset = 0): Promise<PublicProfile[]> {
+    try {
+      const supabase = await createClient();
+      let query = supabase
+        .from("user_profiles")
+        .select(
+          "id, user_id, display_name, avatar_url, favorite_genres, created_at"
+        )
+        .eq("is_public", true)
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      // Exclude current user if provided
+      if (currentUserId) {
+        query = query.neq("user_id", currentUserId);
+      }
+
+      const { data: profiles, error } = await query;
+
+      if (error) {
+        throw error;
+      }
+
+      const publicProfiles = profiles.map((profile: any) => ({
+        id: profile.id,
+        userId: profile.user_id, // Include userId for friend requests
+        displayName: profile.display_name,
+        avatarUrl: profile.avatar_url,
+        favoriteGenres: profile.favorite_genres,
+        createdAt: new Date(profile.created_at),
+      }));
+
+      console.log(`[ProfilesServerRepository] getPublicProfiles returning ${publicProfiles.length} profiles:`, 
+        publicProfiles.map(p => ({ id: p.id, userId: p.userId, displayName: p.displayName })));
+
+      return publicProfiles;
+    } catch (error) {
+      throw error;
     }
   }
 

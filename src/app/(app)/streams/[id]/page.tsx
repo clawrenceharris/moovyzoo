@@ -190,7 +190,7 @@ export async function generateMetadata({
 function StreamLoading() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="container px-4 py-8 max-w-6xl">
         <div className="space-y-8">
           {/* Hero skeleton */}
           <div className="relative overflow-hidden rounded-xl bg-card border border-border/50">
@@ -281,7 +281,7 @@ export default async function StreamingPage({ params }: StreamingPageProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
         <Suspense fallback={<StreamLoading />}>
           <StreamPageClient
             initialData={data}

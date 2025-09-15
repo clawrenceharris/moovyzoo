@@ -3,9 +3,12 @@ import React from "react";
 import { Button } from "@/components/ui";
 import { LoadingState, ErrorState, EmptyState } from "@/components/states";
 import { ContentRecommendationCard } from "./ContentRecommendationCard";
+import { FeaturedRecommendationCard } from "./FeaturedRecommendationCard";
 import { FriendSuggestionCard } from "./FriendSuggestionCard";
+import { ContentDetailModal } from "@/components/modals";
 import { RecommendationErrorBoundary } from "@/features/ai-recommendations/components/RecommendationErrorBoundary";
 import { RefreshCw, Sparkles, Users } from "lucide-react";
+import { useContentDetailModal } from "@/hooks/use-content-detail-modal";
 import type { ContentRecommendation, FriendSuggestion } from "@/features/ai-recommendations/types/recommendations";
 
 /**
@@ -22,12 +25,12 @@ export interface RecommendationsSectionProps {
   error?: string;
   /** Callback to refresh recommendations */
   onRefreshRecommendations: () => void;
-  /** Callback when a content recommendation is clicked */
-  onContentClick: (tmdbId: number, mediaType: 'movie' | 'tv') => void;
+  /** Callback when a content recommendation is clicked (deprecated - now uses modal) */
+  onContentClick?: (tmdbId: number, mediaType: 'movie' | 'tv') => void;
   /** Callback when a friend suggestion profile is clicked */
   onFriendClick: (userId: string) => void;
-  /** Callback when a friend request is sent */
-  onSendFriendRequest?: (userId: string) => void;
+  /** Callback when a friend request is sent (deprecated - FriendSuggestionCard handles this internally) */
+  onSendFriendRequest?: (userId: string) => Promise<void>;
   /** Current user's ID for friend request functionality */
   currentUserId?: string;
   /** Additional CSS classes to apply */
@@ -70,16 +73,16 @@ export function RecommendationsSection({
   currentUserId,
   className,
 }: RecommendationsSectionProps) {
+  const { isOpen, selectedContent, openModal, closeModal } = useContentDetailModal();
   const hasContent = contentRecommendations.length > 0;
   const hasFriends = friendSuggestions.length > 0;
   const hasAnyRecommendations = hasContent || hasFriends;
 
-  // Handle friend request with fallback
-  const handleSendFriendRequest = (userId: string) => {
-    if (onSendFriendRequest) {
-      onSendFriendRequest(userId);
-    }
-  };
+  // Sort recommendations by match score to get the highest one
+  const sortedRecommendations = [...contentRecommendations].sort((a, b) => b.match_score - a.match_score);
+  const featuredRecommendation = sortedRecommendations[0];
+  const regularRecommendations = sortedRecommendations.slice(1);
+
 
   // Show error state if there's an error
   if (error && !isLoading) {
@@ -118,15 +121,7 @@ export function RecommendationsSection({
     <RecommendationErrorBoundary onRetry={onRefreshRecommendations}>
       <div className={`space-y-8 ${className || ""}`}>
         {/* Section Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">
-              AI Recommendations
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Personalized suggestions just for you
-            </p>
-          </div>
+        <div className="w-full flex items-end justify-end"> 
           <Button
             variant="outline"
             size="sm"
@@ -151,14 +146,32 @@ export function RecommendationsSection({
           {isLoading ? (
             <LoadingState variant="grid" count={4} />
           ) : hasContent ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {contentRecommendations.map((recommendation) => (
-                <ContentRecommendationCard
-                  key={recommendation.tmdb_id}
-                  recommendation={recommendation}
-                  onCardClick={onContentClick}
+            <div className="space-y-6">
+              {/* Featured Recommendation (Highest Match Score) */}
+              {featuredRecommendation && (
+                <FeaturedRecommendationCard
+                  recommendation={featuredRecommendation}
+                  onCardClick={openModal}
                 />
-              ))}
+              )}
+
+              {/* Regular Recommendations Grid */}
+              {regularRecommendations.length > 0 && (
+                <div>
+                  <h4 className="text-lg font-semibold text-foreground mb-4">
+                    More Recommendations
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {regularRecommendations.slice(0, 8).map((recommendation) => (
+                      <ContentRecommendationCard
+                        key={recommendation.tmdb_id}
+                        recommendation={recommendation}
+                        onCardClick={openModal}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <EmptyState
@@ -187,7 +200,6 @@ export function RecommendationsSection({
                   key={suggestion.user_id}
                   suggestion={suggestion}
                   onProfileClick={onFriendClick}
-                  onSendFriendRequest={handleSendFriendRequest}
                   currentUserId={currentUserId || ""}
                 />
               ))}
@@ -200,6 +212,15 @@ export function RecommendationsSection({
             />
           )}
         </div>
+
+        {/* Content Detail Modal */}
+        {selectedContent && (
+          <ContentDetailModal
+            isOpen={isOpen}
+            onClose={closeModal}
+            recommendation={selectedContent}
+          />
+        )}
       </div>
     </RecommendationErrorBoundary>
   );

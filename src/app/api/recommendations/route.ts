@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { recommendationsService } from '@/features/ai-recommendations/domain/recommendations.factory';
+import { serverRecommendationsService } from '@/features/ai-recommendations/domain/recommendations.server-factory';
 import { normalizeError, getUserErrorMessage } from '@/utils/normalize-error';
 import { AppErrorCode } from '@/utils/error-codes';
 import { recommendationsRateLimiter } from '@/utils/rate-limiter';
@@ -43,10 +43,11 @@ export async function GET(request: NextRequest) {
     const forceRefresh = searchParams.get('force_refresh') === 'true';
     
     // Generate session ID from user ID and current date for daily cache
-    const sessionId = `${user.id}-${new Date().toISOString().split('T')[0]}`;
+    // Added suffix to force cache invalidation after server repo changes
+    const sessionId = `${user.id}-${new Date().toISOString().split('T')[0]}-server-fix`;
 
-    // Get recommendations using service
-    const recommendations = await recommendationsService.getRecommendations(
+    // Get recommendations using server service
+    const recommendations = await serverRecommendationsService.getRecommendations(
       user.id,
       sessionId,
       forceRefresh,

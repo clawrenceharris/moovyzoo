@@ -2,6 +2,29 @@ import type { WatchHistoryRepository } from '@/features/profile/data/watch-histo
 import type { ProfilesRepository } from '@/features/profile/data/profiles.repository';
 import type { FriendsRepository } from '@/features/profile/data/friends.repository';
 import type { ContentRecommendation, TasteProfile } from '../types/recommendations';
+import type { UserProfile, WatchHistoryEntry } from '@/features/profile/domain/profiles.types';
+
+/**
+ * Interface for the subset of ProfilesRepository methods needed by ContentRecommendationAgent
+ */
+interface ProfilesRepositoryForContentAgent {
+  getByUserId(userId: string): Promise<UserProfile | null>;
+}
+
+/**
+ * Interface for the subset of WatchHistoryRepository methods needed by ContentRecommendationAgent
+ */
+interface WatchHistoryRepositoryForContentAgent {
+  getRecentActivity(userId: string, limit?: number): Promise<WatchHistoryEntry[]>;
+}
+
+/**
+ * Interface for the subset of FriendsRepository methods needed by ContentRecommendationAgent
+ */
+interface FriendsRepositoryForContentAgent {
+  // ContentRecommendationAgent doesn't currently use FriendsRepository methods
+  // but keeping it for future expansion
+}
 import {
     discoverByGenre,
     getTrendingNowOrUpcoming,
@@ -50,9 +73,9 @@ interface TMDBContent {
  */
 export class ContentRecommendationAgent {
     constructor(
-        private watchHistoryRepository: WatchHistoryRepository,
-        private profilesRepository: ProfilesRepository,
-        private friendsRepository: FriendsRepository
+        private watchHistoryRepository: WatchHistoryRepositoryForContentAgent,
+        private profilesRepository: ProfilesRepositoryForContentAgent,
+        private friendsRepository: FriendsRepositoryForContentAgent
     ) { }
 
     /**
@@ -117,14 +140,19 @@ export class ContentRecommendationAgent {
             ]);
 
             // Handle profile result
-            const userProfile = profile.status === 'fulfilled' ? profile.value : {
+            const userProfile = profile.status === 'fulfilled' && profile.value ? profile.value : {
+                id: 'temp-id',
+                userId,
+                email: '',
+                displayName: 'User',
+                username: null,
+                avatarUrl: null,
+                bio: null,
+                quote: null,
                 favoriteGenres: [],
                 favoriteTitles: [],
-                userId,
-                displayName: 'User',
-                email: '',
-                avatarUrl: null,
                 isPublic: true,
+                onboardingCompleted: false,
                 createdAt: new Date(),
                 updatedAt: new Date()
             };
@@ -254,7 +282,7 @@ export class ContentRecommendationAgent {
                 // Try airing as fallback
                 try {
                     console.log(`[ContentRecommendationAgent] Trying airing TV shows as fallback`);
-                    const airingTVShows = await getTrendingOrAiringTV('airing');
+                    const airingTVShows = await getTrendingOrAiringTV('airing_today');
                     candidates.push(...airingTVShows.map(show => ({
                         ...show,
                         media_type: 'tv' as const

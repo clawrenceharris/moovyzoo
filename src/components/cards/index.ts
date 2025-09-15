@@ -4,6 +4,7 @@ export { DiscussionCard } from "./DiscussionCard";
 export { PollCard } from "./PollCard";
 export { StreamCard } from "./StreamCard";
 export { ContentRecommendationCard } from "./ContentRecommendationCard";
+export { FeaturedRecommendationCard } from "./FeaturedRecommendationCard";
 export { FriendSuggestionCard } from "./FriendSuggestionCard";
 export { RecommendationsSection } from "./RecommendationsSection";
 
@@ -17,5 +18,6 @@ export type {
   NavigationTrackingData,
 } from "./StreamCard";
 export type { ContentRecommendationCardProps } from "./ContentRecommendationCard";
+export type { FeaturedRecommendationCardProps } from "./FeaturedRecommendationCard";
 export type { FriendSuggestionCardProps } from "./FriendSuggestionCard";
 export type { RecommendationsSectionProps } from "./RecommendationsSection";

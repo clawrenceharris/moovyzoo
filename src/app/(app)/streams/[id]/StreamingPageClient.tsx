@@ -273,9 +273,9 @@ export function StreamPageClient({
   }
 
   return (
-    <div className="relative flex h-fullflex-col gap-5">
-      <div className="relative flex flex-col flex-1 gap-5 xl:flex-row">
-        <div data-testid="video-container" className={"flex-1  aspect-video"}>
+    <div className="relative flex h-full flex-col gap-5">
+      <div className="relative flex flex-col flex-1 gap-5 xl:flex-row xl:h-[calc(100vh-200px)]">
+        <div data-testid="video-container" className="flex-1 xl:w-2/3">
           <StreamVideoPlayer
             videos={videos}
             onRefresh={fetchVideos}
@@ -289,29 +289,18 @@ export function StreamPageClient({
           />
         </div>
 
-        <StreamSidebar
-          streamId={stream.id}
-          participants={currentParticipants}
-          currentUserId={user.id}
-          isHost={currentParticipants.some(
-            (p) => p.user_id === user?.id && p.is_host
-          )}
-        />
+        <div className="xl:w-1/3 xl:min-w-[320px]">
+          <StreamSidebar
+            streamId={stream.id}
+            participants={currentParticipants}
+            currentUserId={user.id}
+            isHost={currentParticipants.some(
+              (p) => p.user_id === user?.id && p.is_host
+            )}
+            className="h-full"
+          />
+        </div>
       </div>
-
-      {/* Debug Panel */}
-      <SyncDebugPanel
-        streamId={streamId}
-        userId={user.id}
-        isHost={currentParticipants.some(
-          (p) => p.user_id === user?.id && p.is_host
-        )}
-        videosCount={videos.length}
-        syncStatus={currentSyncStatus}
-        isConnected={true}
-        playbackState={currentPlaybackState || { isPlaying: false, time: 0 }}
-        error={null}
-      />
     </div>
   );
 }

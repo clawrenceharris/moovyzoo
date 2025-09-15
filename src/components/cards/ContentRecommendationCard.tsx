@@ -10,8 +10,8 @@ import type { ContentRecommendation } from "@/features/ai-recommendations/types/
 export interface ContentRecommendationCardProps {
   /** The content recommendation data to display */
   recommendation: ContentRecommendation;
-  /** Callback when the card is clicked, receives tmdb_id and media_type */
-  onCardClick: (tmdbId: number, mediaType: 'movie' | 'tv') => void;
+  /** Callback when the card is clicked - now opens modal instead of navigation */
+  onCardClick?: (recommendation: ContentRecommendation) => void;
   /** Additional CSS classes to apply */
   className?: string;
 }
@@ -27,7 +27,7 @@ export interface ContentRecommendationCardProps {
  * ```tsx
  * <ContentRecommendationCard
  *   recommendation={contentRecommendation}
- *   onCardClick={(tmdbId, mediaType) => router.push(`/content/${mediaType}/${tmdbId}`)}
+ *   onCardClick={(recommendation) => openContentModal(recommendation)}
  * />
  * ```
  *
@@ -40,7 +40,7 @@ export function ContentRecommendationCard({
   className,
 }: ContentRecommendationCardProps) {
   const handleClick = () => {
-    onCardClick(recommendation.tmdb_id, recommendation.media_type);
+    onCardClick?.(recommendation);
   };
 
   const getMediaTypeLabel = () => {
@@ -55,7 +55,7 @@ export function ContentRecommendationCard({
     >
       <CardHeader className="p-0">
         {/* Poster Image */}
-        <div className="media-card-banner">
+        <div className="content-recommendation-banner">
           {recommendation.poster_url ? (
             <Image
               src={recommendation.poster_url}
