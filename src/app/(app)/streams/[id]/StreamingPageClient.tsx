@@ -298,20 +298,6 @@ export function StreamPageClient({
           )}
         />
       </div>
-
-      {/* Debug Panel */}
-      <SyncDebugPanel
-        streamId={streamId}
-        userId={user.id}
-        isHost={currentParticipants.some(
-          (p) => p.user_id === user?.id && p.is_host
-        )}
-        videosCount={videos.length}
-        syncStatus={currentSyncStatus}
-        isConnected={true}
-        playbackState={currentPlaybackState || { isPlaying: false, time: 0 }}
-        error={null}
-      />
     </div>
   );
 }

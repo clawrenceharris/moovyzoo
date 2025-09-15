@@ -107,7 +107,7 @@ export function usePlaybackSync({
       });
 
       if (!player) {
-        console.log("❌ No YouTube player available for sync");
+        console.log("No YouTube player available for sync");
         return;
       }
 
