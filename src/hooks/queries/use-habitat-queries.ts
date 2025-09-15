@@ -178,3 +178,47 @@ export function useCanAccessHabitat(
     }
   );
 }
+
+/**
+ * Hook to fetch public habitats that the user hasn't joined yet
+ */
+export function usePublicHabitats(
+  userId: string,
+  limit: number = 12,
+  options: BaseQueryOptions<HabitatWithMembership[]> = {}
+) {
+  return useBaseQuery(
+    queryKeys.habitats.publicHabitats(userId, limit),
+    async () => {
+      if (!userId) {
+        throw new Error("User ID is required");
+      }
+      return await habitatsService.getPublicHabitats(userId, limit);
+    },
+    {
+      enabled: !!userId,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      ...options,
+    }
+  );
+}
+
+/**
+ * Hook to fetch popular public habitats
+ */
+export function usePopularHabitats(
+  userId?: string,
+  limit: number = 8,
+  options: BaseQueryOptions<HabitatWithMembership[]> = {}
+) {
+  return useBaseQuery(
+    queryKeys.habitats.popularHabitats(userId, limit),
+    async () => {
+      return await habitatsService.getPopularHabitats(userId, limit);
+    },
+    {
+      staleTime: 10 * 60 * 1000, // 10 minutes for popular habitats
+      ...options,
+    }
+  );
+}

@@ -124,3 +124,34 @@ export function useCreatePoll(
     }
   );
 }
+
+/**
+ * Mutation hook for voting on a poll
+ */
+export function useVotePoll(
+  habitatId: string,
+  options: BaseMutationOptions<
+    Poll,
+    Error,
+    {
+      pollId: string;
+      option: string;
+      userId: string;
+    },
+    unknown
+  > = {}
+) {
+  return useBaseCreateMutation(
+    async ({ pollId, option, userId }) => {
+      return await habitatsService.votePoll(pollId, option, userId);
+    },
+    {
+      successMessage: "Vote submitted successfully!",
+      invalidateQueries: [
+        queryKeys.polls.byHabitat(habitatId),
+        queryKeys.habitats.dashboard(habitatId),
+      ],
+      ...options,
+    }
+  );
+}

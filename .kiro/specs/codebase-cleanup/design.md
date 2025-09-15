@@ -2,7 +2,7 @@
 
 ## Overview
 
-This design document outlines the comprehensive refactoring approach for cleaning up the Zoovie codebase, **specifically focused on the Habitats feature**. The design focuses on eliminating code duplication within the Habitats feature, centralizing common utilities used by Habitats, improving file organization, and establishing better architectural patterns while maintaining all existing functionality. The refactoring will be implemented incrementally to minimize risk and ensure continuous functionality.
+This design document outlines the comprehensive refactoring approach for cleaning up the MoovyZoo codebase, **specifically focused on the Habitats feature**. The design focuses on eliminating code duplication within the Habitats feature, centralizing common utilities used by Habitats, improving file organization, and establishing better architectural patterns while maintaining all existing functionality. The refactoring will be implemented incrementally to minimize risk and ensure continuous functionality.
 
 **Scope**: This refactoring is limited to the Habitats feature (`src/features/habitats/`) and the shared utilities that it uses. Other features will not be modified as part of this cleanup effort.
 

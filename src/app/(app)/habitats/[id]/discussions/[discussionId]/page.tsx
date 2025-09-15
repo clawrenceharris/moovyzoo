@@ -30,7 +30,7 @@ export default function DiscussionRoomPage() {
     return uuidRegex.test(id);
   };
 
-  // State for habitat access validation
+  // State for habitat _deni validation
   const [accessState, setAccessState] = React.useState<{
     loading: boolean;
     error: string | null;

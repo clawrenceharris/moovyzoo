@@ -2,7 +2,7 @@
 inclusion: manual
 ---
 
-# Tech Steering – Zoovie
+# Tech Steering – MoovyZoo
 
 ## Stack
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { Modal } from "@/components/ui/Modal";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { LoadingState, ErrorState, EmptyState } from "@/components/states";

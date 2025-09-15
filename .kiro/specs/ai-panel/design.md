@@ -3,7 +3,7 @@
 
 ## Overview
 
-The AI Discussion Sidebar will be implemented as a global component that provides users with an interactive chat interface accessible from any page. The feature leverages LangGraph.js for AI integration, follows the Zoovie brand design system using the defined brand colors, and provides a responsive, accessible user experience.
+The AI Discussion Sidebar will be implemented as a global component that provides users with an interactive chat interface accessible from any page. The feature leverages LangGraph.js for AI integration, follows the MoovyZoo brand design system using the defined brand colors, and provides a responsive, accessible user experience.
 
 The sidebar will be triggered by a floating action button (FAB) positioned in the bottom right corner of every page. When activated, it slides in from the right as an overlay sidebar on desktop (400px width) or full-screen modal on mobile. The interface includes three main areas: a header with close button, a scrollable message history area, and a fixed input area at the bottom. When no conversation exists, starter prompts will be displayed in the message area to help users begin conversations.
 
@@ -231,7 +231,7 @@ graph TD
 ### Layout Structure
 - **FAB**: Fixed positioned button (bottom: 24px, right: 24px) on all pages
 - **Sidebar Overlay**: Full-height overlay with backdrop (desktop: 400px width, mobile: full-screen)
-- **Sidebar Header**: Fixed header with Zoovie branding and close button
+- **Sidebar Header**: Fixed header with MoovyZoo branding and close button
 - **Message Area**: Flexible scrollable area for conversation history
 - **Input Area**: Fixed bottom area with input field and controls
 - **Responsive Breakpoints**: 
@@ -239,7 +239,7 @@ graph TD
   - Mobile (<768px): Full-screen modal with slide-up animation
 
 ### Visual Design
-- **Color Scheme**: Use Zoovie brand colors from globals.css
+- **Color Scheme**: Use MoovyZoo brand colors from globals.css
   - Primary: Brand Red 45 (--brand-red-45: #DA0B0B) for FAB and primary actions
   - Secondary: Brand Blue 45 (--brand-blue-45: #0B7ADA) for AI messages
   - Background: Brand Black variants for dark theme consistency

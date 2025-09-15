@@ -28,7 +28,7 @@ export function StreamSidebar({
   onKickParticipant,
   className = "",
 }: StreamSidebarProps) {
-  const [activeTab, setActiveTab] = useState<TabType>("participants");
+  const [activeTab, setActiveTab] = useState<TabType>("chat");
 
   // Get message count for chat tab badge
   const { data: messages = [] } = useStreamMessages(streamId, currentUserId);
@@ -38,7 +38,7 @@ export function StreamSidebar({
   };
 
   return (
-    <Card className={`flex flex-col w-full flex-1 ${className}`}>
+    <Card className={`flex flex-col w-full h-full ${className}`}>
       {/* Tab Navigation */}
       <div className="flex border-b" role="tablist">
         <Button
@@ -78,15 +78,15 @@ export function StreamSidebar({
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden flex flex-col">
         {/* Chat Panel */}
         <div
           role="tabpanel"
           id="chat-panel"
           aria-labelledby="chat-tab"
-          className={`h-full ${activeTab === "chat" ? "block" : "hidden"}`}
+          className={`flex-1 overflow-hidden ${activeTab === "chat" ? "flex" : "hidden"}`}
         >
-          <div className="h-full border-0 rounded-none">
+          <div className="flex-1 border-0 rounded-none">
             <StreamChat
               streamId={streamId}
               currentUserId={currentUserId}
@@ -100,8 +100,8 @@ export function StreamSidebar({
         role="tabpanel"
         id="participants-panel"
         aria-labelledby="participants-tab"
-        className={`h-full ${
-          activeTab === "participants" ? "block" : "hidden"
+        className={`flex-1 overflow-hidden ${
+          activeTab === "participants" ? "flex" : "hidden"
         }`}
       >
         <ParticipantsList

@@ -52,7 +52,7 @@ export function MessageList({ messages, isLoading, className }: MessageListProps
             />
           </div>
           <h3 className="text-lg font-semibold text-white mb-2">
-            Welcome to Zoovie AI!
+            Welcome to MoovyZoo AI!
           </h3>
           <p className="text-brand-grey-70 text-sm max-w-xs leading-relaxed">
             I&apos;m here to help you discover amazing movies and TV shows. Ask me anything about cinema!

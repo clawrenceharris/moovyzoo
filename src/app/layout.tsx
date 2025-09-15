@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata = {
-  title: "Zoovie",
+  title: "MoovyZoo",
   description: "Watch, chat, and play with your movie crew",
 };
 

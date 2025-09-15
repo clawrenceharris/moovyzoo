@@ -1,11 +1,17 @@
 // TMDB API Configuration - Server-side only
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
-const NEXT_PUBLIC_TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 
-if (!NEXT_PUBLIC_TMDB_API_KEY) {
-  throw new Error(
-    "NEXT_PUBLIC_TMDB_API_KEY is required. Please set it in your environment variables."
-  );
+// Lazy load API key to avoid issues during module import
+function getTMDBApiKey(): string {
+  const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error(
+      "TMDB_API_KEY is required. Please set it in your environment variables."
+    );
+  }
+  
+  return apiKey;
 }
 
 // Types for TMDB API responses
@@ -283,7 +289,7 @@ async function tmdbFetch<T>(
     method: "GET",
     headers: {
       accept: "application/json",
-      Authorization: `Bearer ${NEXT_PUBLIC_TMDB_API_KEY}`,
+      Authorization: `Bearer ${getTMDBApiKey()}`,
     },
   };
 

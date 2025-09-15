@@ -23,6 +23,10 @@ export const queryKeys = {
     stats: (id: string) => [...queryKeys.habitats.detail(id), "stats"] as const,
     userHabitats: (userId: string) =>
       [...queryKeys.habitats.all, "user", userId] as const,
+    publicHabitats: (userId: string, limit: number) =>
+      [...queryKeys.habitats.all, "public", userId, limit] as const,
+    popularHabitats: (userId?: string, limit?: number) =>
+      [...queryKeys.habitats.all, "popular", userId, limit] as const,
   },
 
   // Discussion-related queries

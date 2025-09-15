@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The onboarding wizard is a guided, multi-step flow that activates immediately after a user successfully signs up for Zoovie. This wizard will collect essential user preferences and information needed to personalize their experience, including display name, favorite genres, movie quote and avatar. The wizard should feel engaging and cinematic while being quick to complete, ensuring users can start exploring the platform with a tailored experience from day one.
+The onboarding wizard is a guided, multi-step flow that activates immediately after a user successfully signs up for MoovyZoo. This wizard will collect essential user preferences and information needed to personalize their experience, including display name, favorite genres, movie quote and avatar. The wizard should feel engaging and cinematic while being quick to complete, ensuring users can start exploring the platform with a tailored experience from day one.
 
 ## Requirements
 

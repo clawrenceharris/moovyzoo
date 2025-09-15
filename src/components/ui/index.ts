@@ -16,3 +16,4 @@ export * from "./avatar";
 
 export * from "./tabs";
 export * from "./calendar";
+export * from "./visually-hidden";

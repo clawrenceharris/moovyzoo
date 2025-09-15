@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Star, Eye, Play, X, Check, Loader2 } from 'lucide-react';
+import { Star, Play, X, Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { useTMDBTracking } from '../hooks/use-tmdb-tracking';
 import type { TMDBMovie, TMDBTVShow, TMDBMovieDetails, TMDBTVShowDetails } from '@/features/ai-chat/data/tmdb.repository';

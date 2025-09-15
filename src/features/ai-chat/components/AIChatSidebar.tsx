@@ -75,7 +75,7 @@ export function AIChatSidebar({ isOpen, onClose }: AIChatSidebarProps) {
                 />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-white">Zoovie AI</h2>
+                <h2 className="text-lg font-semibold text-white">MoovyZoo AI</h2>
                 <p className="text-sm text-brand-grey-70">Your movie companion</p>
               </div>
             </div>

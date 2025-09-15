@@ -4,7 +4,7 @@
 
 The Search feature provides a unified search interface with three distinct search domains: Habitats, Users, and Shows & Movies. The feature is implemented as a dedicated search page with tabbed navigation, leveraging existing repository patterns and introducing new search-specific services and components.
 
-The design follows the established Zoovie architecture with feature-based organization, separating concerns between data access, business logic, and UI components. The search functionality integrates with existing Supabase tables for habitats and profiles, while introducing TMDB API integration for movie and TV show content.
+The design follows the established MoovyZoo architecture with feature-based organization, separating concerns between data access, business logic, and UI components. The search functionality integrates with existing Supabase tables for habitats and profiles, while introducing TMDB API integration for movie and TV show content.
 
 ## Architecture
 
@@ -48,7 +48,7 @@ The design follows the established Zoovie architecture with feature-based organi
 
 ### Feature Structure
 
-Following the established Zoovie feature architecture:
+Following the established MoovyZoo feature architecture:
 
 ```
 src/features/search/

@@ -1,8 +1,8 @@
-# Zoovie Product Definition
+# MoovyZoo Product Definition
 
 ## Overview
 
-Zoovie is an AI-powered social platform (or 'Zoo') for movie and TV lovers, combining deep community interaction with gamified entertainment experiences. Unlike traditional film apps that focus solely on reviews or recommendations, Zoovie transforms watching into an interactive game, enabling users to explore, meet, and compete with friends inside the worlds of their favorite shows and movies.
+MoovyZoo is an AI-powered social platform (or 'Zoo') for movie and TV lovers, combining deep community interaction with gamified entertainment experiences. Unlike traditional film apps that focus solely on reviews or recommendations, MoovyZoo transforms watching into an interactive game, enabling users to explore, meet, and compete with friends inside the worlds of their favorite shows and movies.
 
 ## Target Audience
 
